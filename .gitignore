@@ -1,0 +1,43 @@
+# =====================
+# IDEs / Editors
+# =====================
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/
+nbactions.xml
+
+# JetBrains Fleet
+.fleet/
+
+# =====================
+# Build / Tooling
+# =====================
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# =====================
+# Local / OS files
+# =====================
+local.properties
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
