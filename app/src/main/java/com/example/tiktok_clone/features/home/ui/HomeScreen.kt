@@ -1,17 +1,21 @@
 package com.example.tiktok_clone.features.home.ui
 
+import androidx.annotation.DrawableRes
 import com.example.tiktok_clone.R
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,13 +35,9 @@ import com.example.tiktok_clone.core.utils.AppColors
 import com.example.tiktok_clone.core.utils.AppConstants
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.Bookmark
-import compose.icons.fontawesomeicons.solid.CommentDots
 import compose.icons.fontawesomeicons.solid.Envelope
-import compose.icons.fontawesomeicons.solid.Heart
 import compose.icons.fontawesomeicons.solid.Home
 import compose.icons.fontawesomeicons.solid.Search
-import compose.icons.fontawesomeicons.solid.Share
 import compose.icons.fontawesomeicons.solid.ShoppingBag
 import compose.icons.fontawesomeicons.solid.User
 
@@ -45,33 +45,80 @@ import compose.icons.fontawesomeicons.solid.User
 fun HomeScreen() {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        VideoSection()
-        Column(
+    val images = remember {
+        listOf(
+            R.drawable.apartment,
+            R.drawable.cat,
+            R.drawable.cherry_flower,
+            R.drawable.city_post_office,
+            R.drawable.independence_palace,
+            R.drawable.river,
+            R.drawable.road,
+            R.drawable.street,
+            R.drawable.uni,
+            R.drawable.video,
+        )
+    }
+
+    val pagerState = rememberPagerState(pageCount = { images.size })
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
             modifier = Modifier
-                .padding(
-                    horizontal = AppConstants.SPACING_M.dp,
-                    vertical = AppConstants.SPACING_M.dp,
-                )
-                .fillMaxSize()
+                .weight(1f)
+                .fillMaxWidth()
         ) {
-            TopHeading()
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                MiddleSection()
+            VerticalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                Box(modifier = Modifier.fillMaxHeight(0.95f)) {
+                    VideoSection(imageRes = images[page])
+
+                    MiddleSection(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(
+                                bottom = AppConstants.SPACING_M.dp,
+                                end = AppConstants.SPACING_M.dp
+                            )
+                            .fillMaxSize()
+                    )
+
+                    VideoDescriptionSection(
+                        userName = "User $page",
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(
+                                start = AppConstants.SPACING_M.dp,
+                                bottom = AppConstants.SPACING_M.dp
+                            )
+                    )
+                }
             }
-            BottomNavigationBar()
+
+            TopHeading(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = AppConstants.SPACING_M.dp)
+                    .fillMaxWidth()
+                    .safeDrawingPadding(),
+            )
         }
+
+        BottomNavigationBar(
+            selectedIndex = selectedIndex,
+            onTapSelected = { index -> selectedIndex = index }
+        )
     }
 }
 
 @Composable
-fun TopHeading() {
+fun TopHeading(
+    modifier: Modifier = Modifier,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .safeDrawingPadding(),
+        modifier = modifier,
         horizontalAlignment = Alignment.End
     ) {
         Icon(
@@ -84,57 +131,23 @@ fun TopHeading() {
 }
 
 @Composable
-fun VideoSection() {
+fun VideoSection(
+    @DrawableRes imageRes: Int,
+    modifier: Modifier = Modifier
+) {
     Image(
-        painter = painterResource(id = R.drawable.video),
-        contentDescription = "Main background",
-        modifier = Modifier.fillMaxSize(),
+        painter = painterResource(id = imageRes),
+        contentDescription = "Video Thumbnail",
+        modifier = modifier.fillMaxSize(),
         contentScale = ContentScale.Crop
     )
 }
 
 @Composable
-fun MiddleSection() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Bottom
-    ) {
-        Icon(
-            imageVector = FontAwesomeIcons.Solid.Heart,
-            contentDescription = "Search",
-            tint = AppColors.TEXT_ON_DARK,
-            modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
-        )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
-        Icon(
-            imageVector = FontAwesomeIcons.Solid.CommentDots,
-            contentDescription = "Search",
-            tint = AppColors.TEXT_ON_DARK,
-            modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
-        )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
-        Icon(
-            imageVector = FontAwesomeIcons.Solid.Bookmark,
-            contentDescription = "Search",
-            tint = AppColors.TEXT_ON_DARK,
-            modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
-        )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
-        Icon(
-            imageVector = FontAwesomeIcons.Solid.Share,
-            contentDescription = "Search",
-            tint = AppColors.TEXT_ON_DARK,
-            modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
-        )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
-    }
-}
-
-
-
-@Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(
+    selectedIndex: Int,
+    onTapSelected: (Int) -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -142,29 +155,38 @@ fun BottomNavigationBar() {
     ) {
         BottomNavigationItem(
             name = "Home",
-            icon = FontAwesomeIcons.Solid.Home
+            icon = FontAwesomeIcons.Solid.Home,
+            isSelected = selectedIndex == 0,
+            onTap = { onTapSelected(0) }
         )
 
         BottomNavigationItem(
             name = "Shop",
-            icon = FontAwesomeIcons.Solid.ShoppingBag
+            icon = FontAwesomeIcons.Solid.ShoppingBag,
+            isSelected = selectedIndex == 1,
+            onTap = { onTapSelected(1) }
         )
 
         Image(
-            painter = painterResource(id = R.drawable.camera_button),
+            painter = painterResource(id = R.drawable.camera_button_3x),
             contentDescription = "Main background",
 //            modifier = Modifier.size(size = AppConstants.FONT_TITLE_S.dp),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.padding(bottom = AppConstants.SPACING_S.dp)
         )
 
         BottomNavigationItem(
             name = "Inbox",
-            icon = FontAwesomeIcons.Solid.Envelope
+            icon = FontAwesomeIcons.Solid.Envelope,
+            isSelected = selectedIndex == 3,
+            onTap = { onTapSelected(3) }
         )
 
         BottomNavigationItem(
             name = "Profile",
-            icon = FontAwesomeIcons.Solid.User
+            icon = FontAwesomeIcons.Solid.User,
+            isSelected = selectedIndex == 4,
+            onTap = { onTapSelected(4) }
         )
     }
 }
@@ -173,23 +195,25 @@ fun BottomNavigationBar() {
 fun BottomNavigationItem(
     name: String,
     icon: ImageVector,
+    onTap: () -> Unit,
+    isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier
+        modifier = modifier.clickable { onTap() }
     ) {
         Icon(
             imageVector = icon,
             contentDescription = name,
-            tint = AppColors.TEXT_ON_DARK,
+            tint = if (isSelected) AppColors.TEXT_ON_DARK else AppColors.TEXT_SECONDARY,
             modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
         )
 
         Text(
-            "Home",
-            color = AppColors.TEXT_ON_DARK,
+            name,
+            color = if (isSelected) AppColors.TEXT_ON_DARK else AppColors.TEXT_SECONDARY,
             style = MaterialTheme.typography.labelSmall,
         )
     }
