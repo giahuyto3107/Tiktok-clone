@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
@@ -72,26 +73,27 @@ fun HomeScreen() {
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
-                Box(modifier = Modifier.fillMaxHeight(0.95f)) {
-                    VideoSection(imageRes = images[page])
+                Column {
+                    Box(modifier = Modifier.fillMaxHeight(0.95f)) {
+                        VideoSection(imageRes = images[page])
 
-                    MiddleSection(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(
-                                bottom = AppConstants.SPACING_M.dp,
-                                end = AppConstants.SPACING_M.dp
-                            )
-                            .fillMaxSize()
-                    )
+                        MiddleSection(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(
+                                    bottom = AppConstants.SPACING_M.dp,
+                                    end = AppConstants.SPACING_M.dp
+                                )
+                                .fillMaxSize()
+                        )
+
+                    }
 
                     VideoDescriptionSection(
-                        userName = "User $page",
+                        userName = "User ${page+1}",
                         modifier = Modifier
-                            .align(Alignment.BottomStart)
                             .padding(
                                 start = AppConstants.SPACING_M.dp,
-                                bottom = AppConstants.SPACING_M.dp
                             )
                     )
                 }
@@ -100,7 +102,10 @@ fun HomeScreen() {
             TopHeading(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(end = AppConstants.SPACING_M.dp)
+                    .padding(
+                        end = AppConstants.SPACING_M.dp,
+                        top = AppConstants.FONT_TITLE_M.dp
+                    )
                     .fillMaxWidth()
                     .safeDrawingPadding(),
             )
@@ -125,7 +130,9 @@ fun TopHeading(
             imageVector = FontAwesomeIcons.Solid.Search,
             contentDescription = "Search",
             tint = AppColors.TEXT_ON_DARK,
-            modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
+            modifier = Modifier
+                .size(size = AppConstants.FONT_TITLE_M.dp)
+                .width(width = AppConstants.BORDER_THIN.dp)
         )
     }
 }
