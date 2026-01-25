@@ -1,6 +1,8 @@
 [versions]
+activityComposeVersion = "1.8.2"
 agp = "8.9.1"
 coilCompose = "2.6.0"
+coilComposeVersion = "2.5.0"
 desugar_jdk_libs = "2.1.5"
 fontAwesome = "1.1.0"
 fontawesomecompose = "1.1.0"
@@ -13,12 +15,16 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
 composeBom = "2024.09.00"
+lifecycleViewmodelCompose = "{2.10}"
 navigationCompose = "2.9.6"
 
 [libraries]
+androidx-activity-compose-v182 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-compose-v250 = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 font-awesome = { module = "br.com.devsrsouza.compose.icons:font-awesome", version.ref = "fontAwesome" }
 fontawesomecompose = { module = "com.github.FontAwesomeCompose:FontAwesomeCompose", version.ref = "fontawesomecompose" }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.tiktok_clone.core.navigation.AppNavigation
 import com.example.tiktok_clone.features.home.ui.HomeScreen
 import com.example.tiktok_clone.ui.theme.Tiktok_cloneTheme
 
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
                         .safeDrawingPadding(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen()
+                    AppNavigation()
                 }
             }
         }
@@ -35,6 +36,6 @@ class MainActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreePreview() {
-    HomeScreen()
+fun AppNavigationPreview() {
+    HomeScreen(onNavigationToCameraAccessScreen = {})
 }

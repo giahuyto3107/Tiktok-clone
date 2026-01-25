@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.tiktok_clone.core.navigation.AppNavigation
 import com.example.tiktok_clone.core.utils.AppColors
 import com.example.tiktok_clone.core.utils.AppConstants
 import compose.icons.FontAwesomeIcons
@@ -43,7 +44,9 @@ import compose.icons.fontawesomeicons.solid.ShoppingBag
 import compose.icons.fontawesomeicons.solid.User
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigationToCameraAccessScreen: () -> Unit
+) {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     val images = remember {
@@ -113,13 +116,14 @@ fun HomeScreen() {
 
         BottomNavigationBar(
             selectedIndex = selectedIndex,
-            onTapSelected = { index -> selectedIndex = index }
+            onTapSelected = { index -> selectedIndex = index },
+            onCameraClick = onNavigationToCameraAccessScreen
         )
     }
 }
 
 @Composable
-fun TopHeading(
+private fun TopHeading(
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -138,7 +142,7 @@ fun TopHeading(
 }
 
 @Composable
-fun VideoSection(
+private fun VideoSection(
     @DrawableRes imageRes: Int,
     modifier: Modifier = Modifier
 ) {
@@ -151,9 +155,10 @@ fun VideoSection(
 }
 
 @Composable
-fun BottomNavigationBar(
+private fun BottomNavigationBar(
     selectedIndex: Int,
     onTapSelected: (Int) -> Unit,
+    onCameraClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -176,10 +181,11 @@ fun BottomNavigationBar(
 
         Image(
             painter = painterResource(id = R.drawable.camera_button_3x),
-            contentDescription = "Main background",
-//            modifier = Modifier.size(size = AppConstants.FONT_TITLE_S.dp),
+            contentDescription = "Camera button",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.padding(bottom = AppConstants.SPACING_S.dp)
+            modifier = Modifier
+                .padding(bottom = AppConstants.SPACING_S.dp)
+                .clickable { onCameraClick() }
         )
 
         BottomNavigationItem(
@@ -199,7 +205,7 @@ fun BottomNavigationBar(
 }
 
 @Composable
-fun BottomNavigationItem(
+private fun BottomNavigationItem(
     name: String,
     icon: ImageVector,
     onTap: () -> Unit,
@@ -228,6 +234,6 @@ fun BottomNavigationItem(
 
 @Preview
 @Composable
-fun PreviewHomeScreen() {
-    HomeScreen()
+private fun PreviewHomeScreen() {
+    AppNavigation()
 }

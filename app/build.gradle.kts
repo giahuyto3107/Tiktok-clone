@@ -47,6 +47,7 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.02.01")
     implementation(composeBom)
 
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.ui)
     implementation(libs.material3) // For UI components
     implementation(libs.ui.tooling.preview)
@@ -72,6 +73,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.font.awesome)
+
+    implementation(libs.coil.compose.v250)
+    implementation(libs.androidx.activity.compose.v182)
 }
