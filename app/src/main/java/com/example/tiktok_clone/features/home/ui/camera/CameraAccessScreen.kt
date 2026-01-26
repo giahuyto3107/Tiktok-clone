@@ -37,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,7 +61,6 @@ import com.example.tiktok_clone.core.utils.AppConstants
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
-import compose.icons.fontawesomeicons.solid.Times
 import kotlinx.coroutines.launch
 
 @Composable
@@ -176,6 +174,7 @@ fun CameraAccessScreen(
         }
 
         BottomTabSection(
+            hasPermission = hasCameraPermissions,
             latestImageUri = latestGalleryUri,
             onGalleryClick = {
                 photoPickerLauncher.launch(
@@ -282,8 +281,9 @@ private fun SnapAndTimeOption(
         .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TimeOptionRow(modifier = Modifier
-            .fillMaxWidth()
+        TimeOptionRow(
+            hasPermission = hasPermission,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(AppConstants.SPACING_XL.dp))
         SnapButton(
@@ -295,6 +295,7 @@ private fun SnapAndTimeOption(
 
 @Composable
 private fun TimeOptionRow(
+    hasPermission: Boolean,
     modifier: Modifier = Modifier
 ) {
     val options = listOf("10m", "60s", "15s", "PHOTO")
@@ -302,7 +303,7 @@ private fun TimeOptionRow(
 
     val scope = rememberCoroutineScope()
 
-    val itemWidth = 75.dp
+    val itemWidth = 100.dp
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val horizontalPadding = (screenWidth - itemWidth) / 2
@@ -310,23 +311,44 @@ private fun TimeOptionRow(
 
     HorizontalPager(
         state = pagerState,
-        contentPadding = PaddingValues(horizontal = horizontalPadding), // Large padding to center single item
+        userScrollEnabled = hasPermission,
+        pageSize = PageSize.Fixed(itemWidth),
+        contentPadding = PaddingValues(horizontal = horizontalPadding),
         modifier = modifier
     ) { page ->
+        val isSelected = pagerState.currentPage == page
+
+        val bgColor = when {
+            !isSelected -> Color.Transparent
+            hasPermission -> Color.White
+            else -> Color(0xff999E98)
+        }
+
+        val textColor = when {
+            isSelected && hasPermission -> Color(0xff16151b)
+            isSelected && !hasPermission -> Color(0xff6C716B)
+            !isSelected && hasPermission -> Color(0xfff8f6f1)
+            else -> Color(0xff909790)
+        }
+
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Text(
                 text = options[page],
-                color = if (pagerState.currentPage == page) Color.White else Color.White.copy(
-                    alpha = 0.5f
-                ),
+                color = textColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 maxLines = 1,
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .clip(RoundedCornerShape(AppConstants.RADIUS_XXL.dp))
+                    .background(bgColor)
+                    .padding(
+                        vertical = AppConstants.SPACING_XS.dp,
+                        horizontal = AppConstants.SPACING_M.dp
+                    )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -361,6 +383,7 @@ private fun SnapButton(
 
 @Composable
 private fun BottomTabSection(
+    hasPermission: Boolean,
     latestImageUri: Uri?,
     onGalleryClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -383,6 +406,7 @@ private fun BottomTabSection(
         }
 
         PostCategorySlider(
+            hasPermission = hasPermission,
             modifier = Modifier
                 .fillMaxWidth(1f)
                 .padding(top = AppConstants.SPACING_S.dp)
@@ -391,7 +415,10 @@ private fun BottomTabSection(
 }
 
 @Composable
-private fun PostCategorySlider(modifier: Modifier = Modifier) {
+private fun PostCategorySlider(
+    hasPermission: Boolean,
+    modifier: Modifier = Modifier
+) {
     val options = listOf("POST", "CREATE", "LIVE")
     val pagerState = rememberPagerState(pageCount = { options.size }, initialPage = 0)
 
@@ -404,6 +431,7 @@ private fun PostCategorySlider(modifier: Modifier = Modifier) {
 
     HorizontalPager(
         state = pagerState,
+        userScrollEnabled = hasPermission,
         pageSize = PageSize.Fixed(itemWidth),
         contentPadding = PaddingValues(horizontal = horizontalPadding),
         modifier = modifier
