@@ -9,12 +9,14 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,12 +40,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +63,7 @@ import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
 import compose.icons.fontawesomeicons.solid.Times
+import kotlinx.coroutines.launch
 
 @Composable
 fun CameraAccessScreen(
@@ -134,44 +140,51 @@ fun CameraAccessScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.9f)
+        ) {
 
-        if (hasCameraPermissions) {
-            CameraPreviewScreen()
-        } else {
-            NoPermissionBackground()
-        }
+            if (hasCameraPermissions) {
+                CameraPreviewScreen()
+            } else {
+                NoPermissionBackground()
+            }
 
-        CancelButton(onNavigationToHomeScreen = onNavigationToHomeScreen)
+            CancelButton(onNavigationToHomeScreen = onNavigationToHomeScreen)
 
-        if (!hasCameraPermissions) {
-            Box(modifier = Modifier.align(Alignment.Center)) {
-                PermissionRequestContent(
-                    onOpenSettings = {
-                        openSystemSettings(context)
-                    }
-                )
+            if (!hasCameraPermissions) {
+                Box(modifier = Modifier.align(Alignment.Center)) {
+                    PermissionRequestContent(
+                        onOpenSettings = {
+                            openSystemSettings(context)
+                        }
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+            ) {
+                SnapAndTimeOption(hasPermission = hasCameraPermissions)
+                Spacer(modifier = Modifier.height(20.dp))
+
             }
         }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-        ) {
-            SnapAndTimeOption()
-            Spacer(modifier = Modifier.height(20.dp))
-            BottomTabSection(
-                latestImageUri = latestGalleryUri,
-                onGalleryClick = {
-                    photoPickerLauncher.launch(
-                        PickVisualMediaRequest(
-                            ActivityResultContracts.PickVisualMedia.ImageOnly
-                        )
+        BottomTabSection(
+            latestImageUri = latestGalleryUri,
+            onGalleryClick = {
+                photoPickerLauncher.launch(
+                    PickVisualMediaRequest(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
                     )
-                }
-            )
-        }
+                )
+            }
+        )
     }
 }
 
@@ -261,6 +274,7 @@ private fun CancelButton(onNavigationToHomeScreen: () -> Unit) {
 
 @Composable
 private fun SnapAndTimeOption(
+    hasPermission: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -269,11 +283,12 @@ private fun SnapAndTimeOption(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TimeOptionRow(modifier = Modifier
-            .fillMaxWidth(0.6f)
+            .fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(AppConstants.SPACING_XL.dp))
-        SnapButton(modifier = Modifier
-            .fillMaxWidth()
+        SnapButton(
+            hasPermission = hasPermission,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -283,21 +298,43 @@ private fun TimeOptionRow(
     modifier: Modifier = Modifier
 ) {
     val options = listOf("10m", "60s", "15s", "PHOTO")
-
     val pagerState = rememberPagerState(pageCount = { options.size }, initialPage = 3)
 
-    Box(modifier = modifier.height(30.dp).fillMaxWidth()) {
-        HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(horizontal = 160.dp), // Large padding to center single item
+    val scope = rememberCoroutineScope()
+
+    val itemWidth = 75.dp
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val horizontalPadding = (screenWidth - itemWidth) / 2
+
+
+    HorizontalPager(
+        state = pagerState,
+        contentPadding = PaddingValues(horizontal = horizontalPadding), // Large padding to center single item
+        modifier = modifier
+    ) { page ->
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxWidth()
-        ) { page ->
+        ) {
             Text(
                 text = options[page],
-                color = if (pagerState.currentPage == page) Color.White else Color.White.copy(alpha = 0.5f),
+                color = if (pagerState.currentPage == page) Color.White else Color.White.copy(
+                    alpha = 0.5f
+                ),
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                maxLines = 1,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        scope.launch {
+                            pagerState.animateScrollToPage(page)
+                        }
+                    }
             )
         }
     }
@@ -305,6 +342,7 @@ private fun TimeOptionRow(
 
 @Composable
 private fun SnapButton(
+    hasPermission: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier,
@@ -313,7 +351,10 @@ private fun SnapButton(
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape)
-                .background(Color(0xff9C988F))
+                .background(
+                    if (hasPermission) Color.White
+                    else Color(0xff9C988F)
+                )
         )
     }
 }
@@ -329,10 +370,9 @@ private fun BottomTabSection(
         modifier = modifier
     ) {
         Box(modifier = Modifier
-            .fillMaxWidth(0.5f)
             .padding(
                 start = AppConstants.SPACING_M.dp,
-                bottom = AppConstants.SPACING_M.dp
+                top = AppConstants.SPACING_S.dp
             )
         ) {
             GalleryThumbnail(
@@ -343,35 +383,40 @@ private fun BottomTabSection(
         }
 
         PostCategorySlider(
-            modifier = Modifier.fillMaxWidth(1f)
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .padding(top = AppConstants.SPACING_S.dp)
         )
     }
 }
 
 @Composable
 private fun PostCategorySlider(modifier: Modifier = Modifier) {
-    var selectedPostCategoryIndex by remember { mutableIntStateOf(0) }
+    val options = listOf("POST", "CREATE", "LIVE")
+    val pagerState = rememberPagerState(pageCount = { options.size }, initialPage = 0)
 
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
+    val scope = rememberCoroutineScope()
+
+    val itemWidth = 90.dp
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val horizontalPadding = (screenWidth - itemWidth) / 2
+
+    HorizontalPager(
+        state = pagerState,
+        pageSize = PageSize.Fixed(itemWidth),
+        contentPadding = PaddingValues(horizontal = horizontalPadding),
         modifier = modifier
-    ) {
+    ) { page ->
         PostCategorySliderItem(
-            name = "POST",
-            isSelected = selectedPostCategoryIndex == 0,
-            onTap = { selectedPostCategoryIndex = 0 }
+            name = options[page],
+            isSelected = pagerState.currentPage == page,
+            onTap = {
+                scope.launch {
+                    pagerState.animateScrollToPage(page)
+                }
+            }
         )
-        PostCategorySliderItem(
-            name = "CREATE",
-            isSelected = selectedPostCategoryIndex == 1,
-            onTap = { selectedPostCategoryIndex = 1 }
-        )
-        PostCategorySliderItem(
-            name = "LIVE",
-            isSelected = selectedPostCategoryIndex == 2,
-            onTap = { selectedPostCategoryIndex = 2 }
-        )
-        Spacer(modifier = Modifier.width(AppConstants.SPACING_M.dp))
     }
 }
 
@@ -381,12 +426,23 @@ fun PostCategorySliderItem(
     isSelected: Boolean,
     onTap: () -> Unit
 ) {
-    Text(
-        text = name,
-        color = if (isSelected) AppColors.TEXT_ON_DARK else AppColors.TEXT_SECONDARY,
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.clickable { onTap() }
-    )
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onTap() }
+    ) {
+        Text(
+            text = name,
+            color = if (isSelected) Color.White else Color.White.copy(alpha = 0.5f),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
+        )
+    }
 }
 
 @Preview
