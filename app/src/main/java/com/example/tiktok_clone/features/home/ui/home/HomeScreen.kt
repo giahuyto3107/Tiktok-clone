@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui
+package com.example.tiktok_clone.features.home.ui.home
 
 import androidx.annotation.DrawableRes
 import com.example.tiktok_clone.R
@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -87,7 +89,6 @@ fun HomeScreen(
                                     bottom = AppConstants.SPACING_M.dp,
                                     end = AppConstants.SPACING_M.dp
                                 )
-                                .fillMaxSize()
                         )
 
                     }
@@ -131,7 +132,7 @@ private fun TopHeading(
         horizontalAlignment = Alignment.End
     ) {
         Icon(
-            imageVector = FontAwesomeIcons.Solid.Search,
+            imageVector = Icons.Default.Search,
             contentDescription = "Search",
             tint = AppColors.TEXT_ON_DARK,
             modifier = Modifier
@@ -161,9 +162,11 @@ private fun BottomNavigationBar(
     onCameraClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = AppConstants.SPACING_M.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
+        horizontalArrangement = Arrangement.SpaceAround,
     ) {
         BottomNavigationItem(
             name = "Home",
