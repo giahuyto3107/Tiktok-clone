@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui
+package com.example.tiktok_clone.features.home.ui.home
 
 import androidx.annotation.DrawableRes
 import com.example.tiktok_clone.R
@@ -87,7 +87,6 @@ fun HomeScreen(
                                     bottom = AppConstants.SPACING_M.dp,
                                     end = AppConstants.SPACING_M.dp
                                 )
-                                .fillMaxSize()
                         )
 
                     }
@@ -161,9 +160,11 @@ private fun BottomNavigationBar(
     onCameraClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = AppConstants.SPACING_M.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
+        horizontalArrangement = Arrangement.SpaceAround,
     ) {
         BottomNavigationItem(
             name = "Home",
