@@ -42,46 +42,44 @@ android {
 }
 
 dependencies {
+    // 1. Java 8+ API desugaring support (Required for older Android versions)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    val composeBom = platform("androidx.compose:compose-bom:2024.02.01")
+    // 2. Compose BOM (Single Source of Truth)
+    // Using the one from your libs.versions.toml is best practice
+    val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
+    androidTestImplementation(composeBom)
 
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.ui)
-    implementation(libs.material3) // For UI components
-    implementation(libs.ui.tooling.preview)
-    debugImplementation(libs.ui.tooling)
-
-    // Navigation for Compose
-    implementation(libs.androidx.navigation.compose)
-
-    implementation(libs.coil.compose)
-
+    // 3. Core Android & Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.activity.compose) // Removed duplicate v182
+    implementation(libs.androidx.navigation.compose)
+
+    // 4. UI Components (Material 3 & Graphics)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.material3) // Consolidate material3 imports
     implementation(libs.font.awesome)
 
-    implementation(libs.coil.compose.v250)
-    implementation(libs.androidx.activity.compose.v182)
+    // 5. Image Loading (Coil)
+    implementation(libs.coil.compose) // Removed duplicate v250
 
-    val camerax_version = "1.5.2" // Check for latest version
+    // 6. CameraX
+    // Note: Ensure these versions are updated in your libs.versions.toml file
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+
+    // 7. Testing & Debugging
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

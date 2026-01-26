@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -130,7 +132,7 @@ private fun TopHeading(
         horizontalAlignment = Alignment.End
     ) {
         Icon(
-            imageVector = FontAwesomeIcons.Solid.Search,
+            imageVector = Icons.Default.Search,
             contentDescription = "Search",
             tint = AppColors.TEXT_ON_DARK,
             modifier = Modifier

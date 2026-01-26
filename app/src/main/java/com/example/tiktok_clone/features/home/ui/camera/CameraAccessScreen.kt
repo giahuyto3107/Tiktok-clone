@@ -1,7 +1,11 @@
 package com.example.tiktok_clone.features.home.ui.camera
 
 import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +25,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -59,40 +66,77 @@ fun CameraAccessScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var hasPermissions by remember {
+    // STATE: Track latest image
+    var latestGalleryUri by remember { mutableStateOf<Uri?>(null) }
+
+    // PICKER: Setup the Photo Picker
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { }
+
+    // PERMISSIONS: Determine which permission to ask for based on Android version
+    val storagePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+
+    var hasCameraPermissions by remember {
         mutableStateOf(checkCameraPermissions(context))
+    }
+    var hasStoragePermissions by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context, storagePermission
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    LaunchedEffect(hasStoragePermissions) {
+        if (hasStoragePermissions) {
+            latestGalleryUri = getLastGalleryImageUri(context)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) { permissions ->
+        hasCameraPermissions = permissions[Manifest.permission.CAMERA] == true &&
+                     permissions[Manifest.permission.RECORD_AUDIO] == true
+
+        if (permissions[storagePermission] == true) {
+            hasStoragePermissions = true
+        }
     }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                hasPermissions = checkCameraPermissions(context)
+                hasCameraPermissions = checkCameraPermissions(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions(),
-    ) { permissions ->
-        hasPermissions = permissions.values.all { it }
-    }
 
-    LaunchedEffect(hasPermissions) {
-        if (!hasPermissions) {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO
-                )
-            )
+    LaunchedEffect(Unit) {
+        val permissionsToRequest = mutableListOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        )
+        if (!hasStoragePermissions) {
+            permissionsToRequest.add(storagePermission)
+        }
+
+        if (!hasCameraPermissions || !hasStoragePermissions) {
+            permissionLauncher.launch(permissionsToRequest.toTypedArray())
         }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
 
-        if (hasPermissions) {
+        if (hasCameraPermissions) {
             CameraPreviewScreen()
         } else {
             NoPermissionBackground()
@@ -100,7 +144,7 @@ fun CameraAccessScreen(
 
         CancelButton(onNavigationToHomeScreen = onNavigationToHomeScreen)
 
-        if (!hasPermissions) {
+        if (!hasCameraPermissions) {
             Box(modifier = Modifier.align(Alignment.Center)) {
                 PermissionRequestContent(
                     onOpenSettings = {
@@ -117,7 +161,16 @@ fun CameraAccessScreen(
         ) {
             SnapAndTimeOption()
             Spacer(modifier = Modifier.height(20.dp))
-            BottomTabSection()
+            BottomTabSection(
+                latestImageUri = latestGalleryUri,
+                onGalleryClick = {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                        )
+                    )
+                }
+            )
         }
     }
 }
@@ -195,7 +248,7 @@ private fun CancelButton(onNavigationToHomeScreen: () -> Unit) {
         )
     ) {
         Icon(
-            imageVector = FontAwesomeIcons.Solid.Times,
+            imageVector = Icons.Default.Close,
             contentDescription = "Cancel",
             tint = AppColors.TEXT_ON_DARK,
             modifier = Modifier
@@ -267,17 +320,26 @@ private fun SnapButton(
 
 @Composable
 private fun BottomTabSection(
+    latestImageUri: Uri?,
+    onGalleryClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Box(modifier = Modifier.fillMaxWidth(0.5f)) {
-//            ImageSource(
-//                file = R.,
-//
-//                )
+        Box(modifier = Modifier
+            .fillMaxWidth(0.5f)
+            .padding(
+                start = AppConstants.SPACING_M.dp,
+                bottom = AppConstants.SPACING_M.dp
+            )
+        ) {
+            GalleryThumbnail(
+                latestImageUri = latestImageUri,
+                onClick = onGalleryClick,
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
         }
 
         PostCategorySlider(
