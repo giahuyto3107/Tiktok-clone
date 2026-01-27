@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tiktok_clone.features.home.ui.camera.CameraAccessScreen
 import com.example.tiktok_clone.features.home.ui.home.HomeScreen
+import com.example.tiktok_clone.features.profile.ui.ProfileScreen
 
 @Composable
 fun AppNavigation() {
@@ -15,6 +16,28 @@ fun AppNavigation() {
         navController = navController,
         startDestination = "home",
     ) {
+        composable (route = "profile"){
+            LoginScreen(
+                onNavigateToLoginScreen = {navController.navigate("login")}
+            )
+        }
+
+        composable (route = "login"){
+            LoginScreen(
+                onNavigationToProfileScreen = {navController.navigate("profile")}
+            )
+        }
+
+        composable (route = "home"){
+            ProfileScreen(
+                onNavigationToProfileScreen = {navController.navigate("profile")}
+            )
+        }
+        composable(route = "profile") {
+            CameraAccessScreen(
+                onNavigationToHomeScreen = {navController.navigate("home")}
+            )
+        }
         composable(route = "home") {
             HomeScreen(
                 onNavigationToCameraAccessScreen = {navController.navigate("camera_access")}

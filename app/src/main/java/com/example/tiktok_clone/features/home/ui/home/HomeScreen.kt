@@ -156,7 +156,7 @@ private fun VideoSection(
 }
 
 @Composable
-private fun BottomNavigationBar(
+fun BottomNavigationBar(
     selectedIndex: Int,
     onTapSelected: (Int) -> Unit,
     onCameraClick: () -> Unit
