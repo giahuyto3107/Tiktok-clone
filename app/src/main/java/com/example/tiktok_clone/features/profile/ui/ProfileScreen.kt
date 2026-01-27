@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
@@ -18,19 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.tiktok_clone.core.utils.AppColors
 
 @Composable
-fun ProfileScreen (
-    modifier: Modifier = Modifier,
-    onNavigationToProfileScreen: () -> Unit)
-{
+fun ProfileScreen(
+    modifier: Modifier = Modifier
+) {
     Box(modifier = modifier.fillMaxSize()) {
         Column() {
             ProfileHeader()
-            ProfileBody(onNavigationToProfileScreen= onNavigationToProfileScreen)
+            ProfileBody()
         }
     }
-
 }
 
 @Composable
@@ -57,8 +57,7 @@ fun ProfileHeader(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ProfileBody(modifier: Modifier = Modifier,
-                onNavigationToProfileScreen: () -> Unit) {
+fun ProfileBody(modifier: Modifier = Modifier) {
     Surface {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -67,21 +66,24 @@ fun ProfileBody(modifier: Modifier = Modifier,
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
-                contentDescription = "User",)
-            Text("Log into existing account")
-            Button(onClick = onNavigationToProfileScreen) {
+                contentDescription = "User",
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Text(
+                text = "Log into existing account",
+                style = MaterialTheme.typography.bodyLarge,
+                color = AppColors.TEXT_ON_DARK,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Button(onClick = { /* TODO: Navigate to login */ }) {
                 Text("Login")
             }
         }
     }
-
 }
-
-
-
 
 @Preview
 @Composable
-private fun PreviewLoginScreen() {
-    ProfileScreen(onNavigationToProfileScreen = {})
+private fun PreviewProfileScreen() {
+    ProfileScreen()
 }
