@@ -37,5 +37,5 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun AppNavigationPreview() {
-    HomeScreen(onNavigationToCameraAccessScreen = {})
+    HomeScreen()
 }
