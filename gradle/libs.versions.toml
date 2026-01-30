@@ -5,6 +5,7 @@ cameraCore = "1.5.2"
 coilCompose = "2.6.0"
 coilComposeVersion = "2.5.0"
 desugar_jdk_libs = "2.1.5"
+firebaseBom = "34.8.0"
 fontAwesome = "1.1.0"
 fontawesomecompose = "1.1.0"
 fontawesomecomposeVersion = "1.1.0"
@@ -31,6 +32,8 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 coil-compose-v250 = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 font-awesome = { module = "br.com.devsrsouza.compose.icons:font-awesome", version.ref = "fontAwesome" }
 fontawesomecompose = { module = "com.github.FontAwesomeCompose:FontAwesomeCompose", version.ref = "fontawesomecompose" }
 fontawesomecompose-brands = { module = "com.github.FontAwesomeCompose:FontAwesomeCompose-Brands", version.ref = "fontawesomecompose" }
