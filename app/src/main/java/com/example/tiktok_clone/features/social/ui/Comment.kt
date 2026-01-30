@@ -1,28 +1,37 @@
 package com.example.tiktok_clone.features.social.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,20 +41,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.tiktok_clone.R
 import com.example.tiktok_clone.core.utils.AppColors
 import com.example.tiktok_clone.core.utils.AppConstants
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular
 import compose.icons.fontawesomeicons.Solid
@@ -59,29 +75,44 @@ import compose.icons.fontawesomeicons.solid.Times
 
 @Composable
 fun CommentSheetContent(
-    commentCount: Int = 1232130,
+    viewModel: SocialViewModel = viewModel(),
     onClose: () -> Unit
 ) {
+    val comments by viewModel.comments.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(500.dp)
-            .padding(8.dp)
-
+            .fillMaxHeight(0.9f),
     ) {
         CommentHeader(
-            commentCount = commentCount,
+            commentCount = comments.size,
             Search = "Nam dẹp trai",
             modifier = Modifier.fillMaxWidth(),
             onClose = onClose
         )
-        CommentLine(
-            AvatarUrl = "https://yt3.ggp",
-            userName = "Nam đẹp trai",
-            time = "2 giờ",
-            comment = "Nam đẹp trai",
-            modifier = Modifier.fillMaxWidth()
-        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .nestedScroll(rememberNestedScrollInteropConnection()),
+            contentPadding = PaddingValues(2.dp)
+
+        ) {
+            items(comments.size) { comment ->
+                CommentLine(
+                    AvatarUrl = comments[comment].AvatarUrl,
+                    userName = comments[comment].userName,
+                    time = comments[comment].commentTime,
+                    comment = comments[comment].comment,
+                    likeCount = comments[comment].likeCount,
+                    replyCount = comments[comment].replyCount,
+                    modifier = Modifier
+
+                )
+            }
+
+        }
     }
 }
 
@@ -99,20 +130,22 @@ fun CommentHeader(
             Placeholder(
                 width = 16.sp,
                 height = 16.sp,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+                placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline //căn đáy của vật thể nằm khớp trên đường chân chữ (baseline) để không bị lún xuống phần đuôi của các ký tự có nét móc dưới.
             )
         ) {
             Icon(
                 imageVector = Icons.Default.Search,
-                tint = Color.Blue,
+                tint = Color.Blue.copy(alpha = 0.8f),
                 contentDescription = "search"
             )
         }
     )
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp),
+        //horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier
@@ -125,7 +158,7 @@ fun CommentHeader(
                 text = buildAnnotatedString {
                     append("Tìm kiếm: ")
                     withStyle(
-                        style = SpanStyle(color = Color.Blue)
+                        style = SpanStyle(color = Color.Blue.copy(alpha = 1.5f))
                     ) {
                         append(Search)
                     }
@@ -177,10 +210,10 @@ fun CommentHeader(
         ) {
 
             Text(
-                text = formatCommentCount(commentCount),
+                text = "${formatCommentCount(commentCount)} bình luận",
                 modifier = Modifier.padding(4.dp),
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 color = Color.Black
             )
         }
@@ -189,6 +222,7 @@ fun CommentHeader(
 
 @Composable
 fun formatCommentCount(
+
     commentCount: Int
 ): String {
     return if (commentCount < 1000) {
@@ -208,26 +242,24 @@ fun CommentItem(
     modifier: Modifier
 ) {
     Row(
-        modifier = Modifier.clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = modifier,
+            modifier = modifier.clickable(onClick = onClick),
         )
         if (showText) {
-            Box(
-                modifier = Modifier.width(36.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = text,
-                    modifier = modifier,
-                    color = tint
-                )
-            }
+            Text(
+                text = text,
+                modifier = Modifier
+                    .padding(start = 4.dp, end = 8.dp)
+                    .width(30.dp),
+                fontSize = 12.sp,
+                color = tint,
+                textAlign = TextAlign.Start,
+            )
         }
     }
 }
@@ -238,55 +270,70 @@ fun CommentLine(
     userName: String,
     time: String,
     comment: String,
+    likeCount: Int = 0,
+    replyCount: Int = 0,
     modifier: Modifier
 ) {
     var isLiked by remember { mutableStateOf(false) }
     var isReply by remember { mutableStateOf(false) }
     var isDislike by remember { mutableStateOf(false) }
     var isShowReply by remember { mutableStateOf(false) }
-    var likeCount by remember { mutableStateOf(10) }
-    var replyCount by remember { mutableStateOf(20) }
+    var likeCount by remember { mutableStateOf(likeCount) }
+    var replyCount by remember { mutableStateOf(replyCount) }
 
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
         Row(
             modifier = Modifier
                 .padding(4.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Gray, CircleShape)
-                    .size(50.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
-                    .align(Alignment.CenterVertically)
+                //.align(Alignment.Top)
             ) {
                 Avatar(
                     avatarUrl = AvatarUrl,
-                    modifier = Modifier.matchParentSize()
-
+                    modifier = Modifier
+                        .matchParentSize()
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .align(Alignment.Top)
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
             ) {
                 Text(
                     text = userName,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
+                    color = Color.Gray.copy(alpha = 0.9f),
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false // loại bỏ khoảng trống thừa trên đầu text
+                        )
+                    ),
+                    modifier = Modifier.offset(y = (-3).dp) // Tinh chỉnh font lên trên -3, số xấu vl
                 )
                 Text(
                     text = comment,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+//                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -298,7 +345,7 @@ fun CommentLine(
                         fontWeight = FontWeight.Light,
                         fontSize = 12.sp,
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = "Trả lời",
                         modifier = Modifier
@@ -309,13 +356,18 @@ fun CommentLine(
                     Spacer(modifier = Modifier.weight(1f))
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+
                     ) {
                         CommentItem(
                             icon = if (isLiked) FontAwesomeIcons.Solid.Heart else FontAwesomeIcons.Regular.Heart,
                             tint = if (isLiked) Color.Red else Color.Black,
                             onClick = {
                                 isLiked = !isLiked
-                                if (isLiked) likeCount++ else likeCount = maxOf(0, likeCount - 1)
+                                if (isLiked) {
+                                    likeCount++
+                                    isDislike = false
+                                } else likeCount = maxOf(0, likeCount - 1)
                             },
 
                             text = if (likeCount > 0) {
@@ -323,8 +375,9 @@ fun CommentLine(
                             } else "",
                             showText = true,
                             modifier = Modifier
-                                .padding(4.dp)
                                 .size(16.dp)
+                                .align(Alignment.CenterVertically)
+
                         )
                         CommentItem(
                             icon = if (isDislike) FontAwesomeIcons.Solid.ThumbsDown else FontAwesomeIcons.Regular.ThumbsDown,
@@ -332,32 +385,56 @@ fun CommentLine(
                             text = "Không thích",
                             onClick = {
                                 isDislike = !isDislike
-                                if (isDislike) likeCount = maxOf(0, likeCount - 1) else likeCount ++
+                                if (isDislike && isLiked) {
+                                        isLiked = false
+                                        likeCount = maxOf(0, likeCount - 1)
+                                }
                             },
                             showText = false,
                             modifier = Modifier
-                                .padding(4.dp)
+                                .padding(1.dp)
                                 .size(16.dp)
                         )
                     }
                 }
             }
         }
-        Text(
-            text = "Xem ${formatCount(replyCount)} câu trả lời",
-            modifier = Modifier
-                .clickable(onClick = {}),
-        )
+        if (replyCount > 0) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 60.dp)
+                    .clickable(onClick = {}),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(24.dp)
+                        .height(0.2.dp)
+                        .background(Color.Gray.copy(alpha = 0.5f))
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "Xem ${formatCount(replyCount)} câu trả lời",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray.copy(alpha = 0.9f),
+                    modifier = Modifier
+                        .clickable(onClick = {})
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                )
+            }
+        }
     }
 }
-// mai làm  tiếp
 
 @Composable
 fun Avatar(
     avatarUrl: String?,
     modifier: Modifier
 ) {
-    if (avatarUrl != null) {
+    if (!avatarUrl.isNullOrEmpty()) {
         AsyncImage(
             model = avatarUrl,
             contentDescription = "avatar",

@@ -1,11 +1,13 @@
 package com.example.tiktok_clone.features.social.ui
 
+import com.example.tiktok_clone.features.social.model.Comment
 import com.example.tiktok_clone.features.social.model.Post
 
 data class SocialUiState(
     val posts: List<Post> = emptyList(),
     val currentPostIndex: Int = 0,
 
+    val comments: List<Comment> = emptyList(),
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
 
@@ -24,5 +26,3 @@ data class SocialUiState(
     val canLoadMore: Boolean
         get() = !isLoading && !isRefreshing
 }
-
-

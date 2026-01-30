@@ -3,6 +3,7 @@ package com.example.tiktok_clone.features.social.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.R
+import com.example.tiktok_clone.features.social.model.FakeCommentData
 import com.example.tiktok_clone.features.social.ui.SocialUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,8 @@ import kotlinx.coroutines.launch
 class SocialViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(SocialUiState())
     val uiState = _uiState.asStateFlow()
+    private val _comments = MutableStateFlow(FakeCommentData.comments)
+    val comments = _comments.asStateFlow()
 
     init {
         loadPosts()

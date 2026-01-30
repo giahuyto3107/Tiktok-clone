@@ -34,3 +34,11 @@ fun formatCount(count: Int): String {
 
     }
 }
+
+//CommentLine(
+//AvatarUrl = "https://yt3.ggp",
+//userName = "Nam đẹp trai",
+//time = "2 giờ",
+//comment = "Nam đẹp trai",
+//modifier = Modifier.fillMaxWidth()
+//)
