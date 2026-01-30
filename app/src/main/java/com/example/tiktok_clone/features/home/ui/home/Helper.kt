@@ -69,6 +69,7 @@ fun MiddleSection(
                 isOpenCommentSheet = true
             }
         )
+        //open commentSheet
         if (isOpenCommentSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
