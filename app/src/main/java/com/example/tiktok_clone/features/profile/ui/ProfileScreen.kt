@@ -22,7 +22,8 @@ val TikTokRed = Color(0xFFFE2C55)
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    onNavigateToLogin: () -> Unit = {}
+    onNavigateToLogin: () -> Unit = {},
+    onNavigationToProfileScreen: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -90,7 +91,7 @@ fun ProfileBody(
         Icon(
             imageVector = Icons.Default.AccountCircle,
             contentDescription = "User Placeholder",
-            modifier = Modifier.size(100.dp),
+            modifier = Modifier.size(60.dp),
             tint = Color.DarkGray // Màu xám tối
         )
 
