@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.auth.model
+package com.example.tiktok_clone.features.search.model
 
 data class SearchUiState(
     val query: String = "",

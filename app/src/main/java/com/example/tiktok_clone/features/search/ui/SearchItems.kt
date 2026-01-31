@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.auth.ui
+package com.example.tiktok_clone.features.search.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
