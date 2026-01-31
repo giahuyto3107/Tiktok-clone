@@ -41,7 +41,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.tiktok_clone.core.utils.AppColors
+import androidx.compose.ui.res.colorResource
+import com.example.tiktok_clone.R
 import compose.icons.AllIcons
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular
@@ -177,7 +178,7 @@ fun HeaderBar(
                     name = "profile views",
                     icon = FontAwesomeIcons.Solid.Eye,
                     iconColor = Color.Black,
-                    textColor = AppColors.TEXT_ON_LIGHT,
+                    textColor = colorResource(R.color.text_on_light),
                     onClick = { /*TODO*/ },
                     showText = false,
                     modifier = Modifier.size(24.dp)
@@ -187,7 +188,7 @@ fun HeaderBar(
                     icon = FontAwesomeIcons.Solid.Share,
                     onClick = { /*TODO*/ },
                     iconColor = Color.Black,
-                    textColor = AppColors.TEXT_ON_LIGHT,
+                    textColor = colorResource(R.color.text_on_light),
                     showText = false,
                     modifier = Modifier.size(24.dp)
                 )
@@ -196,7 +197,7 @@ fun HeaderBar(
                     icon = FontAwesomeIcons.Solid.Bars,
                     showText = false,
                     iconColor = Color.Black,
-                    textColor = AppColors.TEXT_ON_LIGHT,
+                    textColor = colorResource(R.color.text_on_light),
                     onClick = { /*TODO*/ },
                     modifier = Modifier.size(24.dp)
                 )
@@ -206,7 +207,7 @@ fun HeaderBar(
                     icon = FontAwesomeIcons.Regular.Bell,
                     showText = false,
                     iconColor = Color.Black,
-                    textColor = AppColors.TEXT_ON_LIGHT,
+                    textColor = colorResource(R.color.text_on_light),
                     onClick = { /*TODO*/ },
                     modifier = Modifier.size(24.dp)
                 )
@@ -215,7 +216,7 @@ fun HeaderBar(
                     icon = FontAwesomeIcons.Solid.Share,
                     showText = false,
                     iconColor = Color.Black,
-                    textColor = AppColors.TEXT_ON_LIGHT,
+                    textColor = colorResource(R.color.text_on_light),
                     onClick = { /*TODO*/ },
                     modifier = Modifier.size(24.dp)
                 )
@@ -310,7 +311,7 @@ fun UserProfile(
                     ) {
                         Text(
                             text = nickname,
-                            color = AppColors.TEXT_ON_LIGHT,
+                            color = colorResource(R.color.text_on_light),
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
                             maxLines = 1,
@@ -437,7 +438,7 @@ fun Title(
     ) {
         Text(
             text = count.toString(),
-            color = AppColors.TEXT_ON_LIGHT,
+            color = colorResource(R.color.text_on_light),
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
@@ -464,7 +465,7 @@ fun Bio(
         if (!bio.isNullOrEmpty()) {
             Text(
                 text = bio,
-                color = AppColors.TEXT_ON_LIGHT,
+                color = colorResource(R.color.text_on_light),
                 fontSize = 15.sp,
                 maxLines = 2,
                 textAlign = TextAlign.Center,
@@ -488,7 +489,7 @@ fun Bio(
                     )
                     Text(
                         text = "add bio",
-                        color = AppColors.TEXT_ON_LIGHT,
+                        color = colorResource(R.color.text_on_light),
                     )
                     Icon(
                         imageVector = FontAwesomeIcons.Solid.DotCircle,
