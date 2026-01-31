@@ -7,15 +7,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,15 +35,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
-import com.example.tiktok_clone.R
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import com.example.tiktok_clone.features.social.ui.CommentBottomBar
+import com.example.tiktok_clone.features.social.ui.CommentSheetContent
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Bookmark
 import compose.icons.fontawesomeicons.solid.CommentDots
 import compose.icons.fontawesomeicons.solid.Heart
 import compose.icons.fontawesomeicons.solid.Share
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +64,10 @@ fun MiddleSection(
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
 
-    var sheetState =
-        rememberModalBottomSheetState(
-            skipPartiallyExpanded = false,
-            confirmValueChange = { true })
+    val sheetState = rememberStandardBottomSheetState(
+        initialValue = SheetValue.Expanded,
+        skipHiddenState = false
+    )
 
     Column(
         modifier = modifier,
@@ -64,7 +76,7 @@ fun MiddleSection(
     ) {
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Heart,
-            tint = if (isLiked) Color.Red else AppColors.TEXT_ON_DARK,
+            tint = if (isLiked) Color.Red else Color.White,
             name = "Love",
             numberOfInteraction = likeCount,
             onClick = {
@@ -72,7 +84,7 @@ fun MiddleSection(
                 likeCount = if (isLiked) likeCount + 1 else likeCount - 1
             }
         )
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
+        Spacer(modifier = Modifier.size(16.dp))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.CommentDots,
@@ -81,37 +93,21 @@ fun MiddleSection(
             onClick = {
                 isOpenCommentSheet = true
             }
-        )
-        //open commentSheet
-        if (isOpenCommentSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    isOpenCommentSheet = false
-                },
-                sheetState = sheetState,
-                dragHandle = {
-                    CustomDragHandle(
-                        onDrag = {}
-                    )
-                },
-                containerColor = Color.White,
-                contentColor = Color.Black,
-            ) {
-                CommentSheetContent(
-                    viewModel = viewModel,
-                    onClose = {
-                        isOpenCommentSheet = false
-                    }
-                )
-            }
-        }
 
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
+        )
+        if (isOpenCommentSheet) {
+            CommentSheetContent(
+                modifier = Modifier,
+                onDismiss = {
+                    isOpenCommentSheet = false
+                }
+            )
+        }
+        Spacer(modifier = Modifier.size(16.dp))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Bookmark,
-            tint = if (isSaved) Color.Yellow else AppColors.TEXT_ON_DARK,
+            tint = if (isSaved) Color.Yellow else Color.White,
             name = "Save",
             numberOfInteraction = saveCount,
             onClick = {
@@ -119,14 +115,14 @@ fun MiddleSection(
                 saveCount = if (isSaved) saveCount + 1 else saveCount - 1
             }
         )
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
+        Spacer(modifier = Modifier.size(16.dp))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Share,
             name = "Share",
             numberOfInteraction = 4302
         )
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
+        Spacer(modifier = Modifier.size(16.dp))
     }
 }
 
@@ -136,7 +132,7 @@ fun MainInteractiveItem(
     numberOfInteraction: Int,
     name: String,
     modifier: Modifier = Modifier,
-    tint: Color = AppColors.TEXT_ON_DARK,
+    tint: Color = Color.White,
     onClick: () -> Unit = {},
 ) {
     Column(
@@ -147,13 +143,13 @@ fun MainInteractiveItem(
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = AppConstants.FONT_TITLE_M.dp)
+                .size(size = 16.dp)
                 .clickable(onClick = onClick)
         )
 
         Text(
             text = formatCount(numberOfInteraction),
-            color = AppColors.TEXT_ON_DARK,
+            color = Color.White,
             style = MaterialTheme.typography.labelSmall,
         )
     }
@@ -178,25 +174,27 @@ fun VideoDescriptionSection(
         Text(
             text = userName,
             style = MaterialTheme.typography.bodyLarge,
-            color = colorResource(R.color.text_on_dark)
+            color = Color.White
         )
     }
 }
 
 @Composable
 fun CustomDragHandle(
-    onDrag: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-    ) {
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        ) {
         Spacer(
             modifier = Modifier
-                .size(width = 8.dp, height = 4.dp)
+                .size(width = 100.dp, height = 5.dp)
                 .background(
-                    color = Color.Gray.copy(alpha = 0.5f),
+                    color = Color.Black.copy(alpha = 0.5f),
                     shape = RoundedCornerShape(50.dp)
                 )
         )
