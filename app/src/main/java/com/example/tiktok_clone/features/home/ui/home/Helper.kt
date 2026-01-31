@@ -29,7 +29,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.R
+import com.example.tiktok_clone.features.social.ui.CommentSheetContent
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Bookmark
@@ -40,8 +43,8 @@ import compose.icons.fontawesomeicons.solid.Share
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiddleSection(
-    viewModel: SocialViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SocialViewModel = viewModel()
 ) {
     val comments by viewModel.comments.collectAsState()
     var isLiked by remember { mutableStateOf(false) }
@@ -64,7 +67,7 @@ fun MiddleSection(
     ) {
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Heart,
-            tint = if (isLiked) Color.Red else AppColors.TEXT_ON_DARK,
+            tint = if (isLiked) Color.Red else colorResource(R.color.text_on_dark),
             name = "Love",
             numberOfInteraction = likeCount,
             onClick = {
@@ -97,7 +100,7 @@ fun MiddleSection(
                 containerColor = Color.White,
                 contentColor = Color.Black,
             ) {
-                CommentSheetContent(
+                CommentSheetContent (
                     viewModel = viewModel,
                     onClose = {
                         isOpenCommentSheet = false
@@ -106,12 +109,11 @@ fun MiddleSection(
             }
         }
 
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Bookmark,
-            tint = if (isSaved) Color.Yellow else AppColors.TEXT_ON_DARK,
+            tint = if (isSaved) Color.Yellow else colorResource(R.color.text_on_dark),
             name = "Save",
             numberOfInteraction = saveCount,
             onClick = {
@@ -136,7 +138,7 @@ fun MainInteractiveItem(
     numberOfInteraction: Int,
     name: String,
     modifier: Modifier = Modifier,
-    tint: Color = AppColors.TEXT_ON_DARK,
+    tint: Color = colorResource(R.color.text_on_dark),
     onClick: () -> Unit = {},
 ) {
     Column(
@@ -147,13 +149,13 @@ fun MainInteractiveItem(
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = AppConstants.FONT_TITLE_M.dp)
+                .size(size = dimensionResource(R.dimen.font_title_m))
                 .clickable(onClick = onClick)
         )
 
         Text(
             text = formatCount(numberOfInteraction),
-            color = AppColors.TEXT_ON_DARK,
+            color = colorResource(R.color.text_on_dark),
             style = MaterialTheme.typography.labelSmall,
         )
     }
@@ -194,10 +196,13 @@ fun CustomDragHandle(
     ) {
         Spacer(
             modifier = Modifier
-                .size(width = 8.dp, height = 4.dp)
+                .size(
+                    width = dimensionResource(R.dimen.border_medium), 
+                    height = dimensionResource(R.dimen.border_thin)
+                )
                 .background(
                     color = Color.Gray.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(50.dp)
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.radius_circular))
                 )
         )
     }

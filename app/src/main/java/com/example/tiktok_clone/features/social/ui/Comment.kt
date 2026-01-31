@@ -54,13 +54,13 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.core.utils.AppColors
-import com.example.tiktok_clone.core.utils.AppConstants
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular
@@ -68,7 +68,6 @@ import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.regular.Heart
 import compose.icons.fontawesomeicons.regular.ThumbsDown
 import compose.icons.fontawesomeicons.solid.Heart
-import compose.icons.fontawesomeicons.solid.Search
 import compose.icons.fontawesomeicons.solid.SortAmountDownAlt
 import compose.icons.fontawesomeicons.solid.ThumbsDown
 import compose.icons.fontawesomeicons.solid.Times
@@ -96,7 +95,7 @@ fun CommentSheetContent(
                 .fillMaxWidth()
                 .weight(1f)
                 .nestedScroll(rememberNestedScrollInteropConnection()),
-            contentPadding = PaddingValues(2.dp)
+            contentPadding = PaddingValues(dimensionResource(R.dimen.spacing_xxs))
 
         ) {
             items(comments.size) { comment ->
@@ -144,13 +143,13 @@ fun CommentHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 4.dp),
+            .padding(bottom = dimensionResource(R.dimen.spacing_xs)),
         //horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(dimensionResource(R.dimen.spacing_s)),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -166,7 +165,7 @@ fun CommentHeader(
                 },
                 inlineContent = inLineContent,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(dimensionResource(R.dimen.spacing_xs))
             )
             Box(
                 modifier = Modifier
@@ -175,7 +174,7 @@ fun CommentHeader(
                 ) {
                 Row(
                     modifier = Modifier,
-                    horizontalArrangement = Arrangement.spacedBy(15.dp),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_m)),
                     verticalAlignment = Alignment.CenterVertically
 
                 ) {
@@ -211,7 +210,7 @@ fun CommentHeader(
 
             Text(
                 text = "${formatCommentCount(commentCount)} bình luận",
-                modifier = Modifier.padding(4.dp),
+                modifier = Modifier.padding(dimensionResource(R.dimen.spacing_xs)),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 color = Color.Black
@@ -237,7 +236,7 @@ fun CommentItem(
     icon: ImageVector,
     onClick: () -> Unit,
     text: String,
-    tint: Color = AppColors.TEXT_ON_LIGHT,
+    tint: Color = colorResource(R.color.text_on_light),
     showText: Boolean,
     modifier: Modifier
 ) {
@@ -254,8 +253,8 @@ fun CommentItem(
             Text(
                 text = text,
                 modifier = Modifier
-                    .padding(start = 4.dp, end = 8.dp)
-                    .width(30.dp),
+                    .padding(start = dimensionResource(R.dimen.spacing_xxl), end = dimensionResource(R.dimen.spacing_s))
+                    .width(dimensionResource(R.dimen.icon_m)),
                 fontSize = 12.sp,
                 color = tint,
                 textAlign = TextAlign.Start,
@@ -285,7 +284,7 @@ fun CommentLine(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = dimensionResource(R.dimen.spacing_xxs)),
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
@@ -298,18 +297,18 @@ fun CommentLine(
         ) {
             Box(
                 modifier = Modifier
-                    .border(1.dp, Color.Gray, CircleShape)
-                    .size(40.dp)
+                    .border(dimensionResource(R.dimen.border_thin), colorResource(R.color.text_on_light), CircleShape)
+                    .size(dimensionResource(R.dimen.icon_l))
                     .clip(CircleShape)
                 //.align(Alignment.Top)
             ) {
-                Avatar(
+                AvatarContainer(
                     avatarUrl = AvatarUrl,
                     modifier = Modifier
                         .matchParentSize()
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_s)))
 
             Column(
                 modifier = Modifier
@@ -345,7 +344,7 @@ fun CommentLine(
                         fontWeight = FontWeight.Light,
                         fontSize = 12.sp,
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_s)))
                     Text(
                         text = "Trả lời",
                         modifier = Modifier
@@ -375,7 +374,7 @@ fun CommentLine(
                             } else "",
                             showText = true,
                             modifier = Modifier
-                                .size(16.dp)
+                                .size(dimensionResource(R.dimen.icon_xs))
                                 .align(Alignment.CenterVertically)
 
                         )
@@ -392,8 +391,8 @@ fun CommentLine(
                             },
                             showText = false,
                             modifier = Modifier
-                                .padding(1.dp)
-                                .size(16.dp)
+                                .padding(dimensionResource(R.dimen.border_thin))
+                                .size(dimensionResource(R.dimen.icon_xs))
                         )
                     }
                 }
@@ -403,17 +402,17 @@ fun CommentLine(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 60.dp)
+                    .padding(start = dimensionResource(R.dimen.spacing_xxl))
                     .clickable(onClick = {}),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
                     modifier = Modifier
-                        .width(24.dp)
-                        .height(0.2.dp)
+                        .width(dimensionResource(R.dimen.icon_xs))
+                        .height(dimensionResource(R.dimen.border_thin))
                         .background(Color.Gray.copy(alpha = 0.5f))
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_xs)))
                 Text(
                     text = "Xem ${formatCount(replyCount)} câu trả lời",
                     fontSize = 12.sp,
@@ -430,7 +429,7 @@ fun CommentLine(
 }
 
 @Composable
-fun Avatar(
+fun AvatarContainer(
     avatarUrl: String?,
     modifier: Modifier
 ) {
