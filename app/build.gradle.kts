@@ -48,6 +48,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.material3)
     // 1. Java 8+ API desugaring support (Required for older Android versions)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
@@ -67,6 +68,7 @@ dependencies {
     // 4. UI Components (Material 3 & Graphics)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.material3) // Consolidate material3 imports
     implementation(libs.font.awesome)
 

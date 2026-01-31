@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.features.social.ui
 
 import com.example.tiktok_clone.features.social.model.Comment
+import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.model.Post
 
 data class SocialUiState(
@@ -8,6 +9,7 @@ data class SocialUiState(
     val currentPostIndex: Int = 0,
 
     val comments: List<Comment> = emptyList(),
+    val user: User? =  null,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
 
