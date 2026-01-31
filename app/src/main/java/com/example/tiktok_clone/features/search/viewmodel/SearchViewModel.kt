@@ -1,7 +1,7 @@
-package com.example.tiktok_clone.features.auth.navigation
+package com.example.tiktok_clone.features.search.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.tiktok_clone.features.auth.model.SearchUiState
+import com.example.tiktok_clone.features.search.model.SearchUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

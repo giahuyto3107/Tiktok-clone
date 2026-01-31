@@ -2,6 +2,7 @@ package com.example.tiktok_clone.features.home.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,7 +31,9 @@ import com.example.tiktok_clone.core.navigation.AppNavigation
 import com.example.tiktok_clone.R
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onSearchTap: () -> Unit = {}
+) {
     val images = remember {
         listOf(
             R.drawable.apartment,
@@ -78,6 +81,7 @@ fun HomeScreen() {
         }
 
         TopHeading(
+            onSearchTap = onSearchTap,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
@@ -93,6 +97,7 @@ fun HomeScreen() {
 @Composable
 private fun TopHeading(
     modifier: Modifier = Modifier,
+    onSearchTap: () -> Unit = {}
 ) {
     Column(
         modifier = modifier,
@@ -105,6 +110,9 @@ private fun TopHeading(
             modifier = Modifier
                 .size(size = dimensionResource(R.dimen.font_title_m))
                 .width(width = dimensionResource(R.dimen.border_thin))
+                .clickable(
+                    onClick = { onSearchTap() }
+                )
         )
     }
 }
