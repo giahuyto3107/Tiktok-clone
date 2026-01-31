@@ -19,7 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.tiktok_clone.core.utils.AppColors
+import androidx.compose.ui.res.colorResource
+import com.example.tiktok_clone.R
 
 @Composable
 fun ProfileScreen(
@@ -72,7 +73,7 @@ fun ProfileBody(modifier: Modifier = Modifier) {
             Text(
                 text = "Log into existing account",
                 style = MaterialTheme.typography.bodyLarge,
-                color = AppColors.TEXT_ON_DARK,
+                color = colorResource(R.color.text_on_dark),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             Button(onClick = { /* TODO: Navigate to login */ }) {

@@ -18,7 +18,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -34,7 +33,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
-import com.example.tiktok_clone.core.utils.AppConstants
+import androidx.compose.ui.res.dimensionResource
+import com.example.tiktok_clone.R
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Image
@@ -92,8 +92,8 @@ fun GalleryThumbnail(
     Box(
         modifier = modifier
             .size(35.dp)
-            .clip(RoundedCornerShape(AppConstants.RADIUS_M.dp))
-            .border(AppConstants.BORDER_THIN.dp, Color.White, RoundedCornerShape(AppConstants.RADIUS_M.dp))
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_m)))
+            .border(dimensionResource(R.dimen.border_thin), Color.White, RoundedCornerShape(dimensionResource(R.dimen.radius_m)))
             .background(Color.DarkGray)
             .clickable { onClick() }
     ) {

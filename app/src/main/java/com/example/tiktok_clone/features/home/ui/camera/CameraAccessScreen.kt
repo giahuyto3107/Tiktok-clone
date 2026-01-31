@@ -56,8 +56,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.example.tiktok_clone.core.utils.AppColors
-import com.example.tiktok_clone.core.utils.AppConstants
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import com.example.tiktok_clone.R
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
@@ -208,42 +209,42 @@ fun PermissionRequestContent(onOpenSettings: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(horizontal = AppConstants.SPACING_XXXL.dp)
+            .padding(horizontal = dimensionResource(R.dimen.spacing_xxxl))
             .fillMaxWidth()
     ) {
         Text(
             text = "Allow Tiktok to access to your camera and microphone",
-            color = AppColors.TEXT_ON_DARK,
+            color = colorResource(R.color.text_on_dark),
             style = MaterialTheme.typography.titleMedium,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(AppConstants.SPACING_M.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_m)))
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
-                .clip(RoundedCornerShape(AppConstants.RADIUS_L.dp))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_l)))
                 .background(color = Color(0xff658c8b))
                 .fillMaxWidth()
                 .clickable { onOpenSettings() }
                 .padding(
-                    horizontal = AppConstants.SPACING_M.dp,
-                    vertical = AppConstants.SPACING_XXL.dp,
+                    horizontal = dimensionResource(R.dimen.spacing_m),
+                    vertical = dimensionResource(R.dimen.spacing_xxl),
                 )
         ) {
             Icon(
                 imageVector = FontAwesomeIcons.Solid.Cog,
                 contentDescription = "Settings",
-                tint = AppColors.TEXT_ON_DARK,
-                modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp)
+                tint = colorResource(R.color.text_on_dark),
+                modifier = Modifier.size(dimensionResource(R.dimen.font_title_m))
             )
-            Spacer(modifier = Modifier.width(AppConstants.SPACING_M.dp))
-            Box(modifier = Modifier.padding(top = AppConstants.SPACING_XXS.dp)) {
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_m)))
+            Box(modifier = Modifier.padding(top = dimensionResource(R.dimen.spacing_xxs))) {
                 Text(
                     text = "Open settings",
-                    color = AppColors.TEXT_ON_DARK,
+                    color = colorResource(R.color.text_on_dark),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -255,17 +256,17 @@ fun PermissionRequestContent(onOpenSettings: () -> Unit) {
 private fun CancelButton(onNavigationToHomeScreen: () -> Unit) {
     Box(
         modifier = Modifier.padding(
-            top = AppConstants.SPACING_M.dp,
-            start = AppConstants.SPACING_M.dp,
+            top = dimensionResource(R.dimen.spacing_m),
+            start = dimensionResource(R.dimen.spacing_m),
         )
     ) {
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = "Cancel",
-            tint = AppColors.TEXT_ON_DARK,
+            tint = colorResource(R.color.text_on_dark),
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .size(AppConstants.FONT_TITLE_M.dp)
+                .size(dimensionResource(R.dimen.font_title_m))
                 .clickable { onNavigationToHomeScreen() }
         )
     }
@@ -278,14 +279,14 @@ private fun SnapAndTimeOption(
 ) {
     Column(
         modifier = modifier
-        .fillMaxWidth(),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TimeOptionRow(
             hasPermission = hasPermission,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(AppConstants.SPACING_XL.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
         SnapButton(
             hasPermission = hasPermission,
             modifier = Modifier.fillMaxWidth()
@@ -343,11 +344,11 @@ private fun TimeOptionRow(
                 fontSize = 14.sp,
                 maxLines = 1,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(AppConstants.RADIUS_XXL.dp))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_xxl)))
                     .background(bgColor)
                     .padding(
-                        vertical = AppConstants.SPACING_XS.dp,
-                        horizontal = AppConstants.SPACING_M.dp
+                        vertical = dimensionResource(R.dimen.spacing_xs),
+                        horizontal = dimensionResource(R.dimen.spacing_m)
                     )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -394,8 +395,8 @@ private fun BottomTabSection(
     ) {
         Box(modifier = Modifier
             .padding(
-                start = AppConstants.SPACING_M.dp,
-                top = AppConstants.SPACING_S.dp
+                start = dimensionResource(R.dimen.spacing_m),
+                top = dimensionResource(R.dimen.spacing_s)
             )
         ) {
             GalleryThumbnail(
@@ -409,7 +410,7 @@ private fun BottomTabSection(
             hasPermission = hasPermission,
             modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(top = AppConstants.SPACING_S.dp)
+                .padding(top = dimensionResource(R.dimen.spacing_s))
         )
     }
 }
