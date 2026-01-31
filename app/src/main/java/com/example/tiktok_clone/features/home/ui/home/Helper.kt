@@ -27,12 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.core.utils.AppColors
-import com.example.tiktok_clone.core.utils.AppConstants
-import com.example.tiktok_clone.features.social.ui.CommentSheetContent
-import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import com.example.tiktok_clone.R
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Bookmark
@@ -75,7 +72,7 @@ fun MiddleSection(
                 likeCount = if (isLiked) likeCount + 1 else likeCount - 1
             }
         )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.CommentDots,
@@ -110,6 +107,7 @@ fun MiddleSection(
         }
 
         Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Bookmark,
@@ -121,14 +119,14 @@ fun MiddleSection(
                 saveCount = if (isSaved) saveCount + 1 else saveCount - 1
             }
         )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Share,
             name = "Share",
             numberOfInteraction = 4302
         )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
     }
 }
 
@@ -180,7 +178,7 @@ fun VideoDescriptionSection(
         Text(
             text = userName,
             style = MaterialTheme.typography.bodyLarge,
-            color = AppColors.TEXT_ON_DARK
+            color = colorResource(R.color.text_on_dark)
         )
     }
 }
