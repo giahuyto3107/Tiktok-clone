@@ -14,10 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-
-// Định nghĩa màu đỏ đặc trưng của TikTok
-val TikTokRed = Color(0xFFFE2C55)
+import androidx.compose.ui.res.colorResource
+import com.example.tiktok_clone.R
 
 @Composable
 fun ProfileScreen(
@@ -118,10 +116,10 @@ fun ProfileBody(
             )
         ) {
             Text(
-                text = "Login",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
+                text = "Log into existing account",
+                style = MaterialTheme.typography.bodyLarge,
+                color = colorResource(R.color.text_on_dark),
+                modifier = Modifier.padding(bottom = 16.dp)
             )
         }
     }

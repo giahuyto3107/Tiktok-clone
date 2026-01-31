@@ -18,9 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
-import com.example.tiktok_clone.core.utils.AppColors
-import com.example.tiktok_clone.core.utils.AppConstants
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import com.example.tiktok_clone.R
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Bookmark
@@ -50,28 +50,28 @@ fun MiddleSection(
                 likeCount = if (isLiked) likeCount + 1 else likeCount - 1
             }
         )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.CommentDots,
             name = "Comment",
             numberOfInteraction = 1584
         )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Bookmark,
             name = "Save",
             numberOfInteraction = 112
         )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Share,
             name = "Share",
             numberOfInteraction = 4302
         )
-        Spacer(modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
     }
 }
 
@@ -92,13 +92,13 @@ fun MainInteractiveItem(
         Icon(
             imageVector = icon,
             contentDescription = name,
-            tint = if (name == "Love" && isLiked) Color.Red else AppColors.TEXT_ON_DARK,
-            modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
+            tint = if (name == "Love" && isLiked) Color.Red else colorResource(R.color.text_on_dark),
+            modifier = Modifier.size(size = dimensionResource(R.dimen.font_title_m))
         )
 
         Text(
             text = numberOfInteraction.toString(),
-            color = AppColors.TEXT_ON_DARK,
+            color = colorResource(R.color.text_on_dark),
             style = MaterialTheme.typography.labelSmall,
         )
     }
@@ -115,7 +115,7 @@ fun VideoDescriptionSection(
         Text(
             text = userName,
             style = MaterialTheme.typography.bodyLarge,
-            color = AppColors.TEXT_ON_DARK
+            color = colorResource(R.color.text_on_dark)
         )
     }
 }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing -->
+    <dimen name="spacing_xxs">2dp</dimen>
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_s">8dp</dimen>
+    <dimen name="spacing_m">12dp</dimen>
+    <dimen name="spacing_l">16dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
+    <dimen name="spacing_xxl">32dp</dimen>
+    <dimen name="spacing_xxxl">48dp</dimen>
+    <dimen name="spacing_navigation_bar">100dp</dimen>
+
+    <!-- Icon Sizes -->
+    <dimen name="icon_xs">16dp</dimen>
+    <dimen name="icon_s">20dp</dimen>
+    <dimen name="icon_m">24dp</dimen>
+    <dimen name="icon_l">32dp</dimen>
+    <dimen name="icon_xl">48dp</dimen>
+    <dimen name="icon_xxl">64dp</dimen>
+
+    <!-- Button/Card Sizes -->
+    <dimen name="button_height_s">36dp</dimen>
+    <dimen name="button_height_m">48dp</dimen>
+    <dimen name="button_height_l">56dp</dimen>
+    <dimen name="button_padding_h">24dp</dimen>
+    <dimen name="card_height_s">80dp</dimen>
+    <dimen name="card_height_m">120dp</dimen>
+    <dimen name="card_height_l">180dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+
+    <!-- AppBar & Nav -->
+    <dimen name="app_bar_height">56dp</dimen>
+    <dimen name="app_bar_height_large">128dp</dimen>
+    <dimen name="bottom_nav_height">60dp</dimen>
+
+    <!-- Border Radius -->
+    <dimen name="radius_s">4dp</dimen>
+    <dimen name="radius_m">8dp</dimen>
+    <dimen name="radius_l">12dp</dimen>
+    <dimen name="radius_xl">16dp</dimen>
+    <dimen name="radius_xxl">24dp</dimen>
+    <dimen name="radius_circular">999dp</dimen>
+
+    <!-- Elevation/Shadow -->
+    <dimen name="elevation_s">2dp</dimen>
+    <dimen name="elevation_m">4dp</dimen>
+    <dimen name="elevation_l">8dp</dimen>
+    <dimen name="elevation_xl">16dp</dimen>
+
+    <!-- Border Width -->
+    <dimen name="border_thin">1dp</dimen>
+    <dimen name="border_medium">2dp</dimen>
+    <dimen name="border_thick">3dp</dimen>
+
+    <!-- Font Sizes -->
+    <dimen name="font_xs">10sp</dimen>
+    <dimen name="font_s">12sp</dimen>
+    <dimen name="font_m">14sp</dimen>
+    <dimen name="font_l">16sp</dimen>
+    <dimen name="font_xl">18sp</dimen>
+    <dimen name="font_xxl">20sp</dimen>
+    <dimen name="font_xxxl">22sp</dimen>
+    <dimen name="font_title_s">24sp</dimen>
+    <dimen name="font_title_m">28sp</dimen>
+    <dimen name="font_title_l">32sp</dimen>
+</resources>
