@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.R
 import com.example.tiktok_clone.features.social.model.FakeCommentData
+import com.example.tiktok_clone.features.social.model.FakeUserData
+import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.SocialUiState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import com.example.tiktok_clone.features.social.model.Post
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -19,6 +19,9 @@ class SocialViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
     private val _comments = MutableStateFlow(FakeCommentData.comments)
     val comments = _comments.asStateFlow()
+
+    private val _user = MutableStateFlow(FakeUserData.user)
+    val user = _user.asStateFlow()
 
     init {
         loadPosts()
