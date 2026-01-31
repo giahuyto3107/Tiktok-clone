@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Durations & Logic -->
+    <integer name="animation_short">200</integer>
+    <integer name="animation_medium">300</integer>
+    <integer name="animation_long">500</integer>
+    <integer name="resend_time_countdown">15</integer>
+    <integer name="max_retries">3</integer>
+    <integer name="items_per_page">20</integer>
+    <integer name="load_more_threshold">5</integer>
+    
+    <!-- Database -->
+    <integer name="database_version">1</integer>
+    
+    <!-- Request Timeout -->
+    <integer name="request_timeout">30</integer>
+</resources>
