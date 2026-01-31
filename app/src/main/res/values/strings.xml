@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">tiktok_clone</string>
     <string name="app_display_name">Tiktok</string>
-    
+    <string name="default_web_client_id">292733435875-lvctatn5b08asht45urjh1j8vqdk4fi1.apps.googleusercontent.com</string>
+
     <!-- Date/Time Formats -->
     <string name="date_format_full">dd/MM/yyyy</string>
     <string name="date_format_short">dd/MM</string>

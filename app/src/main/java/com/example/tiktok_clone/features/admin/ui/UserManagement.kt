@@ -70,10 +70,10 @@ fun DashboardScreen() {
                     DashboardContent(onUserClick = { user -> selectedUser = user })
                 } else {
                     // Hiện Chi Tiết (Gọi từ file UserDetailManagement.kt)
-                    UserProfileDetailScreen(
-                        user = selectedUser!!,
-                        onBack = { selectedUser = null }
-                    )
+//                    UserProfileDetailScreen(
+//                        user = selectedUser!!,
+//                        onBack = { selectedUser = null }
+//                    )
                 }
             }
         }

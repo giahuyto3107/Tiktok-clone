@@ -7,6 +7,7 @@ import androidx.credentials.CredentialManager
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import com.example.tiktok_clone.R
 
 // Sử dụng Hilt để inject Context (hoặc truyền tay nếu không dùng DI)
 class AuthRepository @Inject constructor(
