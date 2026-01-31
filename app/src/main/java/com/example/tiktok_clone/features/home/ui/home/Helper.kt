@@ -35,8 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tiktok_clone.R
 
 import com.example.tiktok_clone.features.social.ui.CommentBottomBar
 import com.example.tiktok_clone.features.social.ui.CommentSheetContent
@@ -84,7 +86,7 @@ fun MiddleSection(
                 likeCount = if (isLiked) likeCount + 1 else likeCount - 1
             }
         )
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.CommentDots,
@@ -143,14 +145,14 @@ fun MainInteractiveItem(
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = 16.dp)
+                .size(size = dimensionResource(R.dimen.font_title_m))
                 .clickable(onClick = onClick)
         )
 
         Text(
             text = formatCount(numberOfInteraction),
             color = Color.White,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.titleMedium,
         )
     }
 }
