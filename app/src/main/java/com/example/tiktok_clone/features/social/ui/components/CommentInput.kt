@@ -1,55 +1,220 @@
 package com.example.tiktok_clone.features.social.ui.components
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContract
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.outlined.AlternateEmail
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.InsertEmoticon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import com.example.tiktok_clone.core.utils.AppColors
 import com.example.tiktok_clone.features.social.ui.Avatar
+import androidx.compose.ui.text.TextStyle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tiktok_clone.features.social.ui.CommentItem
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Regular
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.regular.Image
+import compose.icons.fontawesomeicons.regular.Meh
+import compose.icons.fontawesomeicons.solid.ArrowUp
+import compose.icons.fontawesomeicons.solid.At
+import compose.icons.fontawesomeicons.solid.Image
+import compose.icons.fontawesomeicons.solid.Meh
+import compose.icons.fontawesomeicons.solid.PaperPlane
 
 @Composable
 fun CommentInput(
-    avatarUrl: String?,
+    viewModel: SocialViewModel = viewModel(),
     modifier: Modifier
-)
-{
+) {
 //    val galleryLauncher = rememberLauncherForActivityResult(
 //        contract = ActivityResultContract.GetContent()
 //    ) {
 //        uri -> Uri? ->
 //        uri?.let{onAction(CommentAction.AddComment(it))}
 //    }
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-
+    var commentText by remember { mutableStateOf("") }
+    var user by remember { mutableStateOf(viewModel.user.value) }
+    var isCommenting by remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color.White)
     ) {
-        Avatar(
-            avatarUrl = avatarUrl,
-            modifier = Modifier
-                .padding(4.dp)
-        )
-        Box(
-            modifier = Modifier
-                .padding(4.dp)
-                .fillMaxWidth(0.7f)
-                .height(1.dp)
+        Row(
+            modifier = modifier
+                .background(color = Color.White)
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+
         ) {
-            Text(
-                text = "Nhập bình luận...",
-                color = AppColors.TEXT_ON_DARK,
-            )
+            Box(
+                modifier = Modifier
+                    .border(1.dp, Color.Gray, CircleShape)
+                    .size(45.dp)
+                    .clip(CircleShape)
+
+
+            ) {
+                Avatar(
+                    avatarUrl = user?.avatarUrl,
+                    modifier = Modifier
+                        .matchParentSize()
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(color = Color.White)
+                    .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
+                    .height(50.dp)
+
+            ) {
+                TextField(
+                    value = commentText,
+                    onValueChange = {
+                        commentText = it
+                        isCommenting = true
+                    },
+                    textStyle = TextStyle(color = Color.Black),
+                    placeholder = {
+                        Text("Thêm bình luận...", color = Color.Gray)
+
+                    },
+                    shape = CircleShape,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Gray.copy(alpha = 0.1f),
+                        unfocusedContainerColor = Color.Gray.copy(alpha = 0.4f),
+                        disabledContainerColor = Color.Gray.copy(alpha = 0.4f),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
+                )
+
+//                CommentInputItem(
+//                    modifier = Modifier
+//                        .align(Alignment.CenterEnd)
+//                        .padding(end = 8.dp)
+//                )
+
+            }
 
         }
+        if (isCommenting) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // icon bên trái
+                CommentInputItem(
+                    modifier = Modifier
+
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                val pushColor =
+                    if (!commentText.isEmpty()) Color.Red.copy(alpha = 0.6f) else Color.Red.copy(
+                        alpha = 0.8f
+                    )
+                Box(
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .height(30.dp)
+                        .width(50.dp)
+                        .clip(CircleShape)
+                        .background(color = pushColor)
+                        .clickable(onClick = {}),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CommentItem(
+                        icon = FontAwesomeIcons.Solid.ArrowUp,
+                        tint = Color.White,
+                        text = "Đăng",
+                        showText = false,
+                        onClick = {},
+                        modifier = Modifier.size(12.dp)
+
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CommentInputItem(
+    modifier: Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CommentItem(
+            icon = Icons.Outlined.Image,
+            showText = false,
+            modifier = Modifier
+                .size(28.dp),
+//                            .graphicsLayer( //phóng to UI element lên 1.2 lần, vì Icons có padding ẩn
+//                                scaleX = 1.2f,
+//                                scaleY = 1.2f
+//                            ),
+            onClick = {},
+            tint = Color.Black,
+            text = "Ảnh"
+        )
+        CommentItem(
+            icon = Icons.Outlined.InsertEmoticon,
+            showText = false,
+            modifier = Modifier
+                .size(28.dp),
+            onClick = {},
+            tint = Color.Black,
+            text = "Sticker"
+        )
+        CommentItem(
+            icon = Icons.Outlined.AlternateEmail,
+            showText = false,
+            modifier = Modifier
+                .size(28.dp),
+//                            .graphicsLayer(
+//                                scaleX = 1.2f,
+//                                scaleY = 1.2f
+//                            ),
+            onClick = {},
+            tint = Color.Black,
+            text = "tag"
+        )
     }
 }

@@ -1,9 +1,11 @@
 package com.example.tiktok_clone.features.social.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,25 +14,41 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,9 +57,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
@@ -59,8 +81,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.core.utils.AppColors
-import com.example.tiktok_clone.core.utils.AppConstants
+import com.example.tiktok_clone.features.social.ui.components.CommentInput
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular
@@ -68,53 +89,69 @@ import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.regular.Heart
 import compose.icons.fontawesomeicons.regular.ThumbsDown
 import compose.icons.fontawesomeicons.solid.Heart
-import compose.icons.fontawesomeicons.solid.Search
 import compose.icons.fontawesomeicons.solid.SortAmountDownAlt
 import compose.icons.fontawesomeicons.solid.ThumbsDown
 import compose.icons.fontawesomeicons.solid.Times
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentSheetContent(
     viewModel: SocialViewModel = viewModel(),
-    onClose: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val comments by viewModel.comments.collectAsState()
-    Column(
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        dragHandle = { BottomSheetDefaults.DragHandle() },
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.9f),
+
     ) {
-        CommentHeader(
-            commentCount = comments.size,
-            Search = "Nam dẹp trai",
-            modifier = Modifier.fillMaxWidth(),
-            onClose = onClose
-        )
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .nestedScroll(rememberNestedScrollInteropConnection()),
-            contentPadding = PaddingValues(2.dp)
-
+        Column(modifier = Modifier
+            .fillMaxHeight(0.6f)
+            .fillMaxWidth()
+            .navigationBarsPadding()
         ) {
-            items(comments.size) { comment ->
-                CommentLine(
-                    AvatarUrl = comments[comment].AvatarUrl,
-                    userName = comments[comment].userName,
-                    time = comments[comment].commentTime,
-                    comment = comments[comment].comment,
-                    likeCount = comments[comment].likeCount,
-                    replyCount = comments[comment].replyCount,
-                    modifier = Modifier
-
-                )
+            CommentHeader(
+                commentCount = comments.size,
+                Search = "Search",
+                onClose = onDismiss,
+                modifier = Modifier
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                items(comments.size) { index ->
+                    CommentLine(
+                        AvatarUrl = comments[index].AvatarUrl,
+                        userName = comments[index].userName,
+                        time = comments[index].commentTime,
+                        comment = comments[index].comment,
+                        likeCount = comments[index].likeCount,
+                        replyCount = comments[index].replyCount,
+                        modifier = Modifier
+                    )
+                }
             }
-
+            CommentBottomBar(
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.ime)
+            )
         }
     }
 }
+
 
 @Composable
 fun CommentHeader(
@@ -210,7 +247,7 @@ fun CommentHeader(
         ) {
 
             Text(
-                text = "${formatCommentCount(commentCount)} bình luận",
+                text = "${formatCount(commentCount)} bình luận",
                 modifier = Modifier.padding(4.dp),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
@@ -220,24 +257,13 @@ fun CommentHeader(
     }
 }
 
-@Composable
-fun formatCommentCount(
-
-    commentCount: Int
-): String {
-    return if (commentCount < 1000) {
-        commentCount.toString()
-    } else {
-        "${commentCount / 1000}k"
-    }
-}
 
 @Composable
 fun CommentItem(
     icon: ImageVector,
     onClick: () -> Unit,
     text: String,
-    tint: Color = AppColors.TEXT_ON_LIGHT,
+    tint: Color = Color.Black,
     showText: Boolean,
     modifier: Modifier
 ) {
@@ -261,6 +287,25 @@ fun CommentItem(
                 textAlign = TextAlign.Start,
             )
         }
+    }
+}
+
+@Composable
+fun CommentBottomBar(
+    viewModel: SocialViewModel = viewModel(),
+    modifier: Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth(),
+        tonalElevation = 4.dp,
+        shadowElevation = 8.dp
+
+    ) {
+        CommentInput(
+            viewModel = viewModel,
+            modifier = Modifier
+        )
     }
 }
 
@@ -299,7 +344,7 @@ fun CommentLine(
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Gray, CircleShape)
-                    .size(40.dp)
+                    .size(45.dp)
                     .clip(CircleShape)
                 //.align(Alignment.Top)
             ) {
@@ -386,8 +431,8 @@ fun CommentLine(
                             onClick = {
                                 isDislike = !isDislike
                                 if (isDislike && isLiked) {
-                                        isLiked = false
-                                        likeCount = maxOf(0, likeCount - 1)
+                                    isLiked = false
+                                    likeCount = maxOf(0, likeCount - 1)
                                 }
                             },
                             showText = false,
