@@ -3,6 +3,11 @@ package com.example.tiktok_clone
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.example.tiktok_clone.features.auth.ui.SearchScreen
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -16,9 +21,20 @@ import com.example.tiktok_clone.features.home.ui.home.HomeScreen
 import com.example.tiktok_clone.ui.theme.Tiktok_cloneTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // 👉 Cho phép edge-to-edge
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // 👉 Set màu status bar (PIN + TAI THỎ RÕ)
+        window.statusBarColor = Color.White.toArgb()
+
+        // 👉 Icon pin, sóng màu ĐEN
+        WindowInsetsControllerCompat(window, window.decorView)
+            .isAppearanceLightStatusBars = true
+
         setContent {
             Tiktok_cloneTheme {
                 Surface(

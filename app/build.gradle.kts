@@ -52,6 +52,41 @@ dependencies {
     // 1. Java 8+ API desugaring support (Required for older Android versions)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
+    // Core
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    // Compose BOM (CHỈ 1 LẦN)
+    implementation(platform(libs.androidx.compose.bom))
+
+    // Compose UI
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+
+    // Material 3
+    implementation(libs.androidx.material3)
+
+    // Icons (History, Camera, Close…)
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // ViewModel Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+
+    // LiveData / State
+    implementation("androidx.compose.runtime:runtime-livedata")
+
+    // Test
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
     // 2. Compose BOM (Single Source of Truth)
     // Using the one from your libs.versions.toml is best practice
     val composeBom = platform(libs.androidx.compose.bom)
