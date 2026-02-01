@@ -1,4 +1,6 @@
-package com.example.tiktok_clone.features.social.model
+package com.example.tiktok_clone.features.social.fakeData
+
+import com.example.tiktok_clone.features.social.model.User
 
 data object FakeFriendData {
 

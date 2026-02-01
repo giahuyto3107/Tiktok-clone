@@ -1,14 +1,13 @@
-package com.example.tiktok_clone.features.social.model
+package com.example.tiktok_clone.features.social.fakeData
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.HeartBroken
-import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.FileDownload
-import androidx.compose.ui.graphics.Color
+import com.example.tiktok_clone.features.social.model.ShareAcction
 
 object FakeDataShareAcction {
     val shareAcctions = listOf(
