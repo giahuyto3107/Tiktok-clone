@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.commentComponents
+package com.example.tiktok_clone.features.social.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable

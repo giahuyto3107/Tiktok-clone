@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.shareComponents
+package com.example.tiktok_clone.features.social.ui.share
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.features.social.ui.commentComponents.CommentItem
+import com.example.tiktok_clone.features.social.ui.components.CommentItem
 
 @Composable
 fun ShareHeader(

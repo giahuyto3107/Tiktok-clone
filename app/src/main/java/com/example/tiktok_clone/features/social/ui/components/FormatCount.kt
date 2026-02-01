@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.commentComponents
+package com.example.tiktok_clone.features.social.ui.components
 
 // định dạng đếm số
 fun formatCount(count: Int): String {

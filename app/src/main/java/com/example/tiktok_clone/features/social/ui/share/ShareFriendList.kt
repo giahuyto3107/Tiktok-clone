@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.shareComponents
+package com.example.tiktok_clone.features.social.ui.share
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyRow
@@ -21,9 +21,7 @@ fun ShareFriendList(
     ) {
         items(friends.size) { friend ->
             ShareFriendItem(
-                avatarUrl = friends[friend].avatarUrl,
-                userName = friends[friend].userName,
-                modifier = Modifier,
+                friend = friends[friend],
                 onShare = {}
             )
         }

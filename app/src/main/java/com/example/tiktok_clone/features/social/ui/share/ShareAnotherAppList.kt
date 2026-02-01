@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.shareComponents
+package com.example.tiktok_clone.features.social.ui.share
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

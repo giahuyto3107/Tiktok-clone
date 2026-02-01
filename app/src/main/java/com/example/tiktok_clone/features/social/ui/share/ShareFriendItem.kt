@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.shareComponents
+package com.example.tiktok_clone.features.social.ui.share
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,14 +18,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.features.social.ui.commentComponents.Avatar
+import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.ui.components.Avatar
 
 @Composable
 fun ShareFriendItem(
-    modifier: Modifier = Modifier,
     onShare: () -> Unit,
-    avatarUrl: String,
-    userName: String
+    friend: User,
 ) {
     Column(
         modifier = Modifier.clickable(onClick = onShare),
@@ -39,13 +38,13 @@ fun ShareFriendItem(
                 .clip(CircleShape)
         ) {
             Avatar(
-                avatarUrl = avatarUrl,
+                avatarUrl = friend.avatarUrl,
                 modifier = Modifier
                     .matchParentSize()
             )
         }
         Text(
-            text = userName,
+            text = friend.userName,
             fontSize = 12.sp,
             color = Color.Black,
             textAlign = TextAlign.Center,
