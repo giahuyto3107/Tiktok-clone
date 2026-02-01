@@ -9,8 +9,7 @@ object FakeCommentData {
             userName = "Trùm Đẩy Deadline",
             commentTime = "10-02-2025",
             AvatarUrl = "https://i.pravatar.cc/150?img=1",
-            comment = "Video cuốn thật sự 👍",
-            isLiked = true,
+            commentContent = "Video cuốn thật sự 👍",
             likeCount = 120,
             replyCount = 8
         ),
@@ -21,7 +20,7 @@ object FakeCommentData {
             userName = "Cha đẻ Tiktok",
             commentTime = "10-02-2026",
             AvatarUrl = "https://i.pravatar.cc/150?img=2",
-            comment = "Cười mà xem hoài",
+            commentContent = "Cười mà xem hoài",
             likeCount = 45,
             replyCount = 2
         ),
@@ -32,7 +31,7 @@ object FakeCommentData {
             userName = "Code Không Bug",
             commentTime = "10-11-2025",
             AvatarUrl = "https://i.pravatar.cc/150?img=3",
-            comment = "Đoạn cuối hơi nhanh, giá mà chậm lại chút",
+            commentContent = "Đoạn cuối hơi nhanh, giá mà chậm lại chút",
             likeCount = 12,
             replyCount = 1
         ),
@@ -43,7 +42,7 @@ object FakeCommentData {
             userName = "Chúa Tể Ngủ Trễ",
             commentTime = "10-12-2025",
             AvatarUrl = "https://i.pravatar.cc/150?img=4",
-            comment = "Ủa rồi sao nữa 🤔",
+            commentContent = "Ủa rồi sao nữa 🤔",
             likeCount = 3,
             replyCount = 0
         ),
@@ -54,7 +53,7 @@ object FakeCommentData {
             userName = "Ông Hoàng Dark Mode",
             commentTime = "8-1-2025",
             AvatarUrl = "https://i.pravatar.cc/150?img=5",
-            comment = "Edit mượt ghê",
+            commentContent = "Edit mượt ghê",
             isLiked = true,
             likeCount = 89,
             replyCount = 5
@@ -66,7 +65,7 @@ object FakeCommentData {
             userName = "Chuông kì bu",
             commentTime = "10-02-2025",
             AvatarUrl = "",
-            comment = "Xem giải trí ổn áp",
+            commentContent = "Xem giải trí ổn áp",
             likeCount = 0,
             replyCount = 0
         ),
@@ -77,9 +76,9 @@ object FakeCommentData {
             userName = "Tay Chơi Loli",
             commentTime = "8-02-2025",
             AvatarUrl = "https://i.pravatar.cc/150?img=6",
-            comment = "Xem mà tim đập nhanh hơn cả deadlinsadsadsadsadae 😭",
+            commentContent = "Xem mà tim đập nhanh hơn cả deadlinsadsadsadsadae 😭",
             likeCount = 666,
-            replyCount = 69
+            replyCount = 69611
         ),
         Comment(
             id = "c8",
@@ -88,7 +87,7 @@ object FakeCommentData {
             userName = "Xe Lăng Thần Tốc",
             commentTime = "9-02-2025",
             AvatarUrl = "https://i.pravatar.cc/150?img=7",
-            comment = "Tua chưa kịp là hết, coi lại lần 3 luôn 🚀",
+            commentContent = "Tua chưa kịp là hết, coi lại lần 3 luôn 🚀",
             isLiked = true,
             likeCount = 314,
             replyCount = 12
@@ -100,7 +99,7 @@ object FakeCommentData {
             userName = "Hoa Thanh Quế",
             commentTime = "2 giờ",
             AvatarUrl = "https://i.pravatar.cc/150?img=8",
-            comment = "Nói rằng mình là người Thanh H..",
+            commentContent = "Nói rằng mình là người Thanh H..",
             likeCount = 101,
             replyCount = 4
         )
