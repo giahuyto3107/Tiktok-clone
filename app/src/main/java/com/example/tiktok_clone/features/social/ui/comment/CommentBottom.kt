@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.commentComponents
+package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.commentComponents
+package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tiktok_clone.features.social.ui.components.Avatar
+import com.example.tiktok_clone.features.social.ui.components.CommentItem
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid

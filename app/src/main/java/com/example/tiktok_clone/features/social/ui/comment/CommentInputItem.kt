@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.commentComponents
+package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.tiktok_clone.features.social.ui.components.CommentItem
 
 
 @Composable

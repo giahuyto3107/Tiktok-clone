@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.commentComponents
+package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.features.social.ui.components.CommentItem
+import com.example.tiktok_clone.features.social.ui.components.formatCount
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.SortAmountDownAlt
@@ -40,6 +42,7 @@ fun CommentHeader(
     commentCount: Int,
     Search: String,
     onClose: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var isSort by remember { mutableStateOf(false) }
 
@@ -63,7 +66,8 @@ fun CommentHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 4.dp),
+            .padding(bottom = 4.dp)
+            .then(modifier),
         //horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(

@@ -1,9 +1,11 @@
-package com.example.tiktok_clone.features.social.ui
+package com.example.tiktok_clone.features.social.ui.comment
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -17,11 +19,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.ui.comment.CommentBottomBar
-import com.example.tiktok_clone.features.social.ui.comment.CommentHeader
-import com.example.tiktok_clone.features.social.ui.comment.CommentLine
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 // toàn bộ commnet sheet
@@ -33,7 +35,7 @@ fun CommentSheetContent(
 ) {
     val comments by viewModel.comments.collectAsState()
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = false,
     )
 
     ModalBottomSheet(
@@ -47,27 +49,24 @@ fun CommentSheetContent(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxHeight(0.6f)
                 .fillMaxWidth()
-                .navigationBarsPadding()
+                .navigationBarsPadding() //Tự động chừa padding ở dưới (và cạnh) để UI không bị che bởi thanh điều hướng hệ thống
+                .fillMaxHeight(0.6f)
+
+
         ) {
             CommentHeader(
                 commentCount = comments.size,
                 Search = "Search",
                 onClose = onDismiss,
             )
-            LazyColumn(
+            CommentList(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                items(comments.size) { index ->
-                    CommentLine(
-                        comment = comments[index],
-                        viewModel = viewModel,
-                    )
-                }
-            }
+                    .nestedScroll(rememberNestedScrollInteropConnection()),
+
+                comments = comments
+            )
             CommentBottomBar(
                 viewModel = viewModel,
                 modifier = Modifier
