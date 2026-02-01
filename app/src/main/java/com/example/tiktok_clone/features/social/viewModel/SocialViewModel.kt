@@ -3,9 +3,11 @@ package com.example.tiktok_clone.features.social.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.features.social.model.FakeCommentData
-import com.example.tiktok_clone.features.social.model.FakeUserData
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.fakeData.FakeAppData
+import com.example.tiktok_clone.features.social.fakeData.FakeCommentData
+import com.example.tiktok_clone.features.social.fakeData.FakeDataShareAcction
+import com.example.tiktok_clone.features.social.fakeData.FakeFriendData
+import com.example.tiktok_clone.features.social.fakeData.FakeUserData
 import com.example.tiktok_clone.features.social.ui.SocialUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +25,15 @@ class SocialViewModel : ViewModel() {
     private val _user = MutableStateFlow(FakeUserData.user)
     val user = _user.asStateFlow()
 
+    private val _friends = MutableStateFlow(FakeFriendData.Friends)
+    val friends = _friends.asStateFlow()
+
+    private val _apps = MutableStateFlow(FakeAppData.apps)
+    val apps = _apps.asStateFlow()
+
+    private val _shareAcctions = MutableStateFlow(FakeDataShareAcction.shareAcctions)
+    val shareAcctions = _shareAcctions.asStateFlow()
+
     init {
         loadPosts()
     }
@@ -33,6 +44,7 @@ class SocialViewModel : ViewModel() {
 
     fun onAction(action: SocialAction) {
         when (action) {
+            is SocialAction.LikeComment -> handleLikeComment(action.commentId)
             is SocialAction.Like -> handleLike(action.postId)
             is SocialAction.Comment -> handleComment(action.postId)
             is SocialAction.Share -> handleShare(action.postId)
@@ -49,6 +61,30 @@ class SocialViewModel : ViewModel() {
             is SocialAction.DismissError -> handleDismissError()
         }
     }
+
+    private fun handleLikeComment(commentId: String) {
+        _comments.update { currentComments ->
+            currentComments.map { comment ->
+                if (comment.id == commentId) {
+
+                    val newIsLiked = !comment.isLiked
+
+                    val newCount = if (newIsLiked) {
+                        comment.likeCount + 1
+                    } else {
+                        (comment.likeCount - 1).coerceAtLeast(0)
+                    }
+                    comment.copy(
+                        isLiked = newIsLiked,
+                        likeCount = newCount
+                    )
+                } else {
+                    comment
+                }
+            }
+        }
+    }
+
 
     private fun handleLike(postId: String) {
         _uiState.update { currentState ->
@@ -200,18 +236,21 @@ class SocialViewModel : ViewModel() {
             }
         }
     }
-    private fun handleRetry(){
-        if(_uiState.value.posts.isEmpty()){
+
+    private fun handleRetry() {
+        if (_uiState.value.posts.isEmpty()) {
             loadPost()
-        }else{
+        } else {
             handleLoadMore()
         }
     }
-    private fun handleDismissError(){
+
+    private fun handleDismissError() {
         _uiState.update {
             it.copy(error = null)
         }
     }
+
     private fun createMockPosts(): List<Post> {
         val images = listOf(
             R.drawable.apartment,
