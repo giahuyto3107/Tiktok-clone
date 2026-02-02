@@ -1,25 +1,38 @@
 package com.example.tiktok_clone.features.profile.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+
+
+import androidx.compose.foundation.layout.Arrangement
+
+import androidx.compose.foundation.layout.Box
+
+import androidx.compose.foundation.layout.Column
+
+import androidx.compose.foundation.layout.fillMaxSize
+
+import androidx.compose.foundation.layout.fillMaxWidth
+
+import androidx.compose.foundation.layout.padding
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+
 import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+
 import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 // Định nghĩa màu đỏ giống trong ảnh (hoặc bạn có thể dùng Color.Red)
 val TiktokRed = Color(0xFFEA4359)
 
 @Composable
+
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     onNavigationToProfileScreen: () -> Unit
@@ -37,10 +50,15 @@ fun ProfileScreen(
 
             ProfileBody()
         }
+
     }
+
 }
 
+
+
 @Composable
+
 fun ProfileHeader(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
@@ -68,7 +86,10 @@ fun ProfileHeader(modifier: Modifier = Modifier) {
             tint = Color.Black
         )
     }
+
 }
+
+
 
 @Composable
 fun ProfileBody(modifier: Modifier = Modifier) {
@@ -109,17 +130,38 @@ fun ProfileBody(modifier: Modifier = Modifier) {
             ),
             shape = RoundedCornerShape(4.dp) // Bo góc nhẹ giống ảnh (thay vì bo tròn nhiều)
         ) {
+
+            Icon(
+
+                imageVector = Icons.Default.Person,
+
+                contentDescription = "User",
+
+                modifier = Modifier.padding(bottom = 16.dp)
+
+            )
+
             Text(
                 text = "Login",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
             )
+
+            Button(onClick = { /* TODO: Navigate to login */ }) {
+
+                Text("Login")
+
+            }
+
         }
+
     }
+
 }
 
 @Preview(showBackground = true)
 @Composable
+
 private fun PreviewProfileScreen() {
     ProfileScreen(onNavigationToProfileScreen = {})
 }
