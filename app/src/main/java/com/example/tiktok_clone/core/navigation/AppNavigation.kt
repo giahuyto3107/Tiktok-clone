@@ -9,7 +9,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.tiktok.features.auth.screens.LoginFormScreen
+import com.example.tiktok.features.auth.screens.LoginSelectionScreen
+import com.example.tiktok.features.auth.screens.SignUpFormScreen
 import com.example.tiktok_clone.core.ui.MainWrapper
+import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
+import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.home.ui.camera.CameraAccessScreen
 import com.example.tiktok_clone.features.home.ui.home.HomeScreen
 import com.example.tiktok_clone.features.inbox.ui.InboxScreen
@@ -44,10 +49,16 @@ fun AppNavigation() {
             ) {
                 // Content based on selected tab
                 when (selectedTabIndex) {
-                    0 -> HomeScreenContent()
+                    0 -> HomeScreenContent(
+                        onSearchTap = { navController.navigate("search") }
+                    )
                     1 -> ShopScreenContent()
                     3 -> InboxScreenContent()
-                    4 -> ProfileScreenContent()
+                    4 -> ProfileScreenContent(
+                        onLoginClick = {
+                            navController.navigate("login_selection")
+                        }
+                    )
                 }
             }
         }
@@ -61,12 +72,60 @@ fun AppNavigation() {
                 }
             )
         }
+
+        composable(route = "search") {
+            SearchScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = "login_selection") {
+            LoginSelectionScreen(
+                onBack = { navController.popBackStack() },
+                onSignUpClick = { navController.navigate("select_signup") },
+                onPhoneEmailLoginClick = { navController.navigate("login_form") }
+            )
+        }
+
+        composable(route = "select_signup") {
+            SelectSignUpScreen(
+                onPhoneEmailClick = { navController.navigate("signup_form") },
+                onLoginClick = {
+                    // Quay lại màn hình login selection hoặc pop back
+                    navController.navigate("login_selection") {
+                        popUpTo("login_selection") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(route = "signup_form") {
+            SignUpFormScreen(
+                onBack = { navController.popBackStack() },
+                onLoginClick = {
+                    navController.navigate("login_selection") {
+                        popUpTo("login_selection") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(route = "login_form") {
+            LoginFormScreen(
+                onBack = { navController.popBackStack() },
+                onSignUpClick = { navController.navigate("select_signup") }
+            )
+        }
     }
 }
 
 @Composable
-private fun HomeScreenContent() {
-    HomeScreen()
+private fun HomeScreenContent(
+    onSearchTap: () -> Unit = {}
+) {
+    HomeScreen(onSearchTap = onSearchTap)
 }
 
 @Composable
@@ -80,8 +139,12 @@ private fun InboxScreenContent() {
 }
 
 @Composable
-private fun ProfileScreenContent() {
-    ProfileScreen()
+private fun ProfileScreenContent(
+    onLoginClick: () -> Unit
+) {
+    ProfileScreen(
+        onLoginClick = onLoginClick
+    )
 }
 
 @Preview(showBackground = true)
