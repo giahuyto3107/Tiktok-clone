@@ -1,29 +1,20 @@
 package com.example.tiktok_clone.features.home.ui.home
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberStandardBottomSheetState
+import com.example.tiktok_clone.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,10 +29,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.R
+import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
+import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 
-import com.example.tiktok_clone.features.social.ui.CommentBottomBar
-import com.example.tiktok_clone.features.social.ui.CommentSheetContent
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
@@ -61,15 +51,15 @@ fun MiddleSection(
     var isLiked by remember { mutableStateOf(false) }
     var likeCount by remember { mutableIntStateOf(2293) }
     var saveCount by remember { mutableIntStateOf(123) }
-    var commentCount by remember { mutableIntStateOf(comments.size) }
+    val commentCount = comments.size 
     var isSaved by remember { mutableStateOf(false) }
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
 
-    val sheetState = rememberStandardBottomSheetState(
-        initialValue = SheetValue.Expanded,
-        skipHiddenState = false
-    )
+//     val sheetState = rememberStandardBottomSheetState(
+//         initialValue = SheetValue.Expanded,
+//         skipHiddenState = false
+//     )
 
     Column(
         modifier = modifier,
@@ -99,12 +89,12 @@ fun MiddleSection(
         )
         if (isOpenCommentSheet) {
             CommentSheetContent(
-                modifier = Modifier,
                 onDismiss = {
                     isOpenCommentSheet = false
                 }
             )
         }
+
         Spacer(modifier = Modifier.size(16.dp))
 
         MainInteractiveItem(
@@ -122,11 +112,24 @@ fun MiddleSection(
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.Share,
             name = "Share",
-            numberOfInteraction = 4302
+            numberOfInteraction = 4302,
+            onClick = {
+                isOpenShareSheet = true
+            }
         )
+        if (isOpenShareSheet) {
+            ShareSheetContent(
+                onDismiss = {
+                    isOpenShareSheet = false
+                }
+            )
+        }
+
         Spacer(modifier = Modifier.size(16.dp))
     }
 }
+
+
 
 @Composable
 fun MainInteractiveItem(
@@ -139,20 +142,21 @@ fun MainInteractiveItem(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
     ) {
         Icon(
             imageVector = icon,
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = dimensionResource(R.dimen.font_title_m))
+                .size(size = dimensionResource(R.dimen.font_title_s))
                 .clickable(onClick = onClick)
         )
 
         Text(
             text = formatCount(numberOfInteraction),
             color = Color.White,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.labelSmall,
         )
     }
 }

@@ -1,9 +1,8 @@
-package com.example.tiktok_clone.features.social.ui.components
+package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,11 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.outlined.AlternateEmail
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.InsertEmoticon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -31,35 +25,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import com.example.tiktok_clone.features.social.ui.Avatar
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.ui.CommentItem
+import com.example.tiktok_clone.features.social.ui.components.Avatar
+import com.example.tiktok_clone.features.social.ui.components.CommentItem
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
-import compose.icons.fontawesomeicons.Regular
 import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.regular.Image
-import compose.icons.fontawesomeicons.regular.Meh
 import compose.icons.fontawesomeicons.solid.ArrowUp
-import compose.icons.fontawesomeicons.solid.At
-import compose.icons.fontawesomeicons.solid.Image
-import compose.icons.fontawesomeicons.solid.Meh
-import compose.icons.fontawesomeicons.solid.PaperPlane
 
 @Composable
 fun CommentInput(
     viewModel: SocialViewModel = viewModel(),
     modifier: Modifier
 ) {
-//    val galleryLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContract.GetContent()
-//    ) {
-//        uri -> Uri? ->
-//        uri?.let{onAction(CommentAction.AddComment(it))}
-//    }
+
     var commentText by remember { mutableStateOf("") }
     var user by remember { mutableStateOf(viewModel.user.value) }
     var isCommenting by remember { mutableStateOf(false) }
@@ -84,7 +65,7 @@ fun CommentInput(
 
             ) {
                 Avatar(
-                    avatarUrl = user?.avatarUrl,
+                    avatarUrl = user.avatarUrl,
                     modifier = Modifier
                         .matchParentSize()
                 )
@@ -122,12 +103,6 @@ fun CommentInput(
                         .align(Alignment.Center)
                 )
 
-//                CommentInputItem(
-//                    modifier = Modifier
-//                        .align(Alignment.CenterEnd)
-//                        .padding(end = 8.dp)
-//                )
-
             }
 
         }
@@ -139,11 +114,10 @@ fun CommentInput(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // icon bên trái
-                CommentInputItem(
-                    modifier = Modifier
+                CommentInputItem()
 
-                )
                 Spacer(modifier = Modifier.weight(1f))
+
                 val pushColor =
                     if (!commentText.isEmpty()) Color.Red.copy(alpha = 0.6f) else Color.Red.copy(
                         alpha = 0.8f
@@ -170,51 +144,5 @@ fun CommentInput(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun CommentInputItem(
-    modifier: Modifier
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CommentItem(
-            icon = Icons.Outlined.Image,
-            showText = false,
-            modifier = Modifier
-                .size(28.dp),
-//                            .graphicsLayer( //phóng to UI element lên 1.2 lần, vì Icons có padding ẩn
-//                                scaleX = 1.2f,
-//                                scaleY = 1.2f
-//                            ),
-            onClick = {},
-            tint = Color.Black,
-            text = "Ảnh"
-        )
-        CommentItem(
-            icon = Icons.Outlined.InsertEmoticon,
-            showText = false,
-            modifier = Modifier
-                .size(28.dp),
-            onClick = {},
-            tint = Color.Black,
-            text = "Sticker"
-        )
-        CommentItem(
-            icon = Icons.Outlined.AlternateEmail,
-            showText = false,
-            modifier = Modifier
-                .size(28.dp),
-//                            .graphicsLayer(
-//                                scaleX = 1.2f,
-//                                scaleY = 1.2f
-//                            ),
-            onClick = {},
-            tint = Color.Black,
-            text = "tag"
-        )
     }
 }
