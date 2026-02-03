@@ -34,17 +34,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Định nghĩa màu đỏ giống trong ảnh (hoặc bạn có thể dùng Color.Red)
 val TiktokRed = Color(0xFFEA4359)
 
 @Composable
 
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    onNavigationToProfileScreen: () -> Unit
+    onLoginClick: () -> Unit
 
 ) {
-    // Sử dụng Scaffold hoặc Column fillMaxSize với background trắng
     Surface(
         modifier = modifier.fillMaxSize(),
         color = Color.White // Đặt nền trắng giống ảnh
@@ -54,7 +52,7 @@ fun ProfileScreen(
             // Divider mờ ngăn cách header và body
             HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray)
 
-            ProfileBody()
+            ProfileBody(onLoginClick = onLoginClick)
         }
 
     }
@@ -98,7 +96,10 @@ fun ProfileHeader(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun ProfileBody(modifier: Modifier = Modifier) {
+fun ProfileBody(
+    modifier: Modifier = Modifier,
+    onLoginClick: () -> Unit
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -116,48 +117,31 @@ fun ProfileBody(modifier: Modifier = Modifier) {
             tint = Color.DarkGray
         )
 
-        // Text hướng dẫn
         Text(
             text = "Log into existing account",
             style = MaterialTheme.typography.bodyLarge,
             color = Color.Black,
-            modifier = Modifier.padding(bottom = 32.dp) // Cách nút bấm xa hơn một chút
+            modifier = Modifier.padding(bottom = 32.dp)
         )
 
         // Nút Login màu đỏ
         Button(
-            onClick = { /* TODO: Navigate to login */ },
+            onClick = onLoginClick,
             modifier = Modifier
-                .fillMaxWidth() // Kéo dài nút hết chiều ngang
-                .height(48.dp), // Chiều cao tiêu chuẩn
+                .fillMaxWidth()
+                .height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = TiktokRed, // Màu nền đỏ
+                containerColor = TiktokRed,
                 contentColor = Color.White
             ),
-            shape = RoundedCornerShape(4.dp) // Bo góc nhẹ giống ảnh (thay vì bo tròn nhiều)
+            shape = RoundedCornerShape(4.dp)
         ) {
-
-            Icon(
-
-                imageVector = Icons.Default.Person,
-
-                contentDescription = "User",
-
-                modifier = Modifier.padding(bottom = 16.dp)
-
-            )
 
             Text(
                 text = "Login",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
             )
-
-            Button(onClick = { /* TODO: Navigate to login */ }) {
-
-                Text("Login")
-
-            }
 
         }
 
@@ -169,5 +153,5 @@ fun ProfileBody(modifier: Modifier = Modifier) {
 @Composable
 
 private fun PreviewProfileScreen() {
-    ProfileScreen(onNavigationToProfileScreen = {})
+    ProfileScreen(onLoginClick = {})
 }

@@ -19,6 +19,7 @@ import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Brands
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.brands.Facebook
+import compose.icons.fontawesomeicons.brands.Google
 import compose.icons.fontawesomeicons.solid.QuestionCircle
 
 @Composable
@@ -56,7 +57,9 @@ fun LoginSelectionScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 CommonOptionButton("Tiếp tục với Facebook", FontAwesomeIcons.Brands.Facebook) {}
+                Spacer(modifier = Modifier.height(16.dp))
 
+                CommonOptionButton("Tiếp tục với Google", FontAwesomeIcons.Brands.Google) {}
                 Spacer(modifier = Modifier.weight(1f))
             }
 
