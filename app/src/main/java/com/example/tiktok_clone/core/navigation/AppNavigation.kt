@@ -94,7 +94,9 @@ private fun InboxScreenContent() {
 
 @Composable
 private fun ProfileScreenContent() {
-    ProfileScreen()
+    ProfileScreen(
+        onNavigationToProfileScreen = {}
+    )
 }
 
 @Preview(showBackground = true)
