@@ -1,4 +1,4 @@
-package com.example.tiktok.features.auth.screens
+package com.example.tiktok_clone.features.auth.ui
 
 import android.util.Log
 import android.widget.Toast
@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.features.auth.ui.GoogleAuthUiHelper
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Brands
 import compose.icons.fontawesomeicons.Solid
@@ -85,8 +84,7 @@ fun LoginSelectionScreen(
                 CommonOptionButton("Tiếp tục với Facebook", FontAwesomeIcons.Brands.Facebook) {}
                 Spacer(modifier = Modifier.height(16.dp))
 
-                CommonOptionButton("Tiếp tục với Google", FontAwesomeIcons.Brands.Google) {}
-                Spacer(modifier = Modifier.height(32.dp))
+//                Spacer(modifier = Modifier.height(32.dp))
                 CommonOptionButton(
                     "Tiếp tục với Google",
                     FontAwesomeIcons.Brands.Google,
@@ -107,9 +105,8 @@ fun LoginSelectionScreen(
                         }
                     }
                 )
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(32.dp))
             }
-.
             // Footer
             CommonFooter(text = "Bạn không có tài khoản?", actionText = "Đăng ký", onActionClick = onSignUpClick)
         }

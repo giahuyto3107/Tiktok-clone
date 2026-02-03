@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tiktok.features.auth.screens.LoginFormScreen
-import com.example.tiktok.features.auth.screens.LoginSelectionScreen
+import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
 import com.example.tiktok.features.auth.screens.SignUpFormScreen
 import com.example.tiktok_clone.core.ui.MainWrapper
 import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
