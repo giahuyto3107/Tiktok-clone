@@ -14,7 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberStandardBottomSheetState
+import com.example.tiktok_clone.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -142,20 +142,21 @@ fun MainInteractiveItem(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
     ) {
         Icon(
             imageVector = icon,
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = dimensionResource(R.dimen.font_title_m))
+                .size(size = dimensionResource(R.dimen.font_title_s))
                 .clickable(onClick = onClick)
         )
 
         Text(
             text = formatCount(numberOfInteraction),
             color = Color.White,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.labelSmall,
         )
     }
 }
