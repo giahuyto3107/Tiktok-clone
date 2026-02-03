@@ -1,5 +1,7 @@
 package com.example.tiktok.features.auth.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,18 +11,23 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.tiktok_clone.features.auth.ui.GoogleAuthUiHelper
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Brands
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.brands.Facebook
 import compose.icons.fontawesomeicons.brands.Google
 import compose.icons.fontawesomeicons.solid.QuestionCircle
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginSelectionScreen(
@@ -28,6 +35,10 @@ fun LoginSelectionScreen(
     onBack: () -> Unit,
     onPhoneEmailLoginClick: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val googleAuthHelper = remember { GoogleAuthUiHelper(context) }
+
     Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
@@ -59,7 +70,26 @@ fun LoginSelectionScreen(
                 CommonOptionButton("Tiếp tục với Facebook", FontAwesomeIcons.Brands.Facebook) {}
                 Spacer(modifier = Modifier.height(16.dp))
 
-                CommonOptionButton("Tiếp tục với Google", FontAwesomeIcons.Brands.Google) {}
+                CommonOptionButton(
+                    "Tiếp tục với Google",
+                    FontAwesomeIcons.Brands.Google,
+                    {
+                        coroutineScope.launch {
+                            val result = googleAuthHelper.signInGoogle()
+                            result.onSuccess { user ->
+//                                onGoogleSignInClick()
+                                Log.d("SignIn", "User signed in: $user")
+
+                            }.onFailure { e ->
+                                Toast.makeText(
+                                    context,
+                                    "Sign in Failed: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                )
                 Spacer(modifier = Modifier.weight(1f))
             }
 
