@@ -130,7 +130,7 @@ private fun VideoSection(
     )
 }
 
-@Preview
+@Preview (showBackground = true)
 @Composable
 private fun PreviewHomeScreen() {
     AppNavigation()

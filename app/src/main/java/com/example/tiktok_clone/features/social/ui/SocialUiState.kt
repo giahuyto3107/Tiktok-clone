@@ -1,8 +1,10 @@
 package com.example.tiktok_clone.features.social.ui
 
+import com.example.tiktok_clone.features.social.model.App
 import com.example.tiktok_clone.features.social.model.Comment
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.model.Post
+import com.example.tiktok_clone.features.social.model.ShareAcction
 
 data class SocialUiState(
     val posts: List<Post> = emptyList(),
@@ -10,6 +12,12 @@ data class SocialUiState(
 
     val comments: List<Comment> = emptyList(),
     val user: User? =  null,
+    val friends: List<User> = emptyList(),
+
+    val apps: List<App> = emptyList(),
+
+    val shareAcctions: List<ShareAcction> = emptyList(),
+
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
 
