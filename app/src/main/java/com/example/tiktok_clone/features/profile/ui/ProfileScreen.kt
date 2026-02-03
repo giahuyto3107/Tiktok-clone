@@ -15,21 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 
 import androidx.compose.material.icons.Icons
-
 import androidx.compose.material.icons.filled.Menu
-
 import androidx.compose.material.icons.filled.Person
-
-import androidx.compose.material3.Button
-
-import androidx.compose.material3.Icon
-
-import androidx.compose.material3.MaterialTheme
-
-import androidx.compose.material3.Surface
-
-import androidx.compose.material3.Text
-
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 
 import androidx.compose.ui.Alignment
@@ -40,28 +28,27 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.compose.ui.unit.dp
 
-import androidx.compose.ui.res.colorResource
-
-import com.example.tiktok_clone.R
-
-
+// Định nghĩa màu đỏ giống trong ảnh (hoặc bạn có thể dùng Color.Red)
+val TiktokRed = Color(0xFFEA4359)
 
 @Composable
 
 fun ProfileScreen(
-
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigationToProfileScreen: () -> Unit
 
 ) {
-
-    Box(modifier = modifier.fillMaxSize()) {
-
-        Column() {
-
+    // Sử dụng Scaffold hoặc Column fillMaxSize với background trắng
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = Color.White // Đặt nền trắng giống ảnh
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             ProfileHeader()
+            // Divider mờ ngăn cách header và body
+            HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray)
 
             ProfileBody()
-
         }
 
     }
@@ -73,43 +60,31 @@ fun ProfileScreen(
 @Composable
 
 fun ProfileHeader(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp) // Thêm padding cho thoáng
+    ) {
+        // Tiêu đề Profile căn giữa
+        Text(
+            text = "Profile",
+            modifier = Modifier.align(Alignment.Center),
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            ),
+            color = Color.Black
+        )
 
-    Surface {
-
-        Column(
-
-            modifier = modifier.fillMaxWidth(),
-
-            horizontalAlignment = Alignment.CenterHorizontally
-
-        ) {
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-
-                Text(
-
-                    text = "Profile",
-
-                    modifier = Modifier.align(Alignment.Center),
-
-                    style = MaterialTheme.typography.headlineSmall
-
-                )
-
-                Icon(
-
-                    imageVector = Icons.Default.Menu,
-
-                    contentDescription = "Menu",
-
-                    modifier = Modifier.align(Alignment.CenterEnd)
-
-                )
-
-            }
-
-        }
-
+        // Icon Menu căn phải
+        Icon(
+            imageVector = Icons.Default.Menu,
+            contentDescription = "Menu",
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .size(28.dp),
+            tint = Color.Black
+        )
     }
 
 }
@@ -117,19 +92,43 @@ fun ProfileHeader(modifier: Modifier = Modifier) {
 
 
 @Composable
-
 fun ProfileBody(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp), // Padding tổng thể
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Icon User lớn
+        Icon(
+            imageVector = Icons.Default.Person, // Hoặc dùng Icons.Rounded.AccountCircle sẽ tròn hơn
+            contentDescription = "User",
+            modifier = Modifier
+                .size(60.dp) // Tăng kích thước icon
+                .padding(bottom = 16.dp),
+            tint = Color.DarkGray
+        )
 
-    Surface {
+        // Text hướng dẫn
+        Text(
+            text = "Log into existing account",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 32.dp) // Cách nút bấm xa hơn một chút
+        )
 
-        Column(
-
-            modifier = Modifier.fillMaxSize(),
-
-            horizontalAlignment = Alignment.CenterHorizontally,
-
-            verticalArrangement = Arrangement.Center
-
+        // Nút Login màu đỏ
+        Button(
+            onClick = { /* TODO: Navigate to login */ },
+            modifier = Modifier
+                .fillMaxWidth() // Kéo dài nút hết chiều ngang
+                .height(48.dp), // Chiều cao tiêu chuẩn
+            colors = ButtonDefaults.buttonColors(
+                containerColor = TiktokRed, // Màu nền đỏ
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(4.dp) // Bo góc nhẹ giống ảnh (thay vì bo tròn nhiều)
         ) {
 
             Icon(
@@ -143,15 +142,9 @@ fun ProfileBody(modifier: Modifier = Modifier) {
             )
 
             Text(
-
-                text = "Log into existing account",
-
-                style = MaterialTheme.typography.bodyLarge,
-
-                color = colorResource(R.color.text_on_dark),
-
-                modifier = Modifier.padding(bottom = 16.dp)
-
+                text = "Login",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp
             )
 
             Button(onClick = { /* TODO: Navigate to login */ }) {
@@ -166,14 +159,9 @@ fun ProfileBody(modifier: Modifier = Modifier) {
 
 }
 
-
-
-@Preview
-
+@Preview(showBackground = true)
 @Composable
 
 private fun PreviewProfileScreen() {
-
-    ProfileScreen()
-
+    ProfileScreen(onNavigationToProfileScreen = {})
 }
