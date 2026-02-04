@@ -9,7 +9,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.tiktok.features.auth.screens.LoginFormScreen
+import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
+import com.example.tiktok.features.auth.screens.SignUpFormScreen
 import com.example.tiktok_clone.core.ui.MainWrapper
+import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
 import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.home.ui.camera.CameraAccessScreen
 import com.example.tiktok_clone.features.home.ui.home.HomeScreen
@@ -50,7 +54,11 @@ fun AppNavigation() {
                     )
                     1 -> ShopScreenContent()
                     3 -> InboxScreenContent()
-                    4 -> ProfileScreenContent()
+                    4 -> ProfileScreenContent(
+                        onLoginClick = {
+                            navController.navigate("login_selection")
+                        }
+                    )
                 }
             }
         }
@@ -70,6 +78,44 @@ fun AppNavigation() {
                 onBack = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable(route = "login_selection") {
+            LoginSelectionScreen(
+                onBack = { navController.popBackStack() },
+                onSignUpClick = { navController.navigate("select_signup") },
+                onPhoneEmailLoginClick = { navController.navigate("login_form") }
+            )
+        }
+
+        composable(route = "select_signup") {
+            SelectSignUpScreen(
+                onPhoneEmailClick = { navController.navigate("signup_form") },
+                onLoginClick = {
+                    // Quay lại màn hình login selection hoặc pop back
+                    navController.navigate("login_selection") {
+                        popUpTo("login_selection") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(route = "signup_form") {
+            SignUpFormScreen(
+                onBack = { navController.popBackStack() },
+                onLoginClick = {
+                    navController.navigate("login_selection") {
+                        popUpTo("login_selection") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(route = "login_form") {
+            LoginFormScreen(
+                onBack = { navController.popBackStack() },
+                onSignUpClick = { navController.navigate("select_signup") }
             )
         }
     }
@@ -93,8 +139,12 @@ private fun InboxScreenContent() {
 }
 
 @Composable
-private fun ProfileScreenContent() {
-    ProfileScreen()
+private fun ProfileScreenContent(
+    onLoginClick: () -> Unit
+) {
+    ProfileScreen(
+        onLoginClick = onLoginClick
+    )
 }
 
 @Preview(showBackground = true)

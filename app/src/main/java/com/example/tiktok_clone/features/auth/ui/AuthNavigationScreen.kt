@@ -4,9 +4,7 @@ import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import com.example.tiktok.features.auth.screens.LoginFormScreen
-import com.example.tiktok.features.auth.screens.LoginSelectionScreen
 import com.example.tiktok.features.auth.screens.SignUpFormScreen
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 // Định nghĩa đầy đủ 4 trạng thái màn hình
