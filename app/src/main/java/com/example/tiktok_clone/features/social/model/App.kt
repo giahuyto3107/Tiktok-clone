@@ -19,5 +19,6 @@ data class App (
     val tint: Color = Color.White,
     val backgroundColor: Color = Color.White,
     val onClick: () -> Unit
-)
+){
+}
 
