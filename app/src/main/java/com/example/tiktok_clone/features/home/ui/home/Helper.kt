@@ -26,12 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
 import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
-
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
@@ -51,15 +49,11 @@ fun MiddleSection(
     var isLiked by remember { mutableStateOf(false) }
     var likeCount by remember { mutableIntStateOf(2293) }
     var saveCount by remember { mutableIntStateOf(123) }
-    val commentCount = comments.size 
+    val commentCount = comments.size
     var isSaved by remember { mutableStateOf(false) }
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
 
-//     val sheetState = rememberStandardBottomSheetState(
-//         initialValue = SheetValue.Expanded,
-//         skipHiddenState = false
-//     )
 
     Column(
         modifier = modifier,
@@ -76,7 +70,7 @@ fun MiddleSection(
                 likeCount = if (isLiked) likeCount + 1 else likeCount - 1
             }
         )
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.font_title_m)))
+        Spacer(modifier = Modifier.size(16.dp))
 
         MainInteractiveItem(
             icon = FontAwesomeIcons.Solid.CommentDots,

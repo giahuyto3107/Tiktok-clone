@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.features.social.model
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -13,5 +14,6 @@ data class ShareAcction(
     val appName: String,
     val tint: Color = Color.Black.copy(alpha = 0.8f),
     val backgroundColor: Color = Color.LightGray.copy(alpha = 0.5f),
-    val onClick: () -> Unit
+    val industryType: String? = null,
+    val onClick: (() -> Unit)?= null
 )

@@ -5,14 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.R
 import com.example.tiktok_clone.features.social.fakeData.FakeAppData
 import com.example.tiktok_clone.features.social.fakeData.FakeCommentData
-import com.example.tiktok_clone.features.social.fakeData.FakeDataShareAcction
+import com.example.tiktok_clone.features.social.fakeData.FakeShareAcctionData
 import com.example.tiktok_clone.features.social.fakeData.FakeFriendData
+import com.example.tiktok_clone.features.social.fakeData.FakeNotInterestedOption
+import com.example.tiktok_clone.features.social.fakeData.FakeReportOptionData
+import com.example.tiktok_clone.features.social.fakeData.FakeSpeedOptionData
 import com.example.tiktok_clone.features.social.fakeData.FakeUserData
+import com.example.tiktok_clone.features.social.model.Comment
 import com.example.tiktok_clone.features.social.ui.SocialUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import com.example.tiktok_clone.features.social.model.Post
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
@@ -30,9 +35,20 @@ class SocialViewModel : ViewModel() {
 
     private val _apps = MutableStateFlow(FakeAppData.apps)
     val apps = _apps.asStateFlow()
+    private val _selectedFriendShare = MutableStateFlow<Set<String>>(emptySet())
+    val selectedFriendShare: StateFlow<Set<String>> = _selectedFriendShare.asStateFlow()
 
-    private val _shareAcctions = MutableStateFlow(FakeDataShareAcction.shareAcctions)
+    private val _shareAcctions = MutableStateFlow(FakeShareAcctionData.shareAcctions)
     val shareAcctions = _shareAcctions.asStateFlow()
+
+    private val _reportOptions = MutableStateFlow(FakeReportOptionData.reportOptions)
+    val reportOptions = _reportOptions.asStateFlow()
+    private val _notInterestedOptions =
+        MutableStateFlow(FakeNotInterestedOption.NotInterestedOptions)
+    val notInterestedOptions = _notInterestedOptions.asStateFlow()
+    private val _speedOptions = MutableStateFlow(FakeSpeedOptionData.speedOptions)
+    val speedOptions = _speedOptions.asStateFlow()
+
 
     init {
         loadPosts()
@@ -59,8 +75,63 @@ class SocialViewModel : ViewModel() {
 
             is SocialAction.Retry -> handleRetry()
             is SocialAction.DismissError -> handleDismissError()
+
+            is SocialAction.SelectedFriendShare -> onSelectedFriendShare(action.friendId)
+            is SocialAction.ClearSelectedFriendShare -> clearSelectedFriendShare()
+            is SocialAction.AddComment -> handleAddComment(action.postId, action.commentText)
+
+            else -> {}
         }
     }
+
+    fun onSelectedFriendShare(friendId: String) {
+        _selectedFriendShare.update { currentSelectedFriendShare ->
+            if (friendId in currentSelectedFriendShare) {
+                currentSelectedFriendShare - friendId
+            } else {
+                currentSelectedFriendShare + friendId
+            }
+        }
+    }
+
+    fun clearSelectedFriendShare() {
+        _selectedFriendShare.value = emptySet()
+    }
+
+    fun selectedFriendShareCount(): (Int) {
+        return _selectedFriendShare.value.size
+    }
+
+    fun handleAddComment(postId: String, commentText: String) {
+        if (commentText.isBlank()) return
+        val currentUser = user.value
+
+        val newComment = Comment(
+            id = "comment_${comments.value.size + 1}",
+            postId = postId,
+            userId = currentUser.userID,
+            userName = currentUser.userName,
+            avatarUrl = currentUser.avatarUrl,
+            commentContent = commentText,
+            likeCount = 0,
+            isLiked = false,
+            createdAt = System.currentTimeMillis(),
+        )
+        _comments.update { currentComments ->
+            currentComments + listOf(newComment)
+        }
+        _uiState.update { currentState ->
+            val updatedPosts = currentState.posts.map { post ->
+                if (post.id == postId) {
+                    post.copy(commentCount = post.commentCount + 1)
+                } else {
+                    post
+                }
+            }
+            currentState.copy(posts = updatedPosts)
+        }
+    }
+
 
     private fun handleLikeComment(commentId: String) {
         _comments.update { currentComments ->

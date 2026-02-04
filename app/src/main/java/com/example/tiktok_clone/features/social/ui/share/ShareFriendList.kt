@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
@@ -22,7 +23,10 @@ fun ShareFriendList(
         items(friends.size) { friend ->
             ShareFriendItem(
                 friend = friends[friend],
-                onShare = {}
+                onShare = {
+//                    viewModel.onAction(SocialAction.Share(it.userID))
+                },
+                viewModel = viewModel
             )
         }
     }

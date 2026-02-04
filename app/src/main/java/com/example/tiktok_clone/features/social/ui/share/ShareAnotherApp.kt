@@ -12,6 +12,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
-
 @Composable
 fun ShareAnotherApp(
     modifier: Modifier = Modifier,
@@ -35,22 +38,33 @@ fun ShareAnotherApp(
     appName: String,
     tint: Color = Color.Black,
     backgroundColor: Color = Color.White,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)? = null,
+    typeOfReasonOption: String? = ""
 ) {
+    val reasonType = listOf("report", "not_interested", "cast", "speed")
+    var isOpen by remember { mutableStateOf(false) }
     Column(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier.clickable(onClick = {
+            isOpen = !isOpen
+            onClick?.invoke()
+        }),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
                 .padding(8.dp)
-                .border(width = 0.2.dp,Color.LightGray.copy(alpha = 0.5f),CircleShape)
+                .border(width = 0.2.dp, Color.LightGray.copy(alpha = 0.5f), CircleShape)
                 .size(50.dp)
                 .clip(CircleShape)
-                .background(backgroundColor),
+                .background(backgroundColor)
+                .clickable(
+                    onClick = {
+                        isOpen = !isOpen
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
-            if(icon != null) {
+            if (icon != null) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
@@ -60,8 +74,7 @@ fun ShareAnotherApp(
                         .align(Alignment.Center)
                         .then(modifier)
                 )
-            }
-            else{
+            } else {
                 Text(
                     text = appIconByLetter,
                     fontSize = fontSize.sp,
@@ -83,4 +96,10 @@ fun ShareAnotherApp(
             overflow = TextOverflow.Ellipsis
         )
     }
+    if (typeOfReasonOption in reasonType && isOpen)
+        ReasonOption(
+            onDismiss = { isOpen = false },
+            typeOfReasonOption = typeOfReasonOption,
+            modifier = Modifier
+        )
 }

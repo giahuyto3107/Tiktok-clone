@@ -9,37 +9,37 @@ import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.FileDownload
 import com.example.tiktok_clone.features.social.model.ShareAcction
 
-object FakeDataShareAcction {
+object FakeShareAcctionData {
     val shareAcctions = listOf(
         ShareAcction(
             icon = Icons.Filled.Flag,
-            appName = "Đăng lại",
-            onClick = {}
+            appName = "Báo cáo",
+            industryType = "report",
         ),
         ShareAcction(
             icon = Icons.Filled.HeartBroken,
             appName = "Không quan tâm",
-            onClick = {}
+            industryType = "not_interested"
         ),
         ShareAcction(
             icon = Icons.Outlined.FileDownload,
             appName = "Tải về",
-            onClick = {}
+            industryType = "download"
         ),
         ShareAcction(
             icon = Icons.Outlined.AddCircleOutline,
             appName = "Thêm vào nhật ký",
-            onClick = {}
+            industryType = "add_to_story"
         ),
         ShareAcction(
             icon = Icons.Outlined.Cast,
             appName = "Chiếu",
-            onClick = {}
+            industryType = "cast"
         ),
         ShareAcction(
             icon = Icons.Filled.Speed,
             appName = "Tốc độ phát lại",
-            onClick = {}
+            industryType = "speed"
         ),
     )
 }

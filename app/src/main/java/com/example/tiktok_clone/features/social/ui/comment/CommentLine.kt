@@ -39,6 +39,7 @@ import com.example.tiktok_clone.features.social.model.Comment
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.CommentItem
 import com.example.tiktok_clone.features.social.ui.components.formatCount
+import com.example.tiktok_clone.features.social.ui.components.toDateString
 
 import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
@@ -92,7 +93,7 @@ fun CommentLine(
 
             ) {
                 Avatar(
-                    avatarUrl = comment.AvatarUrl,
+                    avatarUrl = comment.avatarUrl,
                     modifier = Modifier
                         .matchParentSize()
                 )
@@ -142,7 +143,7 @@ fun CommentLine(
                 ) {
                     //Comment create at (time)
                     Text(
-                        text = comment.commentTime,
+                        text = comment.createdAt.toDateString(),
                         fontWeight = FontWeight.Light,
                         fontSize = 14.sp,
                         color = Color.Gray.copy(alpha = 0.9f)

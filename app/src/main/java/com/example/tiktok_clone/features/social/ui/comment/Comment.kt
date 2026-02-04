@@ -1,22 +1,28 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -35,8 +41,15 @@ fun CommentSheetContent(
 ) {
     val comments by viewModel.comments.collectAsState()
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false,
+        skipPartiallyExpanded = true,
     )
+//    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+
+//    val maxHeight = when (sheetState.currentValue) {
+//        SheetValue.Expanded -> screenHeight * 0.8f
+//        SheetValue.PartiallyExpanded -> screenHeight * 0.5f
+//        else -> screenHeight * 0.5f
+//    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -46,32 +59,40 @@ fun CommentSheetContent(
         dragHandle = null, //{ BottomSheetDefaults.DragHandle() },
         modifier = Modifier
 
+
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .navigationBarsPadding() //Tự động chừa padding ở dưới (và cạnh) để UI không bị che bởi thanh điều hướng hệ thống
-                .fillMaxHeight(0.6f)
-
+                .fillMaxHeight(0.5f)
+//                .heightIn(max = maxHeight)
 
         ) {
-            CommentHeader(
-                commentCount = comments.size,
-                Search = "Search",
-                onClose = onDismiss,
-            )
-            CommentList(
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .nestedScroll(rememberNestedScrollInteropConnection()),
+                    .fillMaxSize()
+                    .padding(bottom = 75.dp)
 
-                comments = comments
-            )
+            ) {
+                CommentHeader(
+                    commentCount = comments.size,
+                    Search = "Search",
+                    onClose = onDismiss,
+                )
+                CommentList(
+                    modifier = Modifier
+                        .weight(1f)
+                        .nestedScroll(rememberNestedScrollInteropConnection()),
+
+                    comments = comments
+                )
+            }
             CommentBottomBar(
                 viewModel = viewModel,
                 modifier = Modifier
+                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.ime)
+                    //.windowInsetsPadding(WindowInsets.ime)
             )
         }
     }

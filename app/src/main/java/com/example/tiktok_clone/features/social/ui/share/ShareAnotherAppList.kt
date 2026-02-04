@@ -1,5 +1,6 @@
 package com.example.tiktok_clone.features.social.ui.share
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,13 +17,15 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 @Composable
 fun ShareAnotherAppList(
     viewModel: SocialViewModel = viewModel(),
+    onClick: () -> Unit
 ) {
     val apps by viewModel.apps.collectAsState()
     val shareAcctions by viewModel.shareAcctions.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         LazyRow(
             modifier = Modifier,
@@ -37,7 +40,9 @@ fun ShareAnotherAppList(
                     appName = apps[app].appName,
                     tint = apps[app].tint,
                     backgroundColor = apps[app].backgroundColor,
-                    onClick = apps[app].onClick,
+                    onClick = {
+                        apps[app].onClick
+                    },
                     modifier = apps[app].modifier,
                 )
 
@@ -54,7 +59,10 @@ fun ShareAnotherAppList(
                     appName = shareAcctions[shareAcction].appName,
                     tint = shareAcctions[shareAcction].tint,
                     backgroundColor = shareAcctions[shareAcction].backgroundColor,
-                    onClick = shareAcctions[shareAcction].onClick,
+                    onClick = {
+                        shareAcctions[shareAcction].onClick
+                    },
+                    typeOfReasonOption = shareAcctions[shareAcction].industryType
                 )
             }
         }

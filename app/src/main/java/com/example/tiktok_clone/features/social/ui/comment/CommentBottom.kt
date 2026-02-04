@@ -1,6 +1,8 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,8 +17,9 @@ fun CommentBottomBar(
     modifier: Modifier
 ) {
     Surface(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
         tonalElevation = 4.dp,
         shadowElevation = 8.dp
 
