@@ -1,5 +1,6 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,14 +10,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,12 +29,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.CommentItem
+import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
@@ -44,13 +52,17 @@ fun CommentInput(
     var commentText by remember { mutableStateOf("") }
     var user by remember { mutableStateOf(viewModel.user.value) }
     var isCommenting by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = Color.White)
+            .then(modifier)
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .background(color = Color.White)
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -61,8 +73,6 @@ fun CommentInput(
                     .border(1.dp, Color.Gray, CircleShape)
                     .size(45.dp)
                     .clip(CircleShape)
-
-
             ) {
                 Avatar(
                     avatarUrl = user.avatarUrl,
@@ -75,9 +85,10 @@ fun CommentInput(
                     .weight(1f)
                     .background(color = Color.White)
                     .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
-                    .height(50.dp)
+                    .heightIn(min = 50.dp)
 
             ) {
+
                 TextField(
                     value = commentText,
                     onValueChange = {
@@ -89,7 +100,7 @@ fun CommentInput(
                         Text("Thêm bình luận...", color = Color.Gray)
 
                     },
-                    shape = CircleShape,
+                    shape = RoundedCornerShape(30.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Gray.copy(alpha = 0.1f),
                         unfocusedContainerColor = Color.Gray.copy(alpha = 0.4f),
@@ -102,6 +113,7 @@ fun CommentInput(
                         .fillMaxWidth()
                         .align(Alignment.Center)
                 )
+
 
             }
 
@@ -119,7 +131,7 @@ fun CommentInput(
                 Spacer(modifier = Modifier.weight(1f))
 
                 val pushColor =
-                    if (!commentText.isEmpty()) Color.Red.copy(alpha = 0.6f) else Color.Red.copy(
+                    if (commentText.isEmpty()) Color.Red.copy(alpha = 0.6f) else Color.Red.copy(
                         alpha = 0.8f
                     )
                 Box(
@@ -129,7 +141,8 @@ fun CommentInput(
                         .width(50.dp)
                         .clip(CircleShape)
                         .background(color = pushColor)
-                        .clickable(onClick = {}),
+                        .clickable(onClick = {
+                        }),
                     contentAlignment = Alignment.Center
                 ) {
                     CommentItem(
@@ -137,7 +150,13 @@ fun CommentInput(
                         tint = Color.White,
                         text = "Đăng",
                         showText = false,
-                        onClick = {},
+                        onClick = {
+                            uiState.selectedPostId?.let {
+                                viewModel.onAction(SocialAction.AddComment(it, commentText))
+                                commentText = ""
+                                isCommenting = false
+                            }
+                        },
                         modifier = Modifier.size(12.dp)
 
                     )
