@@ -1,4 +1,7 @@
 package com.example.tiktok_clone.features.social.model
 
-class ShareItem {
-}
+data class ShareItem(
+    val id: String,
+    val title: String,
+    val category: ShareCategory
+)
