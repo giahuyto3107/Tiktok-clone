@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.ReasonOption
 import com.example.tiktok_clone.features.social.ui.components.ReasonOptionHeader
 import com.example.tiktok_clone.features.social.ui.components.ReasonOptionItem
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
@@ -26,7 +25,7 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReasonOption(
+fun Option(
     viewModel: SocialViewModel = viewModel(),
     optionType: String,
     onDismiss: () -> Unit,
@@ -36,17 +35,17 @@ fun ReasonOption(
     val speedOptions by viewModel.speedOptions.collectAsState()
     var isSelectecd by remember { mutableStateOf<Int?>(null) }
 
-    val options = listOf when(optionType) {
+    val options = when(optionType) {
         "report" -> reportOptions
         "not_interested" -> notInterestedOptions
         "speed" -> speedOptions
-        else -> {}
+        else -> emptyList()
     }
     val title = when(optionType) {
         "report" -> "Báo cáo"
         "not_interested" -> "Không quan tâm"
         "speed" -> "Tốc độ phát lại"
-        else -> {}
+        else -> ""
     }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
@@ -67,7 +66,7 @@ fun ReasonOption(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             ReasonOptionHeader(
-                typeOfReasonOption = "Báo cáo",
+                title = title,
                 modifier = Modifier,
                 onClose = onDismiss
             )
