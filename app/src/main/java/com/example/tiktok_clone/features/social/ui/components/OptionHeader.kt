@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ReasonOptionHeader(
-    typeOfReasonOption: String,
+    title: String,
     modifier: Modifier = Modifier,
     onClose: () -> Unit
 ) {
@@ -28,7 +28,7 @@ fun ReasonOptionHeader(
             .fillMaxWidth()
     ) {
         Text(
-            text = typeOfReasonOption,
+            text = title,
             fontSize = 20.sp,
             color = Color.Black,
             fontWeight = FontWeight.Medium,
