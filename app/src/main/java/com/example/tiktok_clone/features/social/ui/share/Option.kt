@@ -28,42 +28,46 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 @Composable
 fun ReasonOption(
     viewModel: SocialViewModel = viewModel(),
-    modifier: Modifier = Modifier,
+    optionType: String,
     onDismiss: () -> Unit,
-    typeOfReasonOption: String?
 ) {
-    val speedOptions by viewModel.speedOptions.collectAsState()
     val reportOptions by viewModel.reportOptions.collectAsState()
     val notInterestedOptions by viewModel.notInterestedOptions.collectAsState()
+    val speedOptions by viewModel.speedOptions.collectAsState()
+    var isSelectecd by remember { mutableStateOf<Int?>(null) }
 
-    val reasonOptions: List<ReasonOption> = when(typeOfReasonOption) {
+    val options = listOf when(optionType) {
         "report" -> reportOptions
         "not_interested" -> notInterestedOptions
         "speed" -> speedOptions
-        else -> emptyList()
+        else -> {}
     }
-    var selectedReasonId by remember { mutableStateOf<Int?>(null) }
-
+    val title = when(optionType) {
+        "report" -> "Báo cáo"
+        "not_interested" -> "Không quan tâm"
+        "speed" -> "Tốc độ phát lại"
+        else -> {}
+    }
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true,
+
     )
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        modifier = modifier,
+        modifier = Modifier,
         containerColor = Color.White,
         dragHandle = null
 
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
-                .then(modifier),
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             ReasonOptionHeader(
-                typeOfReasonOption = typeOfReasonOption,
+                typeOfReasonOption = "Báo cáo",
                 modifier = Modifier,
                 onClose = onDismiss
             )
@@ -73,16 +77,14 @@ fun ReasonOption(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(reasonOptions.size) { reason ->
+                items(options.size) { reason ->
                     ReasonOptionItem(
-                        reasonOption = reasonOptions[reason].reasonOption,
-                        isSelected = selectedReasonId == reasonOptions[reason].reasonId,
+                        reasonOption = options[reason].reasonOption,
+                        isSelected = isSelectecd == options[reason].reasonId,
                         onClick = {
-                            selectedReasonId = reasonOptions[reason].reasonId
-
+                            isSelectecd = options[reason].reasonId
                         }
                     )
-
                 }
             }
         }

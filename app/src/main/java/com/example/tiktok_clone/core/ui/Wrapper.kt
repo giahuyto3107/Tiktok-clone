@@ -66,7 +66,8 @@ private fun BottomNavigationBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = dimensionResource(R.dimen.spacing_m)),
+            .padding(top = dimensionResource(R.dimen.spacing_m),
+                bottom = dimensionResource(R.dimen.spacing_m)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround,
     ) {

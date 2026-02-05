@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ReasonOptionHeader(
-    typeOfReasonOption: String?,
+    typeOfReasonOption: String,
     modifier: Modifier = Modifier,
     onClose: () -> Unit
 ) {
@@ -28,13 +28,7 @@ fun ReasonOptionHeader(
             .fillMaxWidth()
     ) {
         Text(
-            text = when(typeOfReasonOption) {
-                "report" -> "Báo cáo"
-                "not_interested" -> "Không quan tâm"
-                "cast" -> "Chiếu"
-                "speed" -> "Tốc độ phát lại"
-                else -> ""
-            },
+            text = typeOfReasonOption,
             fontSize = 20.sp,
             color = Color.Black,
             fontWeight = FontWeight.Medium,
