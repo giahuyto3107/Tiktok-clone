@@ -11,6 +11,9 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Sort
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
@@ -29,8 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.R.dimen
 import com.example.tiktok_clone.features.social.ui.components.CommentItem
 import com.example.tiktok_clone.features.social.ui.components.formatCount
+import com.example.tiktok_clone.ui.theme.TextPrimaryBlue
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.SortAmountDownAlt
@@ -39,7 +46,7 @@ import compose.icons.fontawesomeicons.solid.Times
 // header bar comment
 @Composable
 fun CommentHeader(
-    commentCount: Int,
+    commentCount: Long,
     Search: String,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
@@ -57,7 +64,7 @@ fun CommentHeader(
         ) {
             Icon(
                 imageVector = Icons.Default.Search,
-                tint = Color.Blue.copy(alpha = 0.8f),
+                tint = TextPrimaryBlue,
                 contentDescription = "search"
             )
         }
@@ -81,7 +88,7 @@ fun CommentHeader(
                 text = buildAnnotatedString {
                     append("Tìm kiếm: ")
                     withStyle(
-                        style = SpanStyle(color = Color.Blue.copy(alpha = 1.5f))
+                        style = SpanStyle(color = TextPrimaryBlue)
                     ) {
                         append(Search)
                     }
@@ -89,6 +96,7 @@ fun CommentHeader(
                 },
                 inlineContent = inLineContent,
                 fontWeight = FontWeight.Bold,
+                fontSize = dimensionResource(dimen.font_xl).value.sp,
                 modifier = Modifier.padding(4.dp)
             )
             Box(
@@ -109,14 +117,18 @@ fun CommentHeader(
                         },
                         text = "Sắp xếp",
                         showText = false,
+                        tint = Color.Black,
                         modifier = Modifier
-                            .padding(4.dp)
-                            .size(20.dp)
+                            .size(16.dp)
+                            .graphicsLayer(
+                                scaleX = -1f
+                            )
                     )
                     CommentItem(
-                        icon = FontAwesomeIcons.Solid.Times,
+                        icon = Icons.Outlined.Close,
                         onClick = onClose,
                         text = "Đóng",
+                        tint = Color.Black,
                         showText = false,
                         modifier = Modifier
                             .padding(4.dp)

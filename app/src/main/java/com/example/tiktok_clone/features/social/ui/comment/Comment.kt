@@ -30,26 +30,21 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tiktok_clone.features.social.model.Post
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 // toàn bộ commnet sheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentSheetContent(
+    currentPost: Post,
     viewModel: SocialViewModel = viewModel(),
     onDismiss: () -> Unit,
 ) {
-    val comments by viewModel.comments.collectAsState()
+    val comments = viewModel.getComment(currentPost.id)
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
-//    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-
-//    val maxHeight = when (sheetState.currentValue) {
-//        SheetValue.Expanded -> screenHeight * 0.8f
-//        SheetValue.PartiallyExpanded -> screenHeight * 0.5f
-//        else -> screenHeight * 0.5f
-//    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -75,7 +70,7 @@ fun CommentSheetContent(
 
             ) {
                 CommentHeader(
-                    commentCount = comments.size,
+                    commentCount = comments.size.toLong(),
                     Search = "Search",
                     onClose = onDismiss,
                 )
