@@ -73,7 +73,7 @@ fun CommentInput(
         ) {
             Box(
                 modifier = Modifier
-                    .border(0.1.dp, TextSecondary.copy(alpha = 0.5f), CircleShape)
+                    .border(0.1.dp, TextPrimaryGray.copy(alpha = 0.5f), CircleShape)
                     .size(50.dp)
                     .clip(CircleShape)
             ) {
