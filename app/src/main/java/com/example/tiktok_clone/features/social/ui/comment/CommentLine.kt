@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.modifier.modifierLocalConsumer
@@ -59,13 +61,12 @@ import compose.icons.fontawesomeicons.solid.ThumbsDown
 import com.example.tiktok_clone.ui.theme.TextSecondary
 
 
-
-
 // hàm load 1 dòng comment
 @Composable
 fun CommentLine(
     viewModel: SocialViewModel = viewModel(),
     comment: Comment,
+    modifier: Modifier = Modifier
 ) {
     var isLiked by remember { mutableStateOf(comment.isLiked) }
     var likeCount by remember { mutableStateOf(comment.likeCount) }
@@ -79,7 +80,8 @@ fun CommentLine(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .then(modifier),
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
@@ -100,6 +102,7 @@ fun CommentLine(
                     )
                     .size(45.dp)
                     .clip(CircleShape)
+
 
             ) {
                 Avatar(
@@ -199,7 +202,6 @@ fun CommentLine(
                                 TextPrimaryGray,
 
 
-
                             text = if (likeCount > 0) {
                                 formatCount(likeCount)
                             } else "",
@@ -248,32 +250,56 @@ fun CommentLine(
 
         //reply count
         if (replyCount > 0) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 60.dp)
-                    .clickable(onClick = {}),
-                verticalAlignment = Alignment.CenterVertically,
+                    .padding(start = 20.dp),
             ) {
-                Box(
+                if (isShowReply) {
+                    val replys = viewModel.getReply(comment.id)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        for (reply in replys) {
+                            CommentLine(
+                                comment = reply,
+                                modifier = Modifier.scale(0.9f)
+                            )
+                        }
+                    }
+                }
+                Row(
                     modifier = Modifier
-                        .width(24.dp)
-                        .height(0.2.dp)
-                        .background(TextPrimaryGray.copy(alpha = 0.5f))
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "Xem ${formatCount(replyCount)} câu trả lời",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = TextPrimaryGray,
-                    modifier = Modifier
-                        .clickable(onClick = {})
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Start,
-                )
+                        .padding(start = 40.dp)
+                        .clickable(onClick = {}),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(24.dp)
+                            .height(0.2.dp)
+                            .background(TextPrimaryGray.copy(alpha = 0.5f))
+                    )
+                    Text(
+                        text = if (isReply)
+                            "Ẩn"
+                        else
+                            "Xem ${formatCount(replyCount)} câu trả lời",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = TextPrimaryGray,
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                isReply = !isReply
+                                isShowReply = !isShowReply
+                            })
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Start,
+                    )
+                }
             }
+            //reply count
         }
-        //reply count
     }
 }
