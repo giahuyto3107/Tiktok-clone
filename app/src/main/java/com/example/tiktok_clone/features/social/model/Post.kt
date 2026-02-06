@@ -1,8 +1,5 @@
 package com.example.tiktok_clone.features.social.model
 
-import android.provider.MediaStore
-import androidx.annotation.DrawableRes
-
 //old
 //data class Post(
 //    val id: String,

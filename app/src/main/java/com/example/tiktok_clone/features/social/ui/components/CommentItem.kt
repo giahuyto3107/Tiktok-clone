@@ -14,17 +14,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.ui.theme.TextPrimaryGray
 
 // hàm icon
 @Composable
 fun CommentItem(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     onClick: () -> Unit,
     text: String,
     tint: Color = Color.Black,
     showText: Boolean,
-    modifier: Modifier
+
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -33,7 +33,9 @@ fun CommentItem(
             imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = modifier.clickable(onClick = onClick),
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .then(modifier),
         )
         if (showText) {
             Text(

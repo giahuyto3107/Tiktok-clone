@@ -1,24 +1,18 @@
 package com.example.tiktok_clone.features.social.ui.share
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +27,7 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareSheetContent(
-    currentUserId:String,
+    currentUser: User,
     viewModel: SocialViewModel = viewModel(),
     onDismiss: () -> Unit,
 ) {
@@ -45,7 +39,6 @@ fun ShareSheetContent(
         onDismiss()
     }
     val selectedFriendShare by viewModel.selectedFriendShare.collectAsState()
-    val selectedFriendShareCount = selectedFriendShare.size
     val shareSheetMode by viewModel.shareSheetMode.collectAsState()
     val shareItems by viewModel.shareItems.collectAsState()
 
@@ -60,7 +53,7 @@ fun ShareSheetContent(
         when (shareSheetMode) {
             ShareSheetMode.Default -> {
                 DefaultShareSheet(
-                    currentUserId = currentUserId,
+                    currentUser = currentUser,
                     viewModel = viewModel,
                     handleDismiss = handleDismiss,
                     selectedFriendShare = selectedFriendShare.toList(),
@@ -88,22 +81,13 @@ fun ShareSheetContent(
                     onDismiss = viewModel::dismissReportSheet
                 )
             }
-            else -> {
-                DefaultShareSheet(
-                    currentUserId = currentUserId,
-                    viewModel = viewModel,
-                    handleDismiss = handleDismiss,
-                    selectedFriendShare = selectedFriendShare.toList(),
-                    shareItems = shareItems
-                )
-            }
         }
     }
 }
 
 @Composable
 fun DefaultShareSheet(
-    currentUserId:String,
+    currentUser: User,
     viewModel: SocialViewModel,
     handleDismiss: () -> Unit,
     selectedFriendShare: List<String>,
@@ -121,7 +105,7 @@ fun DefaultShareSheet(
             onClose = handleDismiss
         )
         ShareFriendList(
-            currentUserId = currentUserId,
+            currentUser = currentUser,
             viewModel = viewModel
         )
         Box( //vẽ line
@@ -134,7 +118,7 @@ fun DefaultShareSheet(
             modifier = Modifier,
             contentAlignment = Alignment.Center
         ) {
-            if (selectedFriendShare.size > 0) {
+            if (selectedFriendShare.isNotEmpty()) {
                 ShareInput(
                     viewModel = viewModel,
                     selectedFriendShare = selectedFriendShare,

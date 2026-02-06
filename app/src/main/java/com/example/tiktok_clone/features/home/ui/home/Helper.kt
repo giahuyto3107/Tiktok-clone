@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.features.social.model.Post
+import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
 import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 import com.example.tiktok_clone.features.social.ui.components.Avatar
@@ -56,12 +57,13 @@ import compose.icons.fontawesomeicons.solid.Share
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiddleSection(
-    currentUserId: String,
-    currentPost: Post,
     modifier: Modifier = Modifier,
-    viewModel: SocialViewModel = viewModel()
+    currentUser: User,
+    currentPost: Post,
+    viewModel: SocialViewModel = viewModel(),
+
 ) {
-    viewModel.loadFriends(currentUserId)
+    viewModel.loadFriends(currentUser.id)
 
     var isLiked by remember { mutableStateOf(false) }
     var likeCount by remember { mutableLongStateOf( currentPost.likeCount) }
@@ -71,7 +73,7 @@ fun MiddleSection(
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
     var isFollowing by remember { mutableStateOf(
-        viewModel.isFollowing(currentUserId,  currentPost.author.id))
+        viewModel.isFollowing(currentUser.id,  currentPost.author.id))
     }
     Column(
         modifier = Modifier
@@ -86,7 +88,7 @@ fun MiddleSection(
             onClick = {
                 isFollowing = !isFollowing
                 viewModel.onAction(SocialAction
-                    .Follow(currentUserId, currentPost.author.id)
+                    .Follow(currentUser.id, currentPost.author.id)
                 )
             }
         )
@@ -115,6 +117,7 @@ fun MiddleSection(
         if (isOpenCommentSheet) {
             CommentSheetContent(
                 currentPost = currentPost,
+                currentUser = currentUser,
                 onDismiss = {
                     isOpenCommentSheet = false
                 }
@@ -145,7 +148,7 @@ fun MiddleSection(
         )
         if (isOpenShareSheet) {
             ShareSheetContent(
-                currentUserId = currentUserId,
+                currentUser = currentUser,
                 onDismiss = {
                     isOpenShareSheet = false
                 }

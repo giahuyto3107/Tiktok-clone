@@ -1,7 +1,5 @@
 package com.example.tiktok_clone.features.home.ui.home
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,20 +35,7 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 fun HomeScreen(
     onSearchTap: () -> Unit = {}
 ) {
-//    val images = remember {
-//        listOf(
-//            R.drawable.apartment,
-//            R.drawable.cat,
-//            R.drawable.cherry_flower,
-//            R.drawable.city_post_office,
-//            R.drawable.independence_palace,
-//            R.drawable.river,
-//            R.drawable.road,
-//            R.drawable.street,
-//            R.drawable.uni,
-//            R.drawable.video,
-//        )
-//    }
+
     val viewModel: SocialViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) {
@@ -59,6 +44,8 @@ fun HomeScreen(
     //lấy dữ liệu post ừ fake data
     val posts = uiState.posts
     val pagerState = rememberPagerState(pageCount = { posts.size})
+    val currentUser = viewModel.getUser("u1")
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         VerticalPager(
@@ -71,7 +58,7 @@ fun HomeScreen(
                     VideoSection(thumbnailUrl = posts[page].thumbnailUrl)
 
                     MiddleSection(
-                        currentUserId = "u1", // lấy từ user login, chưa có user login nên gán tạm
+                        currentUser = currentUser, // lấy từ user login, chưa có user login nên gán tạm
                         viewModel = viewModel,
                         currentPost = posts[page],
                         modifier = Modifier
@@ -85,10 +72,7 @@ fun HomeScreen(
                         userName = posts[page].author.userName,
                         description = posts[page].description,
                         modifier = Modifier
-                            .padding(
-                                start = dimensionResource(R.dimen.spacing_m),
-                                end = dimensionResource(R.dimen.spacing_xxxl)
-                            )
+                            .padding(start = dimensionResource(R.dimen.spacing_m))
                             .align(Alignment.BottomStart)
                     )
                 }

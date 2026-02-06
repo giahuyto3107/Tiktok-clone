@@ -1,7 +1,6 @@
 package com.example.tiktok_clone.features.social.viewModel
 
 import androidx.lifecycle.ViewModel
-import com.example.tiktok_clone.features.social.fakeData.FakeAppData
 import com.example.tiktok_clone.features.social.fakeData.FakeCommentData
 import com.example.tiktok_clone.features.social.fakeData.FakeFollowData
 import com.example.tiktok_clone.features.social.fakeData.FakeNotInterestedOption
@@ -29,9 +28,7 @@ class SocialViewModel : ViewModel() {
     private val _comments = MutableStateFlow(FakeCommentData.comments)
     val comments = _comments.asStateFlow()
     private val _posts = MutableStateFlow(FakePostData.posts)
-    val posts = _posts.asStateFlow()
-    private val _currentPostIndex = MutableStateFlow(0)
-    val currentPostIndex = _currentPostIndex.asStateFlow()
+
     private val _user = MutableStateFlow(FakeUserData.user)
     val user = _user.asStateFlow()
 
@@ -39,8 +36,6 @@ class SocialViewModel : ViewModel() {
     val friends = _friends.asStateFlow()
 
 
-    private val _apps = MutableStateFlow(FakeAppData.apps)
-    val apps = _apps.asStateFlow()
     private val _selectedFriendShare = MutableStateFlow<Set<String>>(emptySet())
     val selectedFriendShare: StateFlow<Set<String>> = _selectedFriendShare.asStateFlow()
 
@@ -50,24 +45,19 @@ class SocialViewModel : ViewModel() {
 
     private val _reportOptions = MutableStateFlow(FakeReportOptionData.reportOptions)
     val reportOptions = _reportOptions.asStateFlow()
-    private val _notInterestedOptions =
-        MutableStateFlow(FakeNotInterestedOption.NotInterestedOptions)
+    private val _notInterestedOptions = MutableStateFlow(FakeNotInterestedOption.NotInterestedOptions)
     val notInterestedOptions = _notInterestedOptions.asStateFlow()
     private val _speedOptions = MutableStateFlow(FakeSpeedOptionData.speedOptions)
     val speedOptions = _speedOptions.asStateFlow()
 
     private val _showShareSheet = MutableStateFlow(false)
-    val showShareSheet = _showShareSheet.asStateFlow()
 
     private val _shareSheetMode = MutableStateFlow<ShareSheetMode>(ShareSheetMode.Default)
     val shareSheetMode = _shareSheetMode.asStateFlow()
 
     private val _follow = MutableStateFlow(FakeFollowData.follows)
-    val follow = _follow.asStateFlow()
-
 
     private val _showReportSheet = MutableStateFlow(false)
-    val showReportSheet = _showReportSheet.asStateFlow()
 
     init {
         loadPosts()
@@ -78,6 +68,7 @@ class SocialViewModel : ViewModel() {
     fun onAction(action: SocialAction) {
         when (action) {
             is SocialAction.LikeComment -> likeComment(action.commentId)
+            is SocialAction.AddComment -> addComment(action.postId, action.commentText,action.author)
             is SocialAction.ClearSelectedFriendShare -> clearSelectedFriendShare()
             is SocialAction.OpenReportOption -> openReportSheet()
             is SocialAction.DismissReportSheet -> dismissReportSheet()
@@ -102,7 +93,22 @@ class SocialViewModel : ViewModel() {
             ShareItem("not_interested", "Not interested", ShareCategory.REPORT),
         )
     )
-
+    private fun addComment(postId: String, commentText: String, user: User) {
+        _comments.update{currentComments ->
+            if(!commentText.isEmpty()){
+                currentComments + Comment(
+                    id = "c${currentComments.size + 1}",
+                    postId = postId,
+                    author = user,
+                    content = commentText,
+                    createdAt = System.currentTimeMillis()
+                )
+            }
+            else{
+                currentComments
+            }
+        }
+    }
     private fun getFriends(currentUserId: String): List<User> {
         val following = FakeFollowData.follows
             .filter { it.fromUserId == currentUserId }
