@@ -39,6 +39,7 @@ import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 import com.example.tiktok_clone.ui.theme.TextPrimaryGray
+import com.example.tiktok_clone.ui.theme.TextSecondary
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.ArrowUp
@@ -72,7 +73,7 @@ fun CommentInput(
         ) {
             Box(
                 modifier = Modifier
-                    .border(0.1.dp, TextPrimaryGray.copy(alpha = 0.5f), CircleShape)
+                    .border(0.1.dp, TextSecondary.copy(alpha = 0.5f), CircleShape)
                     .size(50.dp)
                     .clip(CircleShape)
             ) {
