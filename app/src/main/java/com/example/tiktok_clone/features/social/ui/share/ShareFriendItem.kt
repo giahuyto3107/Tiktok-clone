@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,14 +25,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.ui.theme.RedHeart
 
 @Composable
 fun ShareFriendItem(
@@ -42,12 +44,12 @@ fun ShareFriendItem(
     viewModel: SocialViewModel = viewModel(),
 ) {
     val selectedFriendShare by viewModel.selectedFriendShare.collectAsState()
-    val isOnShare = friend.userID in selectedFriendShare
+    val isOnShare = friend.id in selectedFriendShare
 
     Column(
         modifier = Modifier.clickable(onClick = {
             onShare(friend)
-            viewModel.onAction(SocialAction.SelectedFriendShare(friend.userID))
+            viewModel.onAction(SocialAction.SelectedFriendShare(friend.id))
         }),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -73,16 +75,26 @@ fun ShareFriendItem(
                 }
             }
             if (isOnShare) {
-                Icon(
-                    imageVector = Icons.Filled.CheckCircle,
-                    contentDescription = "Share",
-                    tint = Color.Red.copy(alpha = 0.8f),
+                Box(
                     modifier = Modifier
                         .padding(end = 6.dp, bottom = 6.dp)
-                        .size(20.dp)
-                        .border(width = 0.2.dp, color = Color.White, shape = CircleShape)
+                        .clip(CircleShape)
+                        .background(color = Color.White)
+                        .size(24.dp)
                         .align(Alignment.BottomEnd)
                 )
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Share",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(color = RedHeart)
+                            .align(Alignment.Center)
+                    )
+                }
             }
         }
         Text(

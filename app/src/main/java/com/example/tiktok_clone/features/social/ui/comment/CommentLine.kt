@@ -1,5 +1,7 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
+import android.R
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,9 +44,11 @@ import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.CommentItem
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.ui.components.toDateString
-
+import com.example.tiktok_clone.R.dimen
 import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.ui.theme.RedHeart
+import com.example.tiktok_clone.ui.theme.TextPrimaryGray
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular
 import compose.icons.fontawesomeicons.Solid
@@ -50,6 +56,10 @@ import compose.icons.fontawesomeicons.regular.Heart
 import compose.icons.fontawesomeicons.regular.ThumbsDown
 import compose.icons.fontawesomeicons.solid.Heart
 import compose.icons.fontawesomeicons.solid.ThumbsDown
+import com.example.tiktok_clone.ui.theme.TextSecondary
+
+
+
 
 // hàm load 1 dòng comment
 @Composable
@@ -57,8 +67,8 @@ fun CommentLine(
     viewModel: SocialViewModel = viewModel(),
     comment: Comment,
 ) {
-    var isLiked = comment.isLiked
-    var likeCount = comment.likeCount
+    var isLiked by remember { mutableStateOf(comment.isLiked) }
+    var likeCount by remember { mutableStateOf(comment.likeCount) }
     var isReply by remember { mutableStateOf(false) }
     var isDislike by remember { mutableStateOf(false) }
     var isShowReply by remember { mutableStateOf(false) }
@@ -93,7 +103,7 @@ fun CommentLine(
 
             ) {
                 Avatar(
-                    avatarUrl = comment.avatarUrl,
+                    avatarUrl = comment.author.avatarUrl,
                     modifier = Modifier
                         .matchParentSize()
                 )
@@ -107,16 +117,13 @@ fun CommentLine(
                     .align(Alignment.Top)
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Top
             ) {
                 // user name
                 Text(
-                    text = comment.userName,
+                    text = comment.author.userName,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    color = Color.Gray.copy(
-                        alpha = 0.9f
-                    ),
+                    fontSize = dimensionResource(dimen.font_l).value.sp,
+                    color = TextPrimaryGray,
 
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(
@@ -132,10 +139,13 @@ fun CommentLine(
 
                 //Comment
                 Text(
-                    text = comment.commentContent,
+                    text = comment.content,
                     fontSize = 18.sp,
                 )
                 //Comment
+
+                Spacer(Modifier.size(4.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -146,7 +156,7 @@ fun CommentLine(
                         text = comment.createdAt.toDateString(),
                         fontWeight = FontWeight.Light,
                         fontSize = 14.sp,
-                        color = Color.Gray.copy(alpha = 0.9f)
+                        color = TextPrimaryGray
                     )
                     //Comment create at (time)
 
@@ -158,7 +168,7 @@ fun CommentLine(
                             .clickable(onClick = {}),
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
-                        color = Color.Gray.copy(alpha = 0.9f)
+                        color = TextPrimaryGray
                     )
                     //reply acction
                     Spacer(modifier = Modifier.weight(1f))
@@ -170,31 +180,32 @@ fun CommentLine(
 
                         //like
                         CommentItem(
-                            icon = if (isLiked)
-                                FontAwesomeIcons.Solid.Heart
-                            else
-                                FontAwesomeIcons.Regular.Heart,
-                            tint = if (isLiked)
-                                Color.Red
-                            else
-                                Color.Black,
-
                             onClick = {
+                                viewModel.onAction(SocialAction.LikeComment(comment.id))
                                 isLiked = !isLiked
                                 if (isLiked) {
                                     likeCount++
                                     isDislike = false
                                 } else likeCount = maxOf(0, likeCount - 1)
-                                viewModel.onAction(SocialAction.LikeComment(comment.id))
 
                             },
+                            icon = if (isLiked)
+                                FontAwesomeIcons.Solid.Heart
+                            else
+                                FontAwesomeIcons.Regular.Heart,
+                            tint = if (isLiked)
+                                RedHeart
+                            else
+                                TextPrimaryGray,
+
+
 
                             text = if (likeCount > 0) {
                                 formatCount(likeCount)
                             } else "",
                             showText = true,
                             modifier = Modifier
-                                .size(16.dp)
+                                .size(18.dp)
                                 .align(Alignment.CenterVertically)
 
                         )
@@ -207,10 +218,7 @@ fun CommentLine(
                             else
                                 FontAwesomeIcons.Regular.ThumbsDown,
 
-                            tint = if (isDislike)
-                                Color.Gray
-                            else
-                                Color.Black,
+                            tint = TextPrimaryGray,
 
                             text = "Không thích",
                             onClick = {
@@ -251,16 +259,14 @@ fun CommentLine(
                     modifier = Modifier
                         .width(24.dp)
                         .height(0.2.dp)
-                        .background(
-                            Color.Gray.copy(alpha = 0.5f)
-                        )
+                        .background(TextPrimaryGray.copy(alpha = 0.5f))
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "Xem ${formatCount(replyCount)} câu trả lời",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Gray.copy(alpha = 0.9f),
+                    color = TextPrimaryGray,
                     modifier = Modifier
                         .clickable(onClick = {})
                         .fillMaxWidth(),

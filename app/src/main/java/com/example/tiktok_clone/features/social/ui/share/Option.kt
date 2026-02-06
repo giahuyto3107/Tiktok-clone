@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.ReasonOption
 import com.example.tiktok_clone.features.social.ui.components.ReasonOptionHeader
 import com.example.tiktok_clone.features.social.ui.components.ReasonOptionItem
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
@@ -26,44 +25,48 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReasonOption(
+fun Option(
     viewModel: SocialViewModel = viewModel(),
-    modifier: Modifier = Modifier,
+    optionType: String,
     onDismiss: () -> Unit,
-    typeOfReasonOption: String?
 ) {
-    val speedOptions by viewModel.speedOptions.collectAsState()
     val reportOptions by viewModel.reportOptions.collectAsState()
     val notInterestedOptions by viewModel.notInterestedOptions.collectAsState()
+    val speedOptions by viewModel.speedOptions.collectAsState()
+    var isSelectecd by remember { mutableStateOf<Int?>(null) }
 
-    val reasonOptions: List<ReasonOption> = when(typeOfReasonOption) {
+    val options = when(optionType) {
         "report" -> reportOptions
         "not_interested" -> notInterestedOptions
         "speed" -> speedOptions
         else -> emptyList()
     }
-    var selectedReasonId by remember { mutableStateOf<Int?>(null) }
-
+    val title = when(optionType) {
+        "report" -> "Báo cáo"
+        "not_interested" -> "Không quan tâm"
+        "speed" -> "Tốc độ phát lại"
+        else -> ""
+    }
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true,
+
     )
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        modifier = modifier,
+        modifier = Modifier,
         containerColor = Color.White,
         dragHandle = null
 
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
-                .then(modifier),
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             ReasonOptionHeader(
-                typeOfReasonOption = typeOfReasonOption,
+                title = title,
                 modifier = Modifier,
                 onClose = onDismiss
             )
@@ -73,16 +76,14 @@ fun ReasonOption(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(reasonOptions.size) { reason ->
+                items(options.size) { reason ->
                     ReasonOptionItem(
-                        reasonOption = reasonOptions[reason].reasonOption,
-                        isSelected = selectedReasonId == reasonOptions[reason].reasonId,
+                        reasonOption = options[reason].reasonOption,
+                        isSelected = isSelectecd == options[reason].reasonId,
                         onClick = {
-                            selectedReasonId = reasonOptions[reason].reasonId
-
+                            isSelectecd = options[reason].reasonId
                         }
                     )
-
                 }
             }
         }

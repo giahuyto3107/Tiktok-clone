@@ -1,45 +1,64 @@
 package com.example.tiktok_clone.features.social.fakeData
+import com.example.tiktok_clone.features.social.model.ShareCategory
+import com.example.tiktok_clone.features.social.model.ShareItem
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.HeartBroken
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.outlined.AddCircleOutline
-import androidx.compose.material.icons.outlined.Cast
-import androidx.compose.material.icons.outlined.FileDownload
-import com.example.tiktok_clone.features.social.model.ShareAcction
 
-object FakeShareAcctionData {
-    val shareAcctions = listOf(
-        ShareAcction(
-            icon = Icons.Filled.Flag,
-            appName = "Báo cáo",
-            industryType = "report",
+object FakeShareActionData {
+    val shareItems = listOf(
+        ShareItem(
+            id = "repost",
+            title = "Đăng lại",
+            category = ShareCategory.APP
         ),
-        ShareAcction(
-            icon = Icons.Filled.HeartBroken,
-            appName = "Không quan tâm",
-            industryType = "not_interested"
+        ShareItem(
+            id = "copy_link",
+            title = "Sao Chép Liên Kết",
+            category = ShareCategory.APP
         ),
-        ShareAcction(
-            icon = Icons.Outlined.FileDownload,
-            appName = "Tải về",
-            industryType = "download"
+        ShareItem(
+            id = "zalo",
+            title = "Zalo",
+            category = ShareCategory.APP
         ),
-        ShareAcction(
-            icon = Icons.Outlined.AddCircleOutline,
-            appName = "Thêm vào nhật ký",
-            industryType = "add_to_story"
+        ShareItem(
+            id = "facebook",
+            title = "Facebook",
+            category = ShareCategory.APP
         ),
-        ShareAcction(
-            icon = Icons.Outlined.Cast,
-            appName = "Chiếu",
-            industryType = "cast"
+        ShareItem(
+            id = "facebook_lite",
+            title = "Lite",
+            category = ShareCategory.APP
         ),
-        ShareAcction(
-            icon = Icons.Filled.Speed,
-            appName = "Tốc độ phát lại",
-            industryType = "speed"
+        ShareItem(
+            id = "sms",
+            title = "SMS",
+            category = ShareCategory.APP
         ),
+        ShareItem(
+            id = "report",
+            title = "Báo Cáo",
+            category = ShareCategory.REPORT
+        ),
+        ShareItem(
+            id = "not_interested",
+            title = "Không quan tâm",
+            category = ShareCategory.REPORT
+        ),
+        ShareItem(
+            id ="add_to_story",
+            title ="Thêm vào nhật ký",
+            category = ShareCategory.REPORT
+        ),
+        ShareItem(
+            id = "speed",
+            title = "Tốc độ phát lại",
+            category = ShareCategory.REPORT
+        ),
+        ShareItem(
+            id = "cast",
+            title = "Chếu",
+            category = ShareCategory.REPORT
+        )
     )
 }
