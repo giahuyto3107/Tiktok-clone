@@ -145,6 +145,9 @@ class SocialViewModel : ViewModel() {
     fun getComment(postId: String): List<Comment> {
         return comments.value.filter { it.postId == postId }
     }
+    fun getReply(commentId: String): List<Comment> {
+        return comments.value.filter { it.parentId == commentId }
+    }
     fun getUser(userId: String): User {
         return FakeUserData.user.find { it.id == userId }!!
     }
