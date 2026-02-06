@@ -11,49 +11,65 @@ val Typography = Typography(
     displayMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
-        fontSize = 28.sp, // font_title_m
-        lineHeight = 36.sp
+        fontSize = Dimens.FontTitleM, // 28sp
+        lineHeight = 34.sp
     ),
 
     // Main Page Headlines
     headlineSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp, // font_title_s
-        lineHeight = 32.sp
+        fontSize = Dimens.FontTitleS, // 24sp
+        lineHeight = 30.sp
     ),
 
-    // Video Feed: Username
+    // Video Feed: Username / Profile Header
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp, // font_xxl
+        fontSize = Dimens.FontSizeXXL, // 20sp
         lineHeight = 28.sp
     ),
 
-    // Video Feed: Captions / Description
+    // Standard list titles / Post Descriptions
+    titleMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = Dimens.FontSizeL, // 16sp
+        lineHeight = 24.sp
+    ),
+
+    // Video Feed: Captions / Description Body
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp, // font_l
+        fontSize = Dimens.FontSizeL, // 16sp
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
+    ),
+
+    // Standard body text
+    bodyMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = Dimens.FontSizeM, // 14sp
+        lineHeight = 20.sp
     ),
 
     // Buttons and Tab Labels
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp, // font_m
+        fontWeight = FontWeight.SemiBold,
+        fontSize = Dimens.FontSizeM, // 14sp
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
 
-    // Interaction Counters (Likes/Comments)
+    // Interaction Counters (Likes/Comments text)
     labelMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp, // font_s
+        fontSize = Dimens.FontSizeS, // 12sp
         lineHeight = 16.sp
     ),
 
@@ -61,7 +77,7 @@ val Typography = Typography(
     labelSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 10.sp, // font_xs
+        fontSize = Dimens.FontSizeXS, // 10sp
         lineHeight = 14.sp
     )
 )
