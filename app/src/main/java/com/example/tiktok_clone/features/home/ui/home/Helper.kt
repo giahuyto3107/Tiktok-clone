@@ -175,13 +175,14 @@ fun MainInteractiveItem(
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = dimensionResource(R.dimen.font_title_s))
+                .size(size = dimensionResource(R.dimen.font_title_m))
                 .clickable(onClick = onClick)
 
         )
         Text(
             text = formatCount(numberOfInteraction),
             color = Color.White,
+            fontSize = 12.sp,
             style = MaterialTheme.typography.labelSmall,
         )
     }
@@ -255,8 +256,8 @@ fun VideoDescriptionSection(
         )
         Text(
             text = description ?: "",
-            fontSize = 16.sp,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 14.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = Color.White
         )
     }

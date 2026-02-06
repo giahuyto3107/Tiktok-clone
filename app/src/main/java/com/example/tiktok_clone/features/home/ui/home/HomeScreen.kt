@@ -85,7 +85,10 @@ fun HomeScreen(
                         userName = posts[page].author.userName,
                         description = posts[page].description,
                         modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.spacing_m),)
+                            .padding(
+                                start = dimensionResource(R.dimen.spacing_m),
+                                end = dimensionResource(R.dimen.spacing_xxxl)
+                            )
                             .align(Alignment.BottomStart)
                     )
                 }
