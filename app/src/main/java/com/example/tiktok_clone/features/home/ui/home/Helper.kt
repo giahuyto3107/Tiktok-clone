@@ -3,11 +3,11 @@ package com.example.tiktok_clone.features.home.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -29,10 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,8 +58,8 @@ import compose.icons.fontawesomeicons.solid.Share
 fun MiddleSection(
     currentUserId: String,
     currentPost: Post,
-    viewModel: SocialViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SocialViewModel = viewModel()
 ) {
     viewModel.loadFriends(currentUserId)
 
@@ -78,10 +75,10 @@ fun MiddleSection(
     }
     Column(
         modifier = Modifier
-            .fillMaxHeight(0.5f)
+            .fillMaxHeight(0.45f)
             .then(modifier),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.SpaceAround,
     ) {
         AuthorSection( // Box chứa avatar và nút follow
             avtarUrl =  currentPost.author.avatarUrl,
@@ -178,14 +175,14 @@ fun MainInteractiveItem(
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = dimensionResource(R.dimen.font_title_l))
+                .size(size = dimensionResource(R.dimen.font_title_s))
                 .clickable(onClick = onClick)
 
         )
         Text(
             text = formatCount(numberOfInteraction),
             color = Color.White,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelSmall,
         )
     }
 }
