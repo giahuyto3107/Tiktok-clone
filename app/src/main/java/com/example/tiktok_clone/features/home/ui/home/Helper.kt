@@ -3,11 +3,11 @@ package com.example.tiktok_clone.features.home.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -77,10 +77,10 @@ fun MiddleSection(
     }
     Column(
         modifier = Modifier
-            .fillMaxHeight(0.5f)
+            .fillMaxHeight(0.45f)
             .then(modifier),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.SpaceAround,
     ) {
         AuthorSection( // Box chứa avatar và nút follow
             avtarUrl =  currentPost.author.avatarUrl,
@@ -178,14 +178,15 @@ fun MainInteractiveItem(
             contentDescription = name,
             tint = tint,
             modifier = Modifier
-                .size(size = dimensionResource(R.dimen.font_title_l))
+                .size(size = dimensionResource(R.dimen.font_title_m))
                 .clickable(onClick = onClick)
 
         )
         Text(
             text = formatCount(numberOfInteraction),
             color = Color.White,
-            style = MaterialTheme.typography.labelLarge,
+            fontSize = 12.sp,
+            style = MaterialTheme.typography.labelSmall,
         )
     }
 }
@@ -258,8 +259,8 @@ fun VideoDescriptionSection(
         )
         Text(
             text = description ?: "",
-            fontSize = 16.sp,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 14.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = Color.White
         )
     }

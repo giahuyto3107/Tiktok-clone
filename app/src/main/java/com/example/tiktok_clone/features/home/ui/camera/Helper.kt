@@ -9,9 +9,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.provider.Settings
 import android.view.ViewGroup
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,27 +20,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import androidx.compose.ui.res.dimensionResource
+import androidx.core.content.ContextCompat
 import com.example.tiktok_clone.R
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Image
 
 @Composable
-fun CameraPreviewScreen() {
-    val context = LocalContext.current
+fun CameraPreviewScreen(
+    controller: LifecycleCameraController,
+    modifier: Modifier = Modifier
+) {
     val lifeCycleOwner = LocalLifecycleOwner.current
+
+    // Bind the controller to the lifecycle
+    LaunchedEffect(lifeCycleOwner) {
+        controller.bindToLifecycle(lifeCycleOwner)
+    }
 
     AndroidView(
         factory = { ctx ->
@@ -52,33 +57,10 @@ fun CameraPreviewScreen() {
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 scaleType = PreviewView.ScaleType.FILL_CENTER
+                this.controller = controller
             }
         },
-        modifier = Modifier.fillMaxSize(),
-        update = { previewView ->
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                try {
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifeCycleOwner,
-                        cameraSelector,
-                        preview
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }, ContextCompat.getMainExecutor(context))
-        }
+        modifier = modifier.fillMaxSize()
     )
 }
 
@@ -120,8 +102,10 @@ fun GalleryThumbnail(
 // --- Helper Functions ---
 
 fun checkCameraPermissions(context: Context): Boolean {
-    return ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    return ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+                PackageManager.PERMISSION_GRANTED
 }
 
 fun openSystemSettings(context: Context) {
@@ -156,4 +140,3 @@ fun getLastGalleryImageUri(context: Context): Uri? {
     }
     return null
 }
-
