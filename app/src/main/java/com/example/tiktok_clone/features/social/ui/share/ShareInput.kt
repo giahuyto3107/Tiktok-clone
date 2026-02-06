@@ -33,8 +33,6 @@ import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 import com.example.tiktok_clone.ui.theme.TextPrimaryGray
-import com.google.common.collect.Multimaps.index
-
 @Composable
 fun ShareInput(
     modifier: Modifier = Modifier,
@@ -130,7 +128,7 @@ fun ShareInput(
                         text = "Gửi đến nhóm mới",
                         fontSize = 18.sp
                     )
-                    sendList(
+                    SendList(
                         selectedFriendShare = selectedFriendShare,
                         viewModel = viewModel
                     )
@@ -143,7 +141,7 @@ fun ShareInput(
 }
 
 @Composable
-fun sendList(
+fun SendList(
     selectedFriendShare: List<String>,
     viewModel: SocialViewModel = viewModel()
 ) {
@@ -155,7 +153,7 @@ fun sendList(
             Box(
                 modifier = Modifier.offset(x = (-index * 10).dp)
             ) {
-                sendItem(
+                SendItem(
                     avatarUrl = user.avatarUrl
                 )
             }
@@ -164,7 +162,7 @@ fun sendList(
 }
 
 @Composable
-fun sendItem(
+fun SendItem(
     avatarUrl: String?,
 ) {
     Box(

@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ReasonOptionHeader(
-    title: String,
     modifier: Modifier = Modifier,
+    title: String,
     onClose: () -> Unit
 ) {
     Box(

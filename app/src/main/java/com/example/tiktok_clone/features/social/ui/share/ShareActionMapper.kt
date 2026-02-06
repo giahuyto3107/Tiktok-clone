@@ -1,17 +1,14 @@
 package com.example.tiktok_clone.features.social.ui.share
 
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.HeartBroken
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Repeat
-import androidx.compose.material3.Icon
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color

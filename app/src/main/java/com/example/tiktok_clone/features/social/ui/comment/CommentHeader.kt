@@ -11,9 +11,7 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Sort
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,13 +39,12 @@ import com.example.tiktok_clone.ui.theme.TextPrimaryBlue
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.SortAmountDownAlt
-import compose.icons.fontawesomeicons.solid.Times
 
 // header bar comment
 @Composable
 fun CommentHeader(
     commentCount: Long,
-    Search: String,
+    search: String,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -90,7 +87,7 @@ fun CommentHeader(
                     withStyle(
                         style = SpanStyle(color = TextPrimaryBlue)
                     ) {
-                        append(Search)
+                        append(search)
                     }
                     appendInlineContent("searchIcon", "[icon]")
                 },

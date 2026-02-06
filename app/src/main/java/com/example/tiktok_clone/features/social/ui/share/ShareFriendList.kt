@@ -8,15 +8,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.viewModel.SocialAction
+import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
 fun ShareFriendList(
-    currentUserId:String,
+    currentUser: User,
     viewModel: SocialViewModel = viewModel(),
 ) {
-    viewModel.loadFriends(currentUserId)
+    viewModel.loadFriends(currentUser.id)
     val friends by viewModel.friends.collectAsState()
     LazyRow(
         modifier = Modifier,

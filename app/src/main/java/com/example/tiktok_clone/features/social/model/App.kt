@@ -1,12 +1,8 @@
 package com.example.tiktok_clone.features.social.model
 
-import androidx.annotation.DrawableRes
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 
 
 data class App (
@@ -19,6 +15,5 @@ data class App (
     val tint: Color = Color.White,
     val backgroundColor: Color = Color.White,
     val onClick: () -> Unit
-){
-}
+)
 

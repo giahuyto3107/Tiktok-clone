@@ -1,7 +1,5 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
-import android.R
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,11 +16,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,7 +30,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -58,22 +55,22 @@ import compose.icons.fontawesomeicons.regular.Heart
 import compose.icons.fontawesomeicons.regular.ThumbsDown
 import compose.icons.fontawesomeicons.solid.Heart
 import compose.icons.fontawesomeicons.solid.ThumbsDown
-import com.example.tiktok_clone.ui.theme.TextSecondary
 
 
 // hàm load 1 dòng comment
 @Composable
 fun CommentLine(
+    modifier: Modifier = Modifier,
     viewModel: SocialViewModel = viewModel(),
     comment: Comment,
-    modifier: Modifier = Modifier
+
 ) {
     var isLiked by remember { mutableStateOf(comment.isLiked) }
-    var likeCount by remember { mutableStateOf(comment.likeCount) }
+    var likeCount by remember { mutableLongStateOf(comment.likeCount) }
     var isReply by remember { mutableStateOf(false) }
     var isDislike by remember { mutableStateOf(false) }
     var isShowReply by remember { mutableStateOf(false) }
-    var replyCount by remember { mutableStateOf(comment.replyCount) }
+    var replyCount by remember { mutableLongStateOf(comment.replyCount) }
 
 
     Column(

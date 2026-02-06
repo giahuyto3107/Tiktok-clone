@@ -11,21 +11,24 @@ import com.example.tiktok_clone.R
 // hàm load avatar
 @Composable
 fun Avatar(
+    modifier: Modifier = Modifier,
     avatarUrl: String? = "",
-    modifier: Modifier
+
 ) {
     if (!avatarUrl.isNullOrEmpty()) {
         AsyncImage(
             model = avatarUrl,
             contentDescription = "avatar",
-            modifier = modifier,
+            modifier = Modifier
+                .then(modifier),
             contentScale = ContentScale.Crop
         )
     } else {
         Image(
             painter = painterResource(id = R.drawable.default_avatar),
             contentDescription = "default avatar",
-            modifier = modifier,
+            modifier = Modifier
+                .then(modifier),
             contentScale = ContentScale.Crop
         )
     }
