@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.tiktok_clone.core.navigation.AppNavigation
 import com.example.tiktok_clone.R
+import com.example.tiktok_clone.features.home.ui.home.components.VideoDescriptionSection
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
@@ -72,7 +73,10 @@ fun HomeScreen(
                         userName = posts[page].author.userName,
                         description = posts[page].description,
                         modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.spacing_m))
+                            .padding(
+                                start = dimensionResource(R.dimen.spacing_m),
+                                end = dimensionResource(R.dimen.spacing_xxxl)
+                            )
                             .align(Alignment.BottomStart)
                     )
                 }

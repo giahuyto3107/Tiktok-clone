@@ -32,7 +32,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -237,32 +236,3 @@ fun AuthorSection(
         }
     }
 }
-
-@Composable
-fun VideoDescriptionSection(
-    userName: String,
-    description: String?,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = Modifier
-            .padding(bottom = 4.dp)
-            .then(modifier),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = userName,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White
-        )
-        Text(
-            text = description ?: "",
-            fontSize = 14.sp,
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.White
-        )
-    }
-}
-
