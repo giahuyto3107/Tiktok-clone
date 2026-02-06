@@ -24,26 +24,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tiktok_clone.features.social.model.ShareItem
+import com.example.tiktok_clone.features.social.model.ShareSheetMode
+import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareSheetContent(
-    viewlModel: SocialViewModel = viewModel(),
+    currentUserId:String,
+    viewModel: SocialViewModel = viewModel(),
     onDismiss: () -> Unit,
 ) {
-
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     val handleDismiss = {
-        viewlModel.onAction(SocialAction.ClearSelectedFriendShare)
+        viewModel.onAction(SocialAction.ClearSelectedFriendShare)
         onDismiss()
     }
-    val selectedFriendShare by viewlModel.selectedFriendShare.collectAsState()
+    val selectedFriendShare by viewModel.selectedFriendShare.collectAsState()
     val selectedFriendShareCount = selectedFriendShare.size
-
+    val shareSheetMode by viewModel.shareSheetMode.collectAsState()
+    val shareItems by viewModel.shareItems.collectAsState()
 
     ModalBottomSheet(
         onDismissRequest = handleDismiss,
@@ -52,50 +56,100 @@ fun ShareSheetContent(
         sheetState = sheetState,
         dragHandle = null //{ BottomSheetDefaults.DragHandle() },
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            ShareHeader(
-                modifier = Modifier,
-                onClose = handleDismiss
-            )
-            ShareFriendList(
-                viewModel = viewlModel,
-            )
-            Box( //vẽ line
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(0.2.dp)
-                    .background(Color.Gray.copy(alpha = 0.2f))
-            )
-            Box(
-                modifier = Modifier,
-                contentAlignment = Alignment.Center
-            ) {
-                if (selectedFriendShareCount > 0) {
-                    ShareInput(
-                        viewModel = viewlModel,
-                        shareFriendCount = selectedFriendShareCount
-                    )
-                } else {
-                    ShareAnotherAppList(
-                        viewModel = viewlModel,
-                        onClick = handleDismiss
-                    )
-                }
+
+        when (shareSheetMode) {
+            ShareSheetMode.Default -> {
+                DefaultShareSheet(
+                    currentUserId = currentUserId,
+                    viewModel = viewModel,
+                    handleDismiss = handleDismiss,
+                    selectedFriendShare = selectedFriendShare.toList(),
+                    shareItems = shareItems
+                )
+            }
+            ShareSheetMode.Report -> {
+                Option(
+                    viewModel = viewModel,
+                    optionType = "report",
+                    onDismiss = viewModel::dismissReportSheet
+                )
+            }
+            ShareSheetMode.NotInterested -> {
+                Option(
+                    viewModel = viewModel,
+                    optionType = "not_interested",
+                    onDismiss = viewModel::dismissReportSheet
+                )
+            }
+            ShareSheetMode.Speed -> {
+                Option(
+                    viewModel = viewModel,
+                    optionType = "speed",
+                    onDismiss = viewModel::dismissReportSheet
+                )
+            }
+            else -> {
+                DefaultShareSheet(
+                    currentUserId = currentUserId,
+                    viewModel = viewModel,
+                    handleDismiss = handleDismiss,
+                    selectedFriendShare = selectedFriendShare.toList(),
+                    shareItems = shareItems
+                )
             }
         }
     }
 }
 
+@Composable
+fun DefaultShareSheet(
+    currentUserId:String,
+    viewModel: SocialViewModel,
+    handleDismiss: () -> Unit,
+    selectedFriendShare: List<String>,
+    shareItems: List<ShareItem>
+){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(18.dp)
+    ) {
+        ShareHeader(
+            modifier = Modifier,
+            onClose = handleDismiss
+        )
+        ShareFriendList(
+            currentUserId = currentUserId,
+            viewModel = viewModel
+        )
+        Box( //vẽ line
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(0.6.dp)
+                .background(Color.LightGray.copy(alpha = 0.2f))
+        )
+        Box(
+            modifier = Modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            if (selectedFriendShare.size > 0) {
+                ShareInput(
+                    viewModel = viewModel,
+                    selectedFriendShare = selectedFriendShare,
+                )
+            }
+            else{
+                ShareActionList(
+                    items = shareItems,
+                    onActionClick = viewModel::onShareActionClicked
+                )
+            }
+        }
 
-
-
-
+    }
+}
 
 
 

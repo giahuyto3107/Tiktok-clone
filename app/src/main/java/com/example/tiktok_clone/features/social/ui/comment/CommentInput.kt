@@ -39,6 +39,7 @@ import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.CommentItem
 import com.example.tiktok_clone.features.social.viewModel.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.ui.theme.TextPrimaryGray
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.ArrowUp
@@ -70,12 +71,12 @@ fun CommentInput(
         ) {
             Box(
                 modifier = Modifier
-                    .border(1.dp, Color.Gray, CircleShape)
-                    .size(45.dp)
+                    .border(0.1.dp, TextPrimaryGray.copy(alpha = 0.5f), CircleShape)
+                    .size(50.dp)
                     .clip(CircleShape)
             ) {
                 Avatar(
-                    avatarUrl = user.avatarUrl,
+                    avatarUrl = user[0].avatarUrl,
                     modifier = Modifier
                         .matchParentSize()
                 )
@@ -103,8 +104,8 @@ fun CommentInput(
                     shape = RoundedCornerShape(30.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Gray.copy(alpha = 0.1f),
-                        unfocusedContainerColor = Color.Gray.copy(alpha = 0.4f),
-                        disabledContainerColor = Color.Gray.copy(alpha = 0.4f),
+                        unfocusedContainerColor = Color.Gray.copy(alpha = 0.2f),
+                        disabledContainerColor = Color.Gray.copy(alpha = 0.2f),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent,

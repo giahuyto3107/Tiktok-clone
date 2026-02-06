@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,6 +21,7 @@ import com.example.tiktok_clone.features.home.ui.home.HomeScreen
 import com.example.tiktok_clone.features.inbox.ui.InboxScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
 fun AppNavigation() {
@@ -123,9 +125,11 @@ fun AppNavigation() {
 
 @Composable
 private fun HomeScreenContent(
-    onSearchTap: () -> Unit = {}
+    onSearchTap: () -> Unit = {},
 ) {
-    HomeScreen(onSearchTap = onSearchTap)
+    HomeScreen(
+        onSearchTap = onSearchTap
+    )
 }
 
 @Composable

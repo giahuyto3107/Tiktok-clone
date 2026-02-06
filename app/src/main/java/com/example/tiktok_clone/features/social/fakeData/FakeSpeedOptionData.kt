@@ -7,7 +7,7 @@ object FakeSpeedOptionData {
         ReasonOption(1, "0.5x"),
         ReasonOption(2, "0.75x"),
         ReasonOption(3,"Bình thường"),
-        ReasonOption(5,"1.25x"),
+        ReasonOption(4,"1.25x"),
         ReasonOption(5,"1.5x"),
     )
 

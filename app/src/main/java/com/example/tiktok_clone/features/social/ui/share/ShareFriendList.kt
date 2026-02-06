@@ -13,8 +13,10 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
 fun ShareFriendList(
+    currentUserId:String,
     viewModel: SocialViewModel = viewModel(),
 ) {
+    viewModel.loadFriends(currentUserId)
     val friends by viewModel.friends.collectAsState()
     LazyRow(
         modifier = Modifier,

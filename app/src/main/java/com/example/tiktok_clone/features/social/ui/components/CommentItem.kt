@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.ui.theme.TextPrimaryGray
 
 // hàm icon
 @Composable
@@ -40,7 +41,7 @@ fun CommentItem(
                 modifier = Modifier
                     .padding(start = 4.dp, end = 8.dp)
                     .width(30.dp),
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 color = tint,
                 textAlign = TextAlign.Start,
             )
