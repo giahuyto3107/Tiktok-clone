@@ -9,10 +9,7 @@ data class SearchUiState(
         "nhạc nền - AnBeee 🐝",
         "失刃 | 花童",
         "mike who cheese harry",
-        "失刃 | 花童",
-        "失刃 | 花童",
-        "失刃 | 花童",
-        "失刃 | 花童",
+        "Cry For Me"
     ),
     val youMayLike: List<String> = listOf(
         "lol esports live",
@@ -20,5 +17,6 @@ data class SearchUiState(
         "Nhạc tiktok hay",
         "Man City Vs Man United",
         "Huyền cơ pve"
-    )
+    ),
+    val navigateToResult: Boolean = false
 )

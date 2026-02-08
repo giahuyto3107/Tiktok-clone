@@ -27,13 +27,19 @@ class SearchViewModel : ViewModel() {
     }
 
     fun onSearchSubmit(text: String) {
+        if (text.isBlank()) return
         _uiState.update {
             it.copy(
                 query = text,
                 suggestions = emptyList(),
-                recentSearches = listOf(text) + it.recentSearches.filter { r -> r != text }
+                recentSearches = listOf(text) + it.recentSearches.filter { r -> r != text },
+                navigateToResult = true
             )
         }
+    }
+
+    fun onResultNavigated() {
+        _uiState.update { it.copy(navigateToResult = false) }
     }
 
     fun removeRecent(text: String) {
