@@ -1,7 +1,6 @@
 package com.example.tiktok_clone.features.auth.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,11 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.R
+import com.example.tiktok_clone.features.auth.model.VideoResult
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -28,14 +26,9 @@ fun SearchResultScreen(
     onBack: () -> Unit
 ) {
     var tabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Video", "Người dùng", "Âm thanh", "Hashtag")
 
-    // 🔥 Danh sách ảnh (LẤY TỪ res/drawable)
-    val videos: List<Int> = listOf(
-        R.drawable.video_1,
-        R.drawable.video_2,
-        R.drawable.video_3
-
+    val tabs = listOf(
+        "Top", "Video", "Người dùng", "Cửa hàng", "Ảnh", "LIVE"
     )
 
     Column(
@@ -45,9 +38,11 @@ fun SearchResultScreen(
             .statusBarsPadding()
     ) {
 
-        // ===== HEADER =====
+        // 🔙 HEADER
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -55,46 +50,32 @@ fun SearchResultScreen(
                 contentDescription = null,
                 modifier = Modifier.clickable { onBack() }
             )
-            Spacer(Modifier.width(12.dp))
-            Text(
-                text = query,
-                fontSize = 16.sp
-            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(text = query, fontSize = 16.sp)
         }
 
-        // ===== TAB =====
-        TabRow(selectedTabIndex = tabIndex) {
+        // 🧭 TAB
+        ScrollableTabRow(
+            selectedTabIndex = tabIndex,
+            edgePadding = 12.dp
+        ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = tabIndex == index,
                     onClick = { tabIndex = index },
-                    text = {
-                        Text(text = title, fontSize = 13.sp)
-                    }
+                    text = { Text(title, fontSize = 13.sp) }
                 )
             }
         }
 
-        // ===== GRID VIDEO =====
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(1.dp)
-        ) {
-            items(items = videos) { videoRes ->
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(9f / 16f)
-                        .padding(1.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = videoRes),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-            }
+        // 🔥 CONTENT THEO TAB
+        when (tabIndex) {
+            0 -> TopResultTab()
+            1 -> VideoResultTab()
+            2 -> UserResultTab()
+            3 -> ShopResultTab()
+            4 -> ImageResultTab()
+            5 -> LiveResultTab()
         }
     }
 }
