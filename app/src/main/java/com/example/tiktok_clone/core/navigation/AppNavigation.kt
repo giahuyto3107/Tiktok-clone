@@ -20,6 +20,7 @@ import com.example.tiktok_clone.features.home.ui.camera.CameraAccessScreen
 import com.example.tiktok_clone.features.home.ui.home.HomeScreen
 import com.example.tiktok_clone.features.inbox.ui.InboxScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
+import com.example.tiktok_clone.features.search.ui.SearchResultScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
@@ -75,11 +76,18 @@ fun AppNavigation() {
             )
         }
 
-        composable(route = "search") {
+        composable("search") {
             SearchScreen(
-                onBack = {
-                    navController.popBackStack()
+                onNavigateToResult = { query ->
+                    navController.navigate("search_result/$query")
                 }
+            )
+        }
+
+        composable("search_result/{query}") {
+            SearchResultScreen(
+                query = it.arguments?.getString("query") ?: "",
+                onBack = { navController.popBackStack() }
             )
         }
 
