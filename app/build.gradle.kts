@@ -40,7 +40,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -68,8 +68,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
 
-    // Material 3
-    implementation(libs.androidx.material3)
 
     // Icons (History, Camera, Close…)
     implementation("androidx.compose.material:material-icons-extended")
@@ -107,7 +105,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.material3) // Consolidate material3 imports
     implementation(libs.font.awesome)
 
     // 5. Image Loading (Coil)
@@ -125,6 +122,8 @@ dependencies {
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.firebase:firebase-storage:22.0.1")
+    implementation("com.google.firebase:firebase-messaging")
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation(libs.firebase.analytics)
@@ -134,8 +133,33 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")
 
+    // Koin for dependency injection
+    implementation("io.insert-koin:koin-android:3.5.6")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.6")
+
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+
+
+    // Media3 ExoPlayer (Để phát video)
+    val media3_version = "1.4.1" // Check bản mới nhất
+    implementation("androidx.media3:media3-exoplayer:$media3_version")
+    implementation("androidx.media3:media3-ui:$media3_version")
+    implementation("androidx.media3:media3-common:$media3_version")
+
+    // Paging 3 (Để cuộn video vô tận mượt mà)
+    implementation("androidx.paging:paging-runtime-ktx:3.3.2")
+    implementation("androidx.paging:paging-compose:3.3.2")
+
+
+    // Video Compression (Dùng thư viện này để nén video)
+    implementation("com.github.AbedElazizShe:LightCompressor:1.3.2")
+    // Coroutines (Để xử lý bất đồng bộ)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    // Network (Retrofit)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // 7. Testing & Debugging
     testImplementation(libs.junit)

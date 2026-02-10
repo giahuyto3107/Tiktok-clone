@@ -15,24 +15,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.tiktok_clone.core.navigation.AppNavigation
-import com.example.tiktok_clone.features.home.ui.home.HomeScreen
+import com.example.tiktok_clone.features.home.home.ui.HomeScreen
 import com.example.tiktok_clone.ui.theme.Tiktok_cloneTheme
+import org.koin.android.ext.koin.androidContext
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 👉 Cho phép edge-to-edge
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        // 👉 Set màu status bar (PIN + TAI THỎ RÕ)
-        window.statusBarColor = Color.White.toArgb()
-
-        // 👉 Icon pin, sóng màu ĐEN
-        WindowInsetsControllerCompat(window, window.decorView)
-            .isAppearanceLightStatusBars = true
-
+        setupWindow()
         setContent {
             Tiktok_cloneTheme {
                 Surface(
@@ -46,11 +38,22 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun setupWindow() {
+        // Enable edge-to-edge display
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Set status bar color
+        window.statusBarColor = Color.White.toArgb()
+
+        // Set status bar icons to dark
+        WindowInsetsControllerCompat(window, window.decorView)
+            .isAppearanceLightStatusBars = true
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun AppNavigationPreview() {
-
     HomeScreen()
 }

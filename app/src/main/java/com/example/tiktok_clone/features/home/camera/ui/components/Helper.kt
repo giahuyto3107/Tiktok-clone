@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui.camera
+package com.example.tiktok_clone.features.home.camera.ui.components
 
 import android.Manifest
 import android.content.ContentUris
@@ -110,7 +110,7 @@ fun checkCameraPermissions(context: Context): Boolean {
 
 fun openSystemSettings(context: Context) {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = Uri.fromParts("package", context.packageName, null)
+        Intent.setData = Uri.fromParts("package", context.packageName, null)
     }
     context.startActivity(intent)
 }
