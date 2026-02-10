@@ -110,7 +110,7 @@ fun checkCameraPermissions(context: Context): Boolean {
 
 fun openSystemSettings(context: Context) {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        Intent.setData = Uri.fromParts("package", context.packageName, null)
+        data = Uri.fromParts("package", context.packageName, null)
     }
     context.startActivity(intent)
 }

@@ -32,29 +32,31 @@ import org.koin.dsl.module
  * }
  * ```
  */
-object KoinExamples {
-    
-    fun initExamples() {
-        // Example module with more dependencies
-        val exampleModule = module {
-            // Singleton
-            single { ApiService() }
-            
-            // Factory (new instance each time)
-            factory { SomeRepository(get()) }
-            
-            // ViewModel
-            viewModel { ExampleViewModel(get(), get()) }
-            
-            // Context dependency
-            androidContext()
-        }
-        
-        // Start Koin with modules
-        startKoin {
-            androidLogger()
-            androidContext()
-            modules(exampleModule)
-        }
-    }
-}
+
+
+//object KoinExamples {
+//
+//    fun initExamples() {
+//        // Example module with more dependencies
+//        val exampleModule = module {
+//            // Singleton
+//            single { ApiService() }
+//
+//            // Factory (new instance each time)
+//            factory { SomeRepository(get()) }
+//
+//            // ViewModel
+//            viewModel { ExampleViewModel(get(), get()) }
+//
+//            // Context dependency
+//            androidContext()
+//        }
+//
+//        // Start Koin with modules
+//        startKoin {
+//            androidLogger()
+//            androidContext()
+//            modules(exampleModule)
+//        }
+//    }
+//}

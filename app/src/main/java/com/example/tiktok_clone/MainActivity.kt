@@ -15,9 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.tiktok_clone.core.navigation.AppNavigation
-import com.example.tiktok_clone.features.home.home.ui.HomeScreen
 import com.example.tiktok_clone.ui.theme.Tiktok_cloneTheme
-import org.koin.android.ext.koin.androidContext
 
 class MainActivity : ComponentActivity() {
 
@@ -55,5 +53,5 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun AppNavigationPreview() {
-    HomeScreen()
+    AppNavigation()
 }

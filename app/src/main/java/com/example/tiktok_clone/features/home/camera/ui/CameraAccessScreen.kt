@@ -3,24 +3,15 @@ package com.example.tiktok_clone.features.home.camera.ui
 import android.Manifest
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.video.MediaStoreOutputOptions
-import androidx.camera.video.Recording
-import androidx.camera.video.VideoRecordEvent
-import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
-import androidx.camera.view.video.AudioConfig
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,11 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,9 +57,9 @@ import com.example.tiktok_clone.R
 import com.example.tiktok_clone.features.home.camera.ui.components.BottomTabSection
 import com.example.tiktok_clone.features.home.camera.ui.components.CameraPreviewScreen
 import com.example.tiktok_clone.features.home.camera.ui.components.SnapAndTimeOption
-import com.example.tiktok_clone.features.home.camera.ui.components.checkCameraPermissions
 import com.example.tiktok_clone.features.home.camera.ui.components.getLastGalleryImageUri
 import com.example.tiktok_clone.features.home.camera.ui.components.openSystemSettings
+import com.example.tiktok_clone.features.home.camera.viewmodel.CameraViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
@@ -168,11 +157,9 @@ fun CameraAccessScreen(
                             }
                         } else {
                             if (uiState.isRecording) {
-                                // Stop recording logic here
-                                cameraViewModel.updateRecordingState(false)
+                                cameraViewModel.stopRecording()
                             } else {
-                                cameraViewModel.updateRecordingState(true)
-                                // Start recording logic here
+                                cameraViewModel.startRecording(context, cameraController)
                             }
                         }
                     }
@@ -312,50 +299,6 @@ private fun takePhoto(
         }
     )
 }
-
-private fun startRecording(
-    context: Context,
-    controller: LifecycleCameraController,
-    onFinished: () -> Unit,
-    onVideoSaved: () -> Unit = {}
-): Recording {
-    val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-        .format(System.currentTimeMillis())
-
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-        put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-        put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/TikTok-Clone")
-    }
-
-    val mediaStoreOutputOptions = MediaStoreOutputOptions
-        .Builder(context.contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-        .setContentValues(contentValues)
-        .build()
-
-    val hasAudioPermission = ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.RECORD_AUDIO
-    ) == PackageManager.PERMISSION_GRANTED
-
-    // Ensure Audio is enabled
-    return controller.startRecording(
-        mediaStoreOutputOptions,
-        AudioConfig.create(hasAudioPermission),
-        ContextCompat.getMainExecutor(context)
-    ) { event ->
-        if (event is VideoRecordEvent.Finalize) {
-            if (!event.hasError()) {
-                Toast.makeText(context, "Video Saved", Toast.LENGTH_SHORT).show()
-                onVideoSaved()
-            } else {
-                Toast.makeText(context, "Video Error", Toast.LENGTH_SHORT).show()
-            }
-            onFinished()
-        }
-    }
-}
-
 
 @Preview
 @Composable
