@@ -23,10 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.core.utils.AppColors
-import com.example.tiktok_clone.core.utils.AppConstants
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Envelope
@@ -67,7 +66,8 @@ private fun BottomNavigationBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = AppConstants.SPACING_M.dp),
+            .padding(top = dimensionResource(R.dimen.spacing_m),
+                bottom = dimensionResource(R.dimen.spacing_m)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
@@ -90,7 +90,7 @@ private fun BottomNavigationBar(
             contentDescription = "Camera button",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .padding(bottom = AppConstants.SPACING_S.dp)
+                .padding(bottom = dimensionResource(R.dimen.spacing_s))
                 .clickable { onCameraClick() }
         )
 
@@ -126,13 +126,13 @@ private fun BottomNavigationItem(
         Icon(
             imageVector = icon,
             contentDescription = name,
-            tint = if (isSelected) AppColors.TEXT_ON_DARK else AppColors.TEXT_SECONDARY,
-            modifier = Modifier.size(size = AppConstants.FONT_TITLE_M.dp)
+            tint = if (isSelected) colorResource(R.color.text_on_dark) else colorResource(R.color.text_secondary),
+            modifier = Modifier.size(size = dimensionResource(R.dimen.font_title_m))
         )
 
         Text(
             name,
-            color = if (isSelected) AppColors.TEXT_ON_DARK else AppColors.TEXT_SECONDARY,
+            color = if (isSelected) colorResource(R.color.text_on_dark) else colorResource(R.color.text_secondary),
             style = MaterialTheme.typography.labelSmall,
         )
     }

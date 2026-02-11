@@ -36,8 +36,9 @@ import compose.icons.fontawesomeicons.solid.QuestionCircle
 
 @Composable
 fun SelectSignUpScreen(
-    onPhoneEmailClick: () -> Unit, // Callback khi chọn dòng đầu tiên
-    onLoginClick: () -> Unit       // Callback chuyển sang màn Login
+    onPhoneEmailClick: () -> Unit = {}, // Callback khi chọn dòng đầu tiên
+    onGoogleClick: () -> Unit = {},      // Callback khi chọn dòng thứ 2
+    onLoginClick: () -> Unit = {}       // Callback chuyển sang màn Login
 ) {
     Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -92,7 +93,11 @@ fun SelectSignUpScreen(
                 // Các nút khác
                 SignUpOptionButton("Tiếp tục với Facebook", FontAwesomeIcons.Brands.Facebook) {}
                 Spacer(modifier = Modifier.height(16.dp))
-                SignUpOptionButton("Tiếp tục với Google", FontAwesomeIcons.Brands.Google) {}
+                SignUpOptionButton(
+                    "Tiếp tục với Google",
+                    FontAwesomeIcons.Brands.Google,
+                    onGoogleClick
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 SignUpOptionButton("Tiếp tục với LINE", FontAwesomeIcons.Brands.Line) {}
                 Spacer(modifier = Modifier.height(16.dp))

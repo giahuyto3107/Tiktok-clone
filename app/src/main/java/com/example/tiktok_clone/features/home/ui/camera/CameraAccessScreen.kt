@@ -1,19 +1,29 @@
 package com.example.tiktok_clone.features.home.ui.camera
 
 import android.Manifest
+import android.content.ContentValues
+import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.video.Recording
+import androidx.camera.video.VideoRecordEvent
+import androidx.camera.view.CameraController
+import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.video.AudioConfig
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -23,10 +33,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -37,31 +43,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.example.tiktok_clone.core.utils.AppColors
-import com.example.tiktok_clone.core.utils.AppConstants
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import com.example.tiktok_clone.R
+import com.example.tiktok_clone.features.home.ui.camera.components.BottomTabSection
+import com.example.tiktok_clone.features.home.ui.camera.components.SnapAndTimeOption
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
-import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun CameraAccessScreen(
@@ -69,6 +76,21 @@ fun CameraAccessScreen(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val cameraController = remember {
+        LifecycleCameraController(context).apply {
+            setEnabledUseCases(
+                CameraController.IMAGE_CAPTURE or CameraController.VIDEO_CAPTURE
+            )
+            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        }
+    }
+
+    var isRecording by remember { mutableStateOf(false) }
+    var activeRecording: Recording? by remember { mutableStateOf(null) }
+
+    // State for selected mode (0=10m, 1=60s, 2=15s, 3=Photo)
+    var selectedModeIndex by remember { mutableIntStateOf(3) }
 
     // STATE: Track latest image
     var latestGalleryUri by remember { mutableStateOf<Uri?>(null) }
@@ -145,7 +167,9 @@ fun CameraAccessScreen(
         ) {
 
             if (hasCameraPermissions) {
-                CameraPreviewScreen()
+                CameraPreviewScreen(
+                    controller = cameraController
+                )
             } else {
                 NoPermissionBackground()
             }
@@ -167,7 +191,37 @@ fun CameraAccessScreen(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
             ) {
-                SnapAndTimeOption(hasPermission = hasCameraPermissions)
+                SnapAndTimeOption(
+                    hasPermission = hasCameraPermissions,
+                    isRecording = isRecording,
+                    onModeChange = { index -> selectedModeIndex = index },
+                    recordingMode = selectedModeIndex != 3,
+                    onSnapClick = {
+                        if (selectedModeIndex == 3) {
+                            takePhoto(context, cameraController) {
+                                latestGalleryUri = getLastGalleryImageUri(context)
+                            }
+                        } else {
+                            if (isRecording) {
+                                activeRecording?.stop()
+                                isRecording = false
+                                activeRecording = null
+                            } else {
+                                isRecording = true
+                                activeRecording = startRecording(
+                                    context = context,
+                                    controller = cameraController,
+                                    onFinished = {
+                                        isRecording = false
+                                    },
+                                    onVideoSaved = {
+                                        latestGalleryUri = getLastGalleryImageUri(context)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                )
                 Spacer(modifier = Modifier.height(20.dp))
 
             }
@@ -208,42 +262,42 @@ fun PermissionRequestContent(onOpenSettings: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(horizontal = AppConstants.SPACING_XXXL.dp)
+            .padding(horizontal = dimensionResource(R.dimen.spacing_xxxl))
             .fillMaxWidth()
     ) {
         Text(
             text = "Allow Tiktok to access to your camera and microphone",
-            color = AppColors.TEXT_ON_DARK,
+            color = colorResource(R.color.text_on_dark),
             style = MaterialTheme.typography.titleMedium,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(AppConstants.SPACING_M.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_m)))
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
-                .clip(RoundedCornerShape(AppConstants.RADIUS_L.dp))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_l)))
                 .background(color = Color(0xff658c8b))
                 .fillMaxWidth()
                 .clickable { onOpenSettings() }
                 .padding(
-                    horizontal = AppConstants.SPACING_M.dp,
-                    vertical = AppConstants.SPACING_XXL.dp,
+                    horizontal = dimensionResource(R.dimen.spacing_m),
+                    vertical = dimensionResource(R.dimen.spacing_xxl),
                 )
         ) {
             Icon(
                 imageVector = FontAwesomeIcons.Solid.Cog,
                 contentDescription = "Settings",
-                tint = AppColors.TEXT_ON_DARK,
-                modifier = Modifier.size(AppConstants.FONT_TITLE_M.dp)
+                tint = colorResource(R.color.text_on_dark),
+                modifier = Modifier.size(dimensionResource(R.dimen.font_title_m))
             )
-            Spacer(modifier = Modifier.width(AppConstants.SPACING_M.dp))
-            Box(modifier = Modifier.padding(top = AppConstants.SPACING_XXS.dp)) {
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_m)))
+            Box(modifier = Modifier.padding(top = dimensionResource(R.dimen.spacing_xxs))) {
                 Text(
                     text = "Open settings",
-                    color = AppColors.TEXT_ON_DARK,
+                    color = colorResource(R.color.text_on_dark),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -255,223 +309,98 @@ fun PermissionRequestContent(onOpenSettings: () -> Unit) {
 private fun CancelButton(onNavigationToHomeScreen: () -> Unit) {
     Box(
         modifier = Modifier.padding(
-            top = AppConstants.SPACING_M.dp,
-            start = AppConstants.SPACING_M.dp,
+            top = dimensionResource(R.dimen.spacing_m),
+            start = dimensionResource(R.dimen.spacing_m),
         )
     ) {
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = "Cancel",
-            tint = AppColors.TEXT_ON_DARK,
+            tint = colorResource(R.color.text_on_dark),
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .size(AppConstants.FONT_TITLE_M.dp)
+                .size(dimensionResource(R.dimen.font_title_m))
                 .clickable { onNavigationToHomeScreen() }
         )
     }
 }
 
-@Composable
-private fun SnapAndTimeOption(
-    hasPermission: Boolean,
-    modifier: Modifier = Modifier
+private fun takePhoto(
+    context: Context,
+    controller: LifecycleCameraController,
+    onImageSaved: () -> Unit = {}
 ) {
-    Column(
-        modifier = modifier
-        .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TimeOptionRow(
-            hasPermission = hasPermission,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(AppConstants.SPACING_XL.dp))
-        SnapButton(
-            hasPermission = hasPermission,
-            modifier = Modifier.fillMaxWidth()
-        )
+    val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
+        .format(System.currentTimeMillis())
+
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/TikTok-Clone")
     }
-}
 
-@Composable
-private fun TimeOptionRow(
-    hasPermission: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val options = listOf("10m", "60s", "15s", "PHOTO")
-    val pagerState = rememberPagerState(pageCount = { options.size }, initialPage = 3)
+    val outputOptions = androidx.camera.core.ImageCapture.OutputFileOptions
+        .Builder(context.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        .build()
 
-    val scope = rememberCoroutineScope()
-
-    val itemWidth = 100.dp
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val horizontalPadding = (screenWidth - itemWidth) / 2
-
-
-    HorizontalPager(
-        state = pagerState,
-        userScrollEnabled = hasPermission,
-        pageSize = PageSize.Fixed(itemWidth),
-        contentPadding = PaddingValues(horizontal = horizontalPadding),
-        modifier = modifier
-    ) { page ->
-        val isSelected = pagerState.currentPage == page
-
-        val bgColor = when {
-            !isSelected -> Color.Transparent
-            hasPermission -> Color.White
-            else -> Color(0xff999E98)
-        }
-
-        val textColor = when {
-            isSelected && hasPermission -> Color(0xff16151b)
-            isSelected && !hasPermission -> Color(0xff6C716B)
-            !isSelected && hasPermission -> Color(0xfff8f6f1)
-            else -> Color(0xff909790)
-        }
-
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = options[page],
-                color = textColor,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                maxLines = 1,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(AppConstants.RADIUS_XXL.dp))
-                    .background(bgColor)
-                    .padding(
-                        vertical = AppConstants.SPACING_XS.dp,
-                        horizontal = AppConstants.SPACING_M.dp
-                    )
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        scope.launch {
-                            pagerState.animateScrollToPage(page)
-                        }
-                    }
-            )
-        }
-    }
-}
-
-@Composable
-private fun SnapButton(
-    hasPermission: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Box(modifier = modifier,
-        contentAlignment =  Alignment.Center) {
-        Box(
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-                .background(
-                    if (hasPermission) Color.White
-                    else Color(0xff9C988F)
-                )
-        )
-    }
-}
-
-@Composable
-private fun BottomTabSection(
-    hasPermission: Boolean,
-    latestImageUri: Uri?,
-    onGalleryClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        Box(modifier = Modifier
-            .padding(
-                start = AppConstants.SPACING_M.dp,
-                top = AppConstants.SPACING_S.dp
-            )
-        ) {
-            GalleryThumbnail(
-                latestImageUri = latestImageUri,
-                onClick = onGalleryClick,
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
-        }
-
-        PostCategorySlider(
-            hasPermission = hasPermission,
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .padding(top = AppConstants.SPACING_S.dp)
-        )
-    }
-}
-
-@Composable
-private fun PostCategorySlider(
-    hasPermission: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val options = listOf("POST", "CREATE", "LIVE")
-    val pagerState = rememberPagerState(pageCount = { options.size }, initialPage = 0)
-
-    val scope = rememberCoroutineScope()
-
-    val itemWidth = 90.dp
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val horizontalPadding = (screenWidth - itemWidth) / 2
-
-    HorizontalPager(
-        state = pagerState,
-        userScrollEnabled = hasPermission,
-        pageSize = PageSize.Fixed(itemWidth),
-        contentPadding = PaddingValues(horizontal = horizontalPadding),
-        modifier = modifier
-    ) { page ->
-        PostCategorySliderItem(
-            name = options[page],
-            isSelected = pagerState.currentPage == page,
-            onTap = {
-                scope.launch {
-                    pagerState.animateScrollToPage(page)
-                }
+    controller.takePicture(
+        outputOptions,
+        ContextCompat.getMainExecutor(context),
+        object : androidx.camera.core.ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(output: androidx.camera.core.ImageCapture.OutputFileResults) {
+                Toast.makeText(context, "Photo Saved", Toast.LENGTH_SHORT).show()
+                onImageSaved()
             }
-        )
+            override fun onError(exc: androidx.camera.core.ImageCaptureException) {
+                Log.e("Camera", "Photo capture failed: ${exc.message}", exc)
+            }
+        }
+    )
+}
+
+private fun startRecording(
+    context: Context,
+    controller: LifecycleCameraController,
+    onFinished: () -> Unit,
+    onVideoSaved: () -> Unit = {}
+): Recording {
+    val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
+        .format(System.currentTimeMillis())
+
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+        put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+        put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/TikTok-Clone")
+    }
+
+    val mediaStoreOutputOptions = MediaStoreOutputOptions
+        .Builder(context.contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        .setContentValues(contentValues)
+        .build()
+
+    val hasAudioPermission = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.RECORD_AUDIO
+    ) == PackageManager.PERMISSION_GRANTED
+
+    // Ensure Audio is enabled
+    return controller.startRecording(
+        mediaStoreOutputOptions,
+        AudioConfig.create(hasAudioPermission),
+        ContextCompat.getMainExecutor(context)
+    ) { event ->
+        if (event is VideoRecordEvent.Finalize) {
+            if (!event.hasError()) {
+                Toast.makeText(context, "Video Saved", Toast.LENGTH_SHORT).show()
+                onVideoSaved()
+            } else {
+                Toast.makeText(context, "Video Error", Toast.LENGTH_SHORT).show()
+            }
+            onFinished()
+        }
     }
 }
 
-@Composable
-fun PostCategorySliderItem(
-    name: String,
-    isSelected: Boolean,
-    onTap: () -> Unit
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { onTap() }
-    ) {
-        Text(
-            text = name,
-            color = if (isSelected) Color.White else Color.White.copy(alpha = 0.5f),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1
-        )
-    }
-}
 
 @Preview
 @Composable

@@ -1,9 +1,11 @@
 package com.example.tiktok_clone.features.auth.ui
 
+import android.widget.Toast
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import com.example.tiktok.features.auth.screens.LoginFormScreen
-import com.example.tiktok.features.auth.screens.LoginSelectionScreen
 import com.example.tiktok.features.auth.screens.SignUpFormScreen
+import kotlinx.coroutines.launch
 
 // Định nghĩa đầy đủ 4 trạng thái màn hình
 enum class AuthScreenState {
@@ -15,6 +17,10 @@ enum class AuthScreenState {
 
 @Composable
 fun TikTokAuthNavigation() {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val googleAuthHelper = remember { GoogleAuthUiHelper(context) }
+
     var currentScreen by remember { mutableStateOf(AuthScreenState.SELECT_SIGNUP) }
 
     when (currentScreen) {
@@ -22,7 +28,17 @@ fun TikTokAuthNavigation() {
         AuthScreenState.SELECT_SIGNUP -> {
             SelectSignUpScreen(
                 onPhoneEmailClick = { currentScreen = AuthScreenState.SIGNUP_FORM },
-                onLoginClick = { currentScreen = AuthScreenState.SELECT_LOGIN }
+                onLoginClick = { currentScreen = AuthScreenState.SELECT_LOGIN },
+                onGoogleClick = {
+                    coroutineScope.launch {
+                        val result = googleAuthHelper.signInGoogle()
+                        result.onSuccess { user ->
+//                            onGoogle
+                        }.onFailure { e ->
+                            Toast.makeText(context, "Sign in Failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             )
         }
 
