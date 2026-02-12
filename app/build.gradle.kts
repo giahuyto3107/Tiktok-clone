@@ -109,6 +109,8 @@ dependencies {
 
     implementation(libs.androidx.compose.ui)
 
+    implementation("io.coil-kt:coil-video:2.5.0")
+
     implementation(libs.androidx.compose.ui.graphics)
 
     implementation(libs.androidx.compose.foundation.layout)

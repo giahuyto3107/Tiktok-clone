@@ -26,6 +26,7 @@ class UploadRepository(
         description: String,
         type: PostType
     ): Result<Boolean> {
+        Log.d(TAG, "createPost called with URI: $uri, type: $type")
         return if (type == PostType.VIDEO) {
             uploadVideo(uri, description)
         } else {
@@ -36,10 +37,13 @@ class UploadRepository(
     private suspend fun uploadImage(uri: Uri, description: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
+                Log.d(TAG, "uploadImage starting for URI: $uri")
                 val filePart = createFilePartFromUri(uri, "image.jpg")
                     ?: return@withContext Result.failure(IllegalArgumentException("Could not read image from URI"))
+                Log.d(TAG, "filePart created successfully")
                 val descPart = description.toRequestBody("text/plain".toMediaTypeOrNull())
                 val response = apiService.uploadImage(filePart, descPart)
+                Log.d(TAG, "uploadImage response: code=${response.code()}, successful=${response.isSuccessful}")
                 if (response.isSuccessful) Result.success(true)
                 else {
                     val request = response.raw().request
@@ -47,6 +51,7 @@ class UploadRepository(
                     Result.failure(Exception("Upload failed: ${response.code()}"))
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "uploadImage exception", e)
                 Result.failure(e)
             }
         }
@@ -74,21 +79,33 @@ class UploadRepository(
      * @param defaultFileName used when URI has no useful filename
      */
     private fun createFilePartFromUri(uri: Uri, defaultFileName: String): MultipartBody.Part? {
-        val stream = context.contentResolver.openInputStream(uri) ?: return null
-        val mimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
-        val fileName = uri.lastPathSegment?.takeIf { it.contains('.') } ?: defaultFileName
-        val tempFile = File.createTempFile("upload_", "_$fileName").apply {
-            deleteOnExit()
-        }
-        return try {
-            FileOutputStream(tempFile).use { out ->
-                stream.use { it.copyTo(out) }
+        Log.d(TAG, "createFilePartFromUri called with URI: $uri, defaultFileName: $defaultFileName")
+        var stream: java.io.InputStream? = null
+        try {
+            stream = context.contentResolver.openInputStream(uri) ?: run {
+                Log.e(TAG, "Failed to open input stream for URI: $uri")
+                return null
             }
-            val body = tempFile.asRequestBody(mimeType.toMediaTypeOrNull())
-            MultipartBody.Part.createFormData("file", fileName, body)
+            val mimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
+            val fileName = uri.lastPathSegment?.takeIf { it.contains('.') } ?: defaultFileName
+            val tempFile = File.createTempFile("upload_${System.currentTimeMillis()}_${uri.hashCode()}", "_$fileName")
+            Log.d(TAG, "Created temp file: ${tempFile.absolutePath}")
+            
+            return try {
+                FileOutputStream(tempFile).use { out ->
+                    stream.use { it.copyTo(out) }
+                }
+                Log.d(TAG, "File copied successfully, size: ${tempFile.length()}")
+                val body = tempFile.asRequestBody(mimeType.toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("file", fileName, body)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error creating file part", e)
+                tempFile.delete()
+                null
+            }
         } catch (e: Exception) {
-            tempFile.delete()
-            null
+            Log.e(TAG, "Error in createFilePartFromUri", e)
+            return null
         }
     }
 }

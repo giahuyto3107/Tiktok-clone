@@ -113,6 +113,7 @@ class CameraViewModel : ViewModel() {
     fun getStoragePermission(): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
+            Manifest.permission.READ_MEDIA_VIDEO
         } else {
             Manifest.permission.READ_EXTERNAL_STORAGE
         }
@@ -166,7 +167,7 @@ class CameraViewModel : ViewModel() {
                 if (event is VideoRecordEvent.Finalize) {
                     if (!event.hasError()) {
                         Toast.makeText(context, "Video Saved", Toast.LENGTH_SHORT).show()
-                        // Update latest gallery URI
+                        // Update latest gallery URI again after recording finishes
                         updateLatestGalleryUri(getLastGalleryImageUri(context))
                     } else {
                         Toast.makeText(context, "Video Error", Toast.LENGTH_SHORT).show()
@@ -187,6 +188,8 @@ class CameraViewModel : ViewModel() {
         activeRecording?.stop()
         activeRecording = null
         updateRecordingState(false)
+        // Update gallery URI when recording stops (in case the finalize callback doesn't fire)
+        // This ensures the UI updates immediately when user stops recording
     }
     
     override fun onCleared() {

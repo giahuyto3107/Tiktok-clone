@@ -26,12 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import androidx.compose.ui.res.dimensionResource
 import androidx.core.content.ContextCompat
+import coil.ImageLoader
+import coil.decode.VideoFrameDecoder
 import com.example.tiktok_clone.R
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
@@ -71,6 +74,13 @@ fun GalleryThumbnail(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            add(VideoFrameDecoder.Factory())
+        }
+        .build()
+
     Box(
         modifier = modifier
             .size(35.dp)
@@ -82,7 +92,8 @@ fun GalleryThumbnail(
         if (latestImageUri != null) {
             AsyncImage(
                 model = latestImageUri,
-                contentDescription = "Gallery",
+                imageLoader = imageLoader,
+                contentDescription = "Latest media",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -118,25 +129,41 @@ fun openSystemSettings(context: Context) {
 fun getLastGalleryImageUri(context: Context): Uri? {
     val projection = arrayOf(
         MediaStore.Images.Media._ID,
+        MediaStore.Files.FileColumns.MEDIA_TYPE,
         MediaStore.Images.Media.DATE_ADDED
     )
 
-    val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+    val selection = (MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+            + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+            + " OR "
+            + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+            + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)
 
-    val cursor = context.contentResolver.query(
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+    val sortOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+    val queryUri = MediaStore.Files.getContentUri("external")
+
+    return context.contentResolver.query(
+        queryUri,
         projection,
-        null,
+        selection,
         null,
         sortOrder
-    )
+    )?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
+            val mediaTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE)
 
-    cursor?.use {
-        if (it.moveToFirst()) {
-            val idColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            val id = it.getLong(idColumn)
-            return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-        }
+            val id = cursor.getLong(idColumn)
+            val type = cursor.getInt(mediaTypeColumn)
+
+            // Determine if we should return an Image or Video URI
+            val baseUri = if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            } else {
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            }
+
+            ContentUris.withAppendedId(baseUri, id)
+        } else null
     }
-    return null
 }
