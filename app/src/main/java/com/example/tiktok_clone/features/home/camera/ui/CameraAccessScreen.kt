@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.features.home.camera.ui
 
 import android.Manifest
+import android.os.Build
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -90,13 +91,27 @@ fun CameraAccessScreen(
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
-        uri?.let { postViewModel.upload(it, "", PostType.IMAGE) }
+        Log.d("CameraAccessScreen", "Photo picker result: $uri")
+        uri?.let {
+            val mimeType = context.contentResolver.getType(it)
+            val postType = if (mimeType?.contains("video") == true) PostType.VIDEO else PostType.IMAGE
+            Log.d("CameraAccessScreen", "Starting upload for URI: $uri, type: $postType, current state: $uploadState")
+            
+            // Only start new upload if not already uploading
+            if (uploadState is UploadState.Idle) {
+                postViewModel.upload(it, "", postType)
+            } else {
+                Log.w("CameraAccessScreen", "Upload already in progress, ignoring new request")
+                Toast.makeText(context, "Please wait for current upload to complete", Toast.LENGTH_SHORT).show()
+            }
+        } ?: Log.d("CameraAccessScreen", "No URI selected from photo picker")
     }
 
     LaunchedEffect(uploadState) {
         when (uploadState) {
             is UploadState.Success -> {
                 Toast.makeText(context, "Posted!", Toast.LENGTH_SHORT).show()
+                // Reset state immediately but don't navigate - let user decide
                 postViewModel.resetUploadState()
             }
             is UploadState.Error -> {
@@ -113,7 +128,12 @@ fun CameraAccessScreen(
         val cameraPermissions = permissions[Manifest.permission.CAMERA] == true &&
                              permissions[Manifest.permission.RECORD_AUDIO] == true
 
-        val storagePermissions = permissions[cameraViewModel.getStoragePermission()] == true
+        val storagePermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions[Manifest.permission.READ_MEDIA_IMAGES] == true ||
+                    permissions[Manifest.permission.READ_MEDIA_VIDEO] == true
+        } else {
+            permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
+        }
 
         cameraViewModel.updatePermissions(cameraPermissions, storagePermissions, context)
     }
@@ -133,6 +153,11 @@ fun CameraAccessScreen(
         
         if (!uiState.hasCameraPermissions || !uiState.hasStoragePermissions) {
             permissionLauncher.launch(cameraViewModel.getRequiredPermissions())
+        }
+        
+        // Reset upload state when screen is displayed to prevent stuck states
+        if (uploadState !is UploadState.Idle) {
+            postViewModel.resetUploadState()
         }
     }
 
@@ -173,6 +198,8 @@ fun CameraAccessScreen(
                     onModeChange = { index -> cameraViewModel.updateSelectedMode(index) },
                     recordingMode = uiState.selectedModeIndex != 3,
                     onSnapClick = {
+                        cameraViewModel.updateLatestGalleryUri(getLastGalleryImageUri(context))
+                        
                         if (uiState.selectedModeIndex == 3) {
                             takePhoto(context, cameraController) {
                                 cameraViewModel.updateLatestGalleryUri(getLastGalleryImageUri(context))
@@ -197,7 +224,7 @@ fun CameraAccessScreen(
             onGalleryClick = {
                 photoPickerLauncher.launch(
                     PickVisualMediaRequest(
-                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                        ActivityResultContracts.PickVisualMedia.ImageAndVideo
                     )
                 )
             }
