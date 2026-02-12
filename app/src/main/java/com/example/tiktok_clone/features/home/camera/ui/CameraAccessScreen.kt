@@ -3,6 +3,7 @@ package com.example.tiktok_clone.features.home.camera.ui
 import android.Manifest
 import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -60,6 +61,9 @@ import com.example.tiktok_clone.features.home.camera.ui.components.SnapAndTimeOp
 import com.example.tiktok_clone.features.home.camera.ui.components.getLastGalleryImageUri
 import com.example.tiktok_clone.features.home.camera.ui.components.openSystemSettings
 import com.example.tiktok_clone.features.home.camera.viewmodel.CameraViewModel
+import com.example.tiktok_clone.features.home.post.data.model.PostType
+import com.example.tiktok_clone.features.home.post.ui.UploadState
+import com.example.tiktok_clone.features.home.post.viewmodel.PostViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
@@ -70,20 +74,38 @@ import java.util.Locale
 @Composable
 fun CameraAccessScreen(
     onNavigationToHomeScreen: () -> Unit,
-    cameraViewModel: CameraViewModel = koinViewModel()
+    cameraViewModel: CameraViewModel = koinViewModel(),
+    postViewModel: PostViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val uiState by cameraViewModel.uiState.collectAsState()
+    val uploadState by postViewModel.uploadState.collectAsState()
 
     val cameraController = remember {
         cameraViewModel.initializeCameraController(context)
     }
 
-    // PICKER: Setup the Photo Picker
+    // PICKER: Setup the Photo Picker — upload selected image
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
-    ) { }
+    ) { uri: Uri? ->
+        uri?.let { postViewModel.upload(it, "", PostType.IMAGE) }
+    }
+
+    LaunchedEffect(uploadState) {
+        when (uploadState) {
+            is UploadState.Success -> {
+                Toast.makeText(context, "Posted!", Toast.LENGTH_SHORT).show()
+                postViewModel.resetUploadState()
+            }
+            is UploadState.Error -> {
+                Toast.makeText(context, (uploadState as UploadState.Error).message, Toast.LENGTH_LONG).show()
+                postViewModel.resetUploadState()
+            }
+            else -> { }
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
