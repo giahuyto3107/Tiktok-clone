@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui.camera
+package com.example.tiktok_clone.features.home.camera.ui.components
 
 import android.Manifest
 import android.content.ContentUris

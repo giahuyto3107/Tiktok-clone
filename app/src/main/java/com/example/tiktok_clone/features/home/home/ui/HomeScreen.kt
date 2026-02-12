@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui.home
+package com.example.tiktok_clone.features.home.home.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,27 +26,27 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import coil.compose.AsyncImage
 import com.example.tiktok_clone.core.navigation.AppNavigation
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.features.home.ui.home.components.VideoDescriptionSection
+import com.example.tiktok_clone.features.home.home.ui.components.MiddleSection
+import com.example.tiktok_clone.features.home.home.ui.components.VideoDescriptionSection
+import com.example.tiktok_clone.features.home.home.viewmodel.HomeViewModel
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
 fun HomeScreen(
+    homeViewModel: HomeViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     onSearchTap: () -> Unit = {}
 ) {
+    val uiState by homeViewModel.uiState.collectAsState()
+    val pagerState = rememberPagerState(pageCount = { uiState.posts.size })
 
-    val viewModel: SocialViewModel = viewModel()
-    val uiState by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) {
-        viewModel.loadPosts()
+        homeViewModel.refreshPosts()
     }
-    //lấy dữ liệu post ừ fake data
-    val posts = uiState.posts
-    val pagerState = rememberPagerState(pageCount = { posts.size})
-    val currentUser = viewModel.getUser("u1")
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         VerticalPager(
@@ -56,29 +56,37 @@ fun HomeScreen(
             Column {
                 Box(modifier = Modifier
                     .fillMaxHeight()) {
-                    VideoSection(thumbnailUrl = posts[page].thumbnailUrl)
+                    VideoSection(thumbnailUrl = uiState.posts.getOrNull(page)?.thumbnailUrl)
 
-                    MiddleSection(
-                        currentUser = currentUser, // lấy từ user login, chưa có user login nên gán tạm
-                        viewModel = viewModel,
-                        currentPost = posts[page],
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(
-                                bottom = dimensionResource(R.dimen.spacing_m),
-                                end = dimensionResource(R.dimen.spacing_m)
+                    uiState.posts.getOrNull(page)?.let { currentPost ->
+                        uiState.currentUser?.let { currentUser ->
+                            MiddleSection(
+                                currentUser = currentUser,
+                                currentPost = currentPost,
+                                homeViewModel = homeViewModel,
+                                socialViewModel = socialViewModel,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(
+                                        bottom = dimensionResource(R.dimen.spacing_m),
+                                        end = dimensionResource(R.dimen.spacing_m)
+                                    )
                             )
-                    )
-                    VideoDescriptionSection(
-                        userName = posts[page].author.userName,
-                        description = posts[page].description,
-                        modifier = Modifier
-                            .padding(
-                                start = dimensionResource(R.dimen.spacing_m),
-                                end = dimensionResource(R.dimen.spacing_xxxl)
-                            )
-                            .align(Alignment.BottomStart)
-                    )
+                        }
+                    }
+
+                    uiState.posts.getOrNull(page)?.let { post ->
+                        VideoDescriptionSection(
+                            userName = post.author.userName,
+                            description = post.description,
+                            modifier = Modifier
+                                .padding(
+                                    start = dimensionResource(R.dimen.spacing_m),
+                                    end = dimensionResource(R.dimen.spacing_xxxl)
+                                )
+                                .align(Alignment.BottomStart)
+                        )
+                    }
                 }
             }
         }

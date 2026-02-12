@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui.camera.components
+package com.example.tiktok_clone.features.home.camera.ui.components
 
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -24,7 +24,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.features.home.ui.camera.GalleryThumbnail
 import kotlinx.coroutines.launch
 
 @Composable
