@@ -18,11 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.features.admin.ui.TikTokRed
 import com.example.tiktok_clone.features.admin.ui.TopBarSection
 import com.example.tiktok_clone.features.admin.ui.dashboard.BorderGray
 import com.example.tiktok_clone.features.admin.ui.dashboard.TextBlack
 import com.example.tiktok_clone.features.admin.ui.dashboard.TextGray
-import com.example.tiktok_clone.features.profile.ui.TikTokRed
 
 // Data Model cho Content
 data class VideoContent(
