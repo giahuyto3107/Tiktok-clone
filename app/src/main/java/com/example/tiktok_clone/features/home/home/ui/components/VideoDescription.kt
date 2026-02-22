@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui.home.components
+package com.example.tiktok_clone.features.home.home.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

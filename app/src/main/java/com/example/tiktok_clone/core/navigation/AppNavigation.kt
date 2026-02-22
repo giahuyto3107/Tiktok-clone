@@ -17,8 +17,8 @@ import com.example.tiktok_clone.features.auth.ui.AuthenticatedProfile
 import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
 import com.example.tiktok_clone.features.auth.ui.TikTokAuthNavigation
 import com.example.tiktok_clone.features.search.ui.SearchScreen
-import com.example.tiktok_clone.features.home.ui.camera.CameraAccessScreen
-import com.example.tiktok_clone.features.home.ui.home.HomeScreen
+import com.example.tiktok_clone.features.home.camera.ui.CameraAccessScreen
+import com.example.tiktok_clone.features.home.home.ui.HomeScreen
 import com.example.tiktok_clone.features.inbox.ui.InboxScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
 import com.example.tiktok_clone.features.search.ui.SearchResultScreen

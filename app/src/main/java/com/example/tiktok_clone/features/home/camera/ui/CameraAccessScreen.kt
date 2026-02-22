@@ -1,24 +1,19 @@
-package com.example.tiktok_clone.features.home.ui.camera
+package com.example.tiktok_clone.features.home.camera.ui
 
 import android.Manifest
+import android.os.Build
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.video.MediaStoreOutputOptions
-import androidx.camera.video.Recording
-import androidx.camera.video.VideoRecordEvent
-import androidx.camera.view.CameraController
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.LifecycleCameraController
-import androidx.camera.view.video.AudioConfig
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,11 +37,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,102 +54,110 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.features.home.ui.camera.components.BottomTabSection
-import com.example.tiktok_clone.features.home.ui.camera.components.SnapAndTimeOption
+import com.example.tiktok_clone.features.home.camera.ui.components.BottomTabSection
+import com.example.tiktok_clone.features.home.camera.ui.components.CameraPreviewScreen
+import com.example.tiktok_clone.features.home.camera.ui.components.SnapAndTimeOption
+import com.example.tiktok_clone.features.home.camera.ui.components.getLastGalleryImageUri
+import com.example.tiktok_clone.features.home.camera.ui.components.openSystemSettings
+import com.example.tiktok_clone.features.home.camera.viewmodel.CameraViewModel
+import com.example.tiktok_clone.features.home.post.data.model.PostType
+import com.example.tiktok_clone.features.home.post.ui.UploadState
+import com.example.tiktok_clone.features.home.post.viewmodel.PostViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
+import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
 fun CameraAccessScreen(
-    onNavigationToHomeScreen: () -> Unit
+    onNavigationToHomeScreen: () -> Unit,
+    cameraViewModel: CameraViewModel = koinViewModel(),
+    postViewModel: PostViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val uiState by cameraViewModel.uiState.collectAsState()
+    val uploadState by postViewModel.uploadState.collectAsState()
 
     val cameraController = remember {
-        LifecycleCameraController(context).apply {
-            setEnabledUseCases(
-                CameraController.IMAGE_CAPTURE or CameraController.VIDEO_CAPTURE
-            )
-            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-        }
+        cameraViewModel.initializeCameraController(context)
     }
 
-    var isRecording by remember { mutableStateOf(false) }
-    var activeRecording: Recording? by remember { mutableStateOf(null) }
-
-    // State for selected mode (0=10m, 1=60s, 2=15s, 3=Photo)
-    var selectedModeIndex by remember { mutableIntStateOf(3) }
-
-    // STATE: Track latest image
-    var latestGalleryUri by remember { mutableStateOf<Uri?>(null) }
-
-    // PICKER: Setup the Photo Picker
+    // PICKER: Setup the Photo Picker — upload selected image
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
-    ) { }
-
-    // PERMISSIONS: Determine which permission to ask for based on Android version
-    val storagePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Manifest.permission.READ_MEDIA_IMAGES
-    } else {
-        Manifest.permission.READ_EXTERNAL_STORAGE
+    ) { uri: Uri? ->
+        Log.d("CameraAccessScreen", "Photo picker result: $uri")
+        uri?.let {
+            val mimeType = context.contentResolver.getType(it)
+            val postType = if (mimeType?.contains("video") == true) PostType.VIDEO else PostType.IMAGE
+            Log.d("CameraAccessScreen", "Starting upload for URI: $uri, type: $postType, current state: $uploadState")
+            
+            // Only start new upload if not already uploading
+            if (uploadState is UploadState.Idle) {
+                postViewModel.upload(it, "", postType)
+            } else {
+                Log.w("CameraAccessScreen", "Upload already in progress, ignoring new request")
+                Toast.makeText(context, "Please wait for current upload to complete", Toast.LENGTH_SHORT).show()
+            }
+        } ?: Log.d("CameraAccessScreen", "No URI selected from photo picker")
     }
 
-    var hasCameraPermissions by remember {
-        mutableStateOf(checkCameraPermissions(context))
-    }
-    var hasStoragePermissions by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context, storagePermission
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-
-    LaunchedEffect(hasStoragePermissions) {
-        if (hasStoragePermissions) {
-            latestGalleryUri = getLastGalleryImageUri(context)
+    LaunchedEffect(uploadState) {
+        when (uploadState) {
+            is UploadState.Success -> {
+                Toast.makeText(context, "Posted!", Toast.LENGTH_SHORT).show()
+                // Reset state immediately but don't navigate - let user decide
+                postViewModel.resetUploadState()
+            }
+            is UploadState.Error -> {
+                Toast.makeText(context, (uploadState as UploadState.Error).message, Toast.LENGTH_LONG).show()
+                postViewModel.resetUploadState()
+            }
+            else -> { }
         }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
-        hasCameraPermissions = permissions[Manifest.permission.CAMERA] == true &&
-                     permissions[Manifest.permission.RECORD_AUDIO] == true
+        val cameraPermissions = permissions[Manifest.permission.CAMERA] == true &&
+                             permissions[Manifest.permission.RECORD_AUDIO] == true
 
-        if (permissions[storagePermission] == true) {
-            hasStoragePermissions = true
+        val storagePermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions[Manifest.permission.READ_MEDIA_IMAGES] == true ||
+                    permissions[Manifest.permission.READ_MEDIA_VIDEO] == true
+        } else {
+            permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
         }
+
+        cameraViewModel.updatePermissions(cameraPermissions, storagePermissions, context)
     }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                hasCameraPermissions = checkCameraPermissions(context)
+                cameraViewModel.checkPermissions(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-
     LaunchedEffect(Unit) {
-        val permissionsToRequest = mutableListOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO
-        )
-        if (!hasStoragePermissions) {
-            permissionsToRequest.add(storagePermission)
+        cameraViewModel.checkPermissions(context)
+        
+        if (!uiState.hasCameraPermissions || !uiState.hasStoragePermissions) {
+            permissionLauncher.launch(cameraViewModel.getRequiredPermissions())
         }
-
-        if (!hasCameraPermissions || !hasStoragePermissions) {
-            permissionLauncher.launch(permissionsToRequest.toTypedArray())
+        
+        // Reset upload state when screen is displayed to prevent stuck states
+        if (uploadState !is UploadState.Idle) {
+            postViewModel.resetUploadState()
         }
     }
 
@@ -166,7 +167,7 @@ fun CameraAccessScreen(
             .fillMaxHeight(0.9f)
         ) {
 
-            if (hasCameraPermissions) {
+            if (uiState.hasCameraPermissions) {
                 CameraPreviewScreen(
                     controller = cameraController
                 )
@@ -176,7 +177,7 @@ fun CameraAccessScreen(
 
             CancelButton(onNavigationToHomeScreen = onNavigationToHomeScreen)
 
-            if (!hasCameraPermissions) {
+            if (!uiState.hasCameraPermissions) {
                 Box(modifier = Modifier.align(Alignment.Center)) {
                     PermissionRequestContent(
                         onOpenSettings = {
@@ -192,32 +193,22 @@ fun CameraAccessScreen(
                     .fillMaxWidth()
             ) {
                 SnapAndTimeOption(
-                    hasPermission = hasCameraPermissions,
-                    isRecording = isRecording,
-                    onModeChange = { index -> selectedModeIndex = index },
-                    recordingMode = selectedModeIndex != 3,
+                    hasPermission = uiState.hasCameraPermissions,
+                    isRecording = uiState.isRecording,
+                    onModeChange = { index -> cameraViewModel.updateSelectedMode(index) },
+                    recordingMode = uiState.selectedModeIndex != 3,
                     onSnapClick = {
-                        if (selectedModeIndex == 3) {
+                        cameraViewModel.updateLatestGalleryUri(getLastGalleryImageUri(context))
+                        
+                        if (uiState.selectedModeIndex == 3) {
                             takePhoto(context, cameraController) {
-                                latestGalleryUri = getLastGalleryImageUri(context)
+                                cameraViewModel.updateLatestGalleryUri(getLastGalleryImageUri(context))
                             }
                         } else {
-                            if (isRecording) {
-                                activeRecording?.stop()
-                                isRecording = false
-                                activeRecording = null
+                            if (uiState.isRecording) {
+                                cameraViewModel.stopRecording()
                             } else {
-                                isRecording = true
-                                activeRecording = startRecording(
-                                    context = context,
-                                    controller = cameraController,
-                                    onFinished = {
-                                        isRecording = false
-                                    },
-                                    onVideoSaved = {
-                                        latestGalleryUri = getLastGalleryImageUri(context)
-                                    }
-                                )
+                                cameraViewModel.startRecording(context, cameraController)
                             }
                         }
                     }
@@ -228,12 +219,12 @@ fun CameraAccessScreen(
         }
 
         BottomTabSection(
-            hasPermission = hasCameraPermissions,
-            latestImageUri = latestGalleryUri,
+            hasPermission = uiState.hasCameraPermissions,
+            latestImageUri = uiState.latestGalleryUri,
             onGalleryClick = {
                 photoPickerLauncher.launch(
                     PickVisualMediaRequest(
-                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                        ActivityResultContracts.PickVisualMedia.ImageAndVideo
                     )
                 )
             }
@@ -269,7 +260,7 @@ fun PermissionRequestContent(onOpenSettings: () -> Unit) {
             text = "Allow Tiktok to access to your camera and microphone",
             color = colorResource(R.color.text_on_dark),
             style = MaterialTheme.typography.titleMedium,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_m)))
@@ -339,68 +330,24 @@ private fun takePhoto(
         put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/TikTok-Clone")
     }
 
-    val outputOptions = androidx.camera.core.ImageCapture.OutputFileOptions
+    val outputOptions = ImageCapture.OutputFileOptions
         .Builder(context.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
         .build()
 
     controller.takePicture(
         outputOptions,
         ContextCompat.getMainExecutor(context),
-        object : androidx.camera.core.ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(output: androidx.camera.core.ImageCapture.OutputFileResults) {
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                 Toast.makeText(context, "Photo Saved", Toast.LENGTH_SHORT).show()
                 onImageSaved()
             }
-            override fun onError(exc: androidx.camera.core.ImageCaptureException) {
+            override fun onError(exc: ImageCaptureException) {
                 Log.e("Camera", "Photo capture failed: ${exc.message}", exc)
             }
         }
     )
 }
-
-private fun startRecording(
-    context: Context,
-    controller: LifecycleCameraController,
-    onFinished: () -> Unit,
-    onVideoSaved: () -> Unit = {}
-): Recording {
-    val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-        .format(System.currentTimeMillis())
-
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-        put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-        put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/TikTok-Clone")
-    }
-
-    val mediaStoreOutputOptions = MediaStoreOutputOptions
-        .Builder(context.contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-        .setContentValues(contentValues)
-        .build()
-
-    val hasAudioPermission = ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.RECORD_AUDIO
-    ) == PackageManager.PERMISSION_GRANTED
-
-    // Ensure Audio is enabled
-    return controller.startRecording(
-        mediaStoreOutputOptions,
-        AudioConfig.create(hasAudioPermission),
-        ContextCompat.getMainExecutor(context)
-    ) { event ->
-        if (event is VideoRecordEvent.Finalize) {
-            if (!event.hasError()) {
-                Toast.makeText(context, "Video Saved", Toast.LENGTH_SHORT).show()
-                onVideoSaved()
-            } else {
-                Toast.makeText(context, "Video Error", Toast.LENGTH_SHORT).show()
-            }
-            onFinished()
-        }
-    }
-}
-
 
 @Preview
 @Composable
