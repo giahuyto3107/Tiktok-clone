@@ -19,4 +19,8 @@
     
     <!-- Asset Paths -->
     <string name="background_image_path">assets/home_background.png</string>
+
+    <string name="facebook_app_id">1693262885165679</string>
+    <string name="facebook_client_token">98bb53bd812f4510cff44322eca1b126</string>
+    <string name="fb_login_protocol_scheme">fb1693262885165679</string>
 </resources>

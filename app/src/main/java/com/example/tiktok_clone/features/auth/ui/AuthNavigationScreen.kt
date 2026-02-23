@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.tiktok.features.auth.screens.LoginFormScreen
 import com.example.tiktok.features.auth.screens.SignUpFormScreen
 import kotlinx.coroutines.launch
+import androidx.navigation.NavHostController
 
 // Định nghĩa đầy đủ 4 trạng thái màn hình
 enum class AuthScreenState {
@@ -16,7 +17,9 @@ enum class AuthScreenState {
 }
 
 @Composable
-fun TikTokAuthNavigation() {
+fun TikTokAuthNavigation(navController: NavHostController,
+                         onLoginSuccess: () -> Unit
+) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val googleAuthHelper = remember { GoogleAuthUiHelper(context) }
@@ -55,9 +58,12 @@ fun TikTokAuthNavigation() {
             LoginSelectionScreen(
                 onSignUpClick = { currentScreen = AuthScreenState.SELECT_SIGNUP },
                 onBack = { currentScreen = AuthScreenState.SELECT_SIGNUP },
-                onPhoneEmailLoginClick = {
-                    // ĐÃ FIX: Chuyển sang màn hình nhập mật khẩu/OTP
-                    currentScreen = AuthScreenState.LOGIN_FORM
+                onPhoneEmailLoginClick = { currentScreen = AuthScreenState.LOGIN_FORM },
+                onLoginSuccess = {
+                    // Bây giờ bạn đã có thể gọi navController vì nó đã được truyền vào hàm
+                    navController.navigate("main_wrapper") {
+                        popUpTo("login_selection") { inclusive = true }
+                    }
                 }
             )
         }
@@ -66,7 +72,9 @@ fun TikTokAuthNavigation() {
         AuthScreenState.LOGIN_FORM -> {
             LoginFormScreen(
                 onBack = { currentScreen = AuthScreenState.SELECT_LOGIN },
-                onSignUpClick = { currentScreen = AuthScreenState.SELECT_SIGNUP }
+                onSignUpClick = { currentScreen = AuthScreenState.SELECT_SIGNUP },
+                onLoginSuccess = onLoginSuccess
+
             )
         }
     }

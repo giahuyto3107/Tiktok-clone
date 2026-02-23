@@ -13,7 +13,9 @@ import com.example.tiktok.features.auth.screens.LoginFormScreen
 import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
 import com.example.tiktok.features.auth.screens.SignUpFormScreen
 import com.example.tiktok_clone.core.ui.MainWrapper
+import com.example.tiktok_clone.features.auth.ui.AuthenticatedProfile
 import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
+import com.example.tiktok_clone.features.auth.ui.TikTokAuthNavigation
 import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.home.camera.ui.CameraAccessScreen
 import com.example.tiktok_clone.features.home.home.ui.HomeScreen
@@ -21,6 +23,7 @@ import com.example.tiktok_clone.features.inbox.ui.InboxScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
 import com.example.tiktok_clone.features.search.ui.SearchResultScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AppNavigation() {
@@ -93,7 +96,20 @@ fun AppNavigation() {
             LoginSelectionScreen(
                 onBack = { navController.popBackStack() },
                 onSignUpClick = { navController.navigate("select_signup") },
-                onPhoneEmailLoginClick = { navController.navigate("login_form") }
+                onPhoneEmailLoginClick = { navController.navigate("login_form") },
+                onLoginSuccess = {
+                    // 1. Reset ngay lập tức biến index về 0 (Home)
+                    selectedTabIndex = 0
+
+                    // 2. Điều hướng về Wrapper và dọn dẹp Backstack
+                    navController.navigate("main_wrapper") {
+                        // Ta popUpTo về tận main_wrapper để đảm bảo stack sạch sẽ
+                        popUpTo("main_wrapper") { inclusive = false }
+
+                        // Tránh việc mở chồng nhiều màn hình MainWrapper
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
@@ -123,7 +139,14 @@ fun AppNavigation() {
         composable(route = "login_form") {
             LoginFormScreen(
                 onBack = { navController.popBackStack() },
-                onSignUpClick = { navController.navigate("select_signup") }
+                onSignUpClick = { navController.navigate("select_signup") },
+                onLoginSuccess = {
+                    selectedTabIndex = 0
+                    navController.navigate("main_wrapper") {
+                        popUpTo("login_selection") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }
@@ -149,12 +172,20 @@ private fun InboxScreenContent() {
 }
 
 @Composable
-private fun ProfileScreenContent(
-    onLoginClick: () -> Unit
-) {
-    ProfileScreen(
-        onLoginClick = onLoginClick
-    )
+private fun ProfileScreenContent(onLoginClick: () -> Unit) {
+    // Kiểm tra trạng thái đăng nhập từ Firebase
+    val currentUser = remember { FirebaseAuth.getInstance().currentUser }
+
+    if (currentUser != null) {
+        // Đã đăng nhập: Hiện giao diện Profile thật
+        AuthenticatedProfile(onLogout = {
+            // Khi logout, ta có thể reset tab hoặc quay lại màn hình chọn login
+            onLoginClick()
+        })
+    } else {
+        // Chưa đăng nhập: Hiện màn hình yêu cầu Login như cũ
+        ProfileScreen(onLoginClick = onLoginClick)
+    }
 }
 
 @Preview(showBackground = true)
