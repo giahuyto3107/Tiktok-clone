@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui.home
+package com.example.tiktok_clone.features.home.home.ui.components
 
 
 import androidx.compose.foundation.background
@@ -35,6 +35,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.features.social.model.Post
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
@@ -57,12 +58,12 @@ import compose.icons.fontawesomeicons.solid.Share
 @Composable
 fun MiddleSection(
     modifier: Modifier = Modifier,
-    currentUser: User,
-    currentPost: Post,
-    viewModel: SocialViewModel = viewModel(),
-
+    currentUser: com.example.tiktok_clone.features.social.model.User,
+    currentPost: com.example.tiktok_clone.features.social.model.Post,
+    homeViewModel: com.example.tiktok_clone.features.home.home.viewmodel.HomeViewModel,
+    socialViewModel: com.example.tiktok_clone.features.social.viewModel.SocialViewModel = koinViewModel(),
 ) {
-    viewModel.loadFriends(currentUser.id)
+    homeViewModel.loadFriends(currentUser.id)
 
     var isLiked by remember { mutableStateOf(false) }
     var likeCount by remember { mutableLongStateOf( currentPost.likeCount) }
@@ -72,7 +73,7 @@ fun MiddleSection(
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
     var isFollowing by remember { mutableStateOf(
-        viewModel.isFollowing(currentUser.id,  currentPost.author.id))
+        homeViewModel.isFollowing(currentUser.id,  currentPost.author.id))
     }
     Column(
         modifier = Modifier
@@ -86,7 +87,7 @@ fun MiddleSection(
             isFollowing = isFollowing,
             onClick = {
                 isFollowing = !isFollowing
-                viewModel.onAction(SocialAction
+                homeViewModel.onSocialAction(SocialAction
                     .Follow(currentUser.id, currentPost.author.id)
                 )
             }

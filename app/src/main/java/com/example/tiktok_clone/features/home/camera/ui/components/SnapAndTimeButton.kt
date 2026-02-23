@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.ui.camera.components
+package com.example.tiktok_clone.features.home.camera.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
