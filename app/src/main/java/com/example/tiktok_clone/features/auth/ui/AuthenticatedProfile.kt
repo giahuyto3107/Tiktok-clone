@@ -13,14 +13,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage // Nhớ thêm thư viện Coil vào build.gradle
+import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AuthenticatedProfile(onLogout: () -> Unit) {
-    val currentUser = FirebaseAuth.getInstance().currentUser
+fun AuthenticatedProfile(
+    onLogout: () -> Unit,
+    profileViewModel: ProfileViewModel = koinViewModel()
+) {
+    val currentUser = profileViewModel.getProfileData()
     val displayName = currentUser?.displayName ?: "Người dùng TikTok"
     val email = currentUser?.email ?: "Chưa có email"
-    val photoUrl = currentUser?.photoUrl?.toString() ?: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+    val photoUrl = currentUser?.avtPhotoUrl ?: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
 
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 60.dp),
