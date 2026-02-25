@@ -14,6 +14,7 @@ val RedHeart = Color(0xFFFE2B54)
 val BlueAccent = Color(0xFF25F4EE) // Cyan/Blue often used in the logo split effect
 val YellowSave = Color(0xFFFDC123)
 
+val Purple = Color(0xFF3D477A)
 // --- UI Elements ---
 val GrayIcon = Color(0xFF545454)
 val GrayBackground = Color(0xFFF1F1F1) // For Search bar background
