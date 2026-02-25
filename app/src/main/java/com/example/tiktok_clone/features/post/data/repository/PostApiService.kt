@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.post.data.repository
+package com.example.tiktok_clone.features.post.data.repository
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.post.ui
+package com.example.tiktok_clone.features.post.ui
 
 sealed class UploadState {
     object Idle: UploadState()

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.post.data.model
+package com.example.tiktok_clone.features.post.data.model
 
 enum class PostType {
     VIDEO, IMAGE
