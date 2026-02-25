@@ -76,7 +76,7 @@ import java.util.Locale
 fun CameraAccessScreen(
     onNavigationToHomeScreen: () -> Unit,
     cameraViewModel: CameraViewModel = koinViewModel(),
-    postViewModel: PostViewModel = koinViewModel()
+    postViewModel: PostViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

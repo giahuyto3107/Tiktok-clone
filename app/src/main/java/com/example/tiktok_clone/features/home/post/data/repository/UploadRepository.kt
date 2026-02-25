@@ -22,19 +22,32 @@ class UploadRepository(
     }
 
     suspend fun createPost(
-        uri: Uri,
-        description: String,
-        type: PostType
+        uri: Uri = Uri.EMPTY,
+        description: String = "",
+        type: PostType,
+        userId: String = "0"
     ): Result<Boolean> {
         Log.d(TAG, "createPost called with URI: $uri, type: $type")
         return if (type == PostType.VIDEO) {
-            uploadVideo(uri, description)
+            uploadVideo(
+                uri = uri,
+                description = description,
+                userId = userId
+            )
         } else {
-            uploadImage(uri, description)
+            uploadImage(
+                uri = uri,
+                description = description,
+                userId = userId
+            )
         }
     }
 
-    private suspend fun uploadImage(uri: Uri, description: String): Result<Boolean> =
+    private suspend fun uploadImage(
+        uri: Uri,
+        description: String,
+        userId: String
+    ): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
                 Log.d(TAG, "uploadImage starting for URI: $uri")
@@ -42,7 +55,9 @@ class UploadRepository(
                     ?: return@withContext Result.failure(IllegalArgumentException("Could not read image from URI"))
                 Log.d(TAG, "filePart created successfully")
                 val descPart = description.toRequestBody("text/plain".toMediaTypeOrNull())
-                val response = apiService.uploadImage(filePart, descPart)
+                val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                val response = apiService.uploadImage(filePart, descPart, userIdPart)
                 Log.d(TAG, "uploadImage response: code=${response.code()}, successful=${response.isSuccessful}")
                 if (response.isSuccessful) Result.success(true)
                 else {
@@ -56,13 +71,19 @@ class UploadRepository(
             }
         }
 
-    private suspend fun uploadVideo(uri: Uri, description: String): Result<Boolean> =
+    private suspend fun uploadVideo(
+        uri: Uri,
+        description: String,
+        userId: String
+    ): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
                 val filePart = createFilePartFromUri(uri, "video.mp4")
                     ?: return@withContext Result.failure(IllegalArgumentException("Could not read video from URI"))
                 val descPart = description.toRequestBody("text/plain".toMediaTypeOrNull())
-                val response = apiService.uploadVideo(filePart, descPart)
+                val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                val response = apiService.uploadVideo(filePart, descPart, userIdPart)
                 if (response.isSuccessful) Result.success(true)
                 else {
                     val request = response.raw().request
@@ -109,4 +130,3 @@ class UploadRepository(
         }
     }
 }
-

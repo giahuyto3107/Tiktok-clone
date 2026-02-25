@@ -12,13 +12,15 @@ interface PostApiService {
     @POST("api/v1/posts/upload/image")
     suspend fun uploadImage(
         @Part file: MultipartBody.Part,
-        @Part("description") description: RequestBody
+        @Part("description") description: RequestBody,
+        @Part("user_id") userId: RequestBody
     ): Response<Unit>
 
     @Multipart
     @POST("api/v1/posts/upload/video")
     suspend fun uploadVideo(
         @Part file: MultipartBody.Part,
-        @Part("description") description: RequestBody
+        @Part("description") description: RequestBody,
+        @Part("user_id") userId: RequestBody
     ): Response<Unit>
 }
