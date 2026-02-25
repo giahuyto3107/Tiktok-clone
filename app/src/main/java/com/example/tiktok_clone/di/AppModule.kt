@@ -44,7 +44,7 @@ val appModule = module {
     }
 
     single {
-        PostViewModel(get())
+        PostViewModel(get(), get())
     }
     
     // Add other app-level singletons here:
