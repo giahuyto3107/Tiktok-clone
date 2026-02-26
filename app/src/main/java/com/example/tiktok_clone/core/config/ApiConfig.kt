@@ -10,7 +10,7 @@ object ApiConfig {
     // 🔥 CHANGE THIS LINE TO UPDATE YOUR SERVER URL 🔥
     // Retrofit requires baseUrl to end with "/"
     // Keep this as server root; endpoints include `/api/v1/...` to avoid URL-join issues.
-    const val BASE_URL = "http://192.168.110.117:8000/"
+    const val BASE_URL = "http://10.0.2.2:8000/"
     
     // Environment-specific URLs
     const val LOCAL_EMULATOR = "http://10.0.2.2:8000/"
