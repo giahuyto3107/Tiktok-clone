@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun VideoDescriptionSection(
     userName: String,
-    description: String?,
+    caption: String?,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -32,7 +32,7 @@ fun VideoDescriptionSection(
             color = Color.White
         )
         Text(
-            text = description ?: "",
+            text = caption ?: "",
             fontSize = 14.sp,
             style = MaterialTheme.typography.labelSmall,
             color = Color.White

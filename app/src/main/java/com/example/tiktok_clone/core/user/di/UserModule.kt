@@ -1,3 +1,5 @@
+package com.example.tiktok_clone.core.user.di
+
 import com.example.tiktok_clone.core.user.data.repository.UserRepositoryImpl
 import com.example.tiktok_clone.core.user.domain.repository.UserRepository
 import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel

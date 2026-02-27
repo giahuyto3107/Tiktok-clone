@@ -1,12 +1,12 @@
-package com.example.tiktok_clone.features.home.post.viewmodel
+package com.example.tiktok_clone.features.post.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.core.user.domain.repository.UserRepository
-import com.example.tiktok_clone.features.home.post.data.model.PostType
-import com.example.tiktok_clone.features.home.post.data.repository.UploadRepository
-import com.example.tiktok_clone.features.home.post.ui.UploadState
+import com.example.tiktok_clone.features.post.data.model.PostType
+import com.example.tiktok_clone.features.post.data.repository.UploadRepository
+import com.example.tiktok_clone.features.post.ui.UploadState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -15,18 +15,17 @@ class PostViewModel(
     private val repository: UploadRepository,
     private val currentUser: UserRepository
 ) : ViewModel() {
+
     private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
     val uploadState = _uploadState.asStateFlow()
 
-    fun upload(uri: Uri, description: String, type: PostType) {
+    fun upload(uri: Uri, caption: String, type: PostType) {
         viewModelScope.launch {
-
-
             _uploadState.value = UploadState.Loading
 
             val result = repository.createPost(
                 uri = uri,
-                description = description,
+                caption = caption,
                 type = type,
                 userId = currentUser.getCurrentUser()?.id ?: "0"
             )

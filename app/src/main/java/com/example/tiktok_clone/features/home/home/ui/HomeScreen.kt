@@ -1,70 +1,145 @@
 package com.example.tiktok_clone.features.home.home.ui
 
+import androidx.annotation.OptIn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
-import org.koin.androidx.compose.koinViewModel
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
-import com.example.tiktok_clone.core.navigation.AppNavigation
+import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.R
+import com.example.tiktok_clone.core.navigation.AppNavigation
 import com.example.tiktok_clone.features.home.home.ui.components.MiddleSection
 import com.example.tiktok_clone.features.home.home.ui.components.VideoDescriptionSection
+import com.example.tiktok_clone.features.home.home.ui.components.VideoPlayer
 import com.example.tiktok_clone.features.home.home.viewmodel.HomeViewModel
-import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.features.post.data.model.PostType
 
+@OptIn(UnstableApi::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = koinViewModel(),
-    socialViewModel: SocialViewModel = koinViewModel(),
     onSearchTap: () -> Unit = {}
 ) {
-    val uiState by homeViewModel.uiState.collectAsState()
-    val pagerState = rememberPagerState(pageCount = { uiState.posts.size })
+    val posts by homeViewModel.posts.collectAsState()
+    val users by homeViewModel.users.collectAsState()
+    val isLoading by homeViewModel.isLoading.collectAsState()
+    val error by homeViewModel.error.collectAsState()
+    val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        homeViewModel.refreshPosts()
+    // Single shared ExoPlayer instance
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            repeatMode = Player.REPEAT_MODE_ONE    // Loop each video
+            volume = 1f
+        }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    // Release player on dispose
+    DisposableEffect(Unit) {
+        onDispose { exoPlayer.release() }
+    }
+
+    val pagerState = rememberPagerState(pageCount = { posts.size })
+
+    // Infinite scroll: load more when near end
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { currentPage ->
+            if (posts.isNotEmpty() && currentPage >= posts.size - 2) {
+                homeViewModel.loadMore()
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        if (isLoading && posts.isEmpty()) {
+            // Loading state — show spinner instead of black screen
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        } else if (posts.isEmpty()) {
+            // Empty state
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = error ?: "No posts yet",
+                    color = Color.White
+                )
+            }
+        } else {
         VerticalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            beyondViewportPageCount = 0 // Only compose the current page
         ) { page ->
             Column {
-                Box(modifier = Modifier
-                    .fillMaxHeight()) {
-                    VideoSection(thumbnailUrl = uiState.posts.getOrNull(page)?.thumbnailUrl)
+                Box(modifier = Modifier.fillMaxHeight()) {
+                    val currentPost = posts.getOrNull(page)
 
-                    uiState.posts.getOrNull(page)?.let { currentPost ->
-                        uiState.currentUser?.let { currentUser ->
+                    // Show image or video based on post type
+                    if (currentPost?.type == PostType.IMAGE) {
+                        AsyncImage(
+                            model = currentPost.mediaUrl,
+                            contentDescription = "Image Post",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        VideoPlayer(
+                            exoPlayer = exoPlayer,
+                            mediaUrl = currentPost?.mediaUrl ?: "",
+                            thumbnailUrl = currentPost?.thumbnailUrl,
+                            isCurrentPage = pagerState.currentPage == page
+                        )
+                    }
+
+                    posts.getOrNull(page)?.let { currentPost ->
+                        val author = users[currentPost.userId]
+
+                        // Social actions sidebar (like, comment, share, save)
+                        author?.let { user ->
                             MiddleSection(
-                                currentUser = currentUser,
+                                author = user,
                                 currentPost = currentPost,
-                                homeViewModel = homeViewModel,
-                                socialViewModel = socialViewModel,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(
@@ -73,12 +148,11 @@ fun HomeScreen(
                                     )
                             )
                         }
-                    }
 
-                    uiState.posts.getOrNull(page)?.let { post ->
+                        // Caption and username overlay
                         VideoDescriptionSection(
-                            userName = post.author.userName,
-                            description = post.description,
+                            userName = author?.userName ?: currentPost.userId,
+                            caption = currentPost.caption,
                             modifier = Modifier
                                 .padding(
                                     start = dimensionResource(R.dimen.spacing_m),
@@ -90,6 +164,7 @@ fun HomeScreen(
                 }
             }
         }
+        } // else (posts not empty)
 
         TopHeading(
             onSearchTap = onSearchTap,
@@ -127,21 +202,8 @@ private fun TopHeading(
         )
     }
 }
-@Composable
-fun VideoSection(
-    thumbnailUrl: String?,
-    modifier: Modifier = Modifier
-) {
-    // cập nhật lấy ảnh từ url
-    AsyncImage(
-        model = thumbnailUrl,
-        contentDescription = "Video Thumbnail",
-        modifier = modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop
-    )
-}
 
-@Preview (showBackground = true)
+@Preview(showBackground = true)
 @Composable
 private fun PreviewHomeScreen() {
     AppNavigation()

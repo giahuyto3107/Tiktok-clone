@@ -8,7 +8,7 @@ import com.example.tiktok_clone.di.socialModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import userModule
+import com.example.tiktok_clone.core.user.di.userModule
 
 /**
  * Main Application class for TikTok Clone

@@ -1,6 +1,6 @@
 package com.example.tiktok_clone.features.home.home.data
 
-import com.example.tiktok_clone.features.social.model.Post
+import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.model.User
 
 data class HomeUiState(

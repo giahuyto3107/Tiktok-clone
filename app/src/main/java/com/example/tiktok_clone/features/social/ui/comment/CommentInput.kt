@@ -32,10 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.Post
+import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.features.social.viewModel.SocialAction
+import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 import com.example.tiktok_clone.ui.theme.TextPrimaryGray
@@ -145,7 +145,7 @@ fun CommentInput(
 
                 Button(
                     onClick = {
-                            viewModel.onAction(SocialAction.AddComment(post.id, commentText, user))
+                            viewModel.onAction(SocialAction.AddComment(post.id.toString(), commentText, user))
                             commentText = ""
                             onDismiss()
                     },
