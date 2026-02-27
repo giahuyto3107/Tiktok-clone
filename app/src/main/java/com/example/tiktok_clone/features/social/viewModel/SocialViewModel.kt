@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.features.social.viewModel
 
 import androidx.lifecycle.ViewModel
+import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.fakeData.FakeCommentData
 import com.example.tiktok_clone.features.social.fakeData.FakeFollowData
 import com.example.tiktok_clone.features.social.fakeData.FakeNotInterestedOption
@@ -14,10 +15,10 @@ import com.example.tiktok_clone.features.social.ui.SocialUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import com.example.tiktok_clone.features.social.model.Post
 import com.example.tiktok_clone.features.social.model.ShareSheetMode
 import com.example.tiktok_clone.features.social.model.ShareCategory
 import com.example.tiktok_clone.features.social.model.ShareItem
+import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.model.User
 import kotlinx.coroutines.flow.StateFlow
 
@@ -27,7 +28,7 @@ class SocialViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
     private val _comments = MutableStateFlow(FakeCommentData.comments)
     val comments = _comments.asStateFlow()
-    private val _posts = MutableStateFlow(FakePostData.posts)
+//    private val _posts = MutableStateFlow(FakePostData.posts)
 
     private val _user = MutableStateFlow(FakeUserData.user)
     val user = _user.asStateFlow()
@@ -181,11 +182,12 @@ class SocialViewModel : ViewModel() {
         }
     }
     private fun getPosts(): List<Post> {
-        return _posts.value
+//        return _posts.value
+        return emptyList()
     }
-    fun getCurrentPost(postId: String):Post{
-        return _posts.value.find { it.id == postId }!!
-    }
+//    fun getCurrentPost(postId: String): Post{
+//        return _posts.value.find { it.id == postId }!!
+//    }
     fun loadPosts() {
         _uiState.update {
             it.copy(isLoading = true, error = null)

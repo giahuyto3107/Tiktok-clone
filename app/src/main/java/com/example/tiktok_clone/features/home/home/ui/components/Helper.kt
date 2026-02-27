@@ -34,15 +34,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tiktok_clone.features.post.data.model.Post
+import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
 import org.koin.androidx.compose.koinViewModel
-import com.example.tiktok_clone.features.social.model.Post
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
 import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.formatCount
-import com.example.tiktok_clone.features.social.viewModel.SocialAction
+import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 import com.example.tiktok_clone.ui.theme.YellowSave
@@ -58,23 +58,20 @@ import compose.icons.fontawesomeicons.solid.Share
 @Composable
 fun MiddleSection(
     modifier: Modifier = Modifier,
-    currentUser: com.example.tiktok_clone.features.social.model.User,
-    currentPost: com.example.tiktok_clone.features.social.model.Post,
-    homeViewModel: com.example.tiktok_clone.features.home.home.viewmodel.HomeViewModel,
-    socialViewModel: com.example.tiktok_clone.features.social.viewModel.SocialViewModel = koinViewModel(),
+    author: User,
+    currentPost: Post,
+    postViewModel: PostViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
 ) {
-    homeViewModel.loadFriends(currentUser.id)
-
     var isLiked by remember { mutableStateOf(false) }
-    var likeCount by remember { mutableLongStateOf( currentPost.likeCount) }
-    var saveCount by remember { mutableLongStateOf( currentPost.saveCount) }
-    val commentCount by remember { mutableLongStateOf( currentPost.commentCount) }
+    var likeCount by remember { mutableLongStateOf(currentPost.likeCount) }
+    var saveCount by remember { mutableLongStateOf(currentPost.saveCount) }
+    val commentCount by remember { mutableLongStateOf(currentPost.commentCount) }
     var isSaved by remember { mutableStateOf(false) }
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
-    var isFollowing by remember { mutableStateOf(
-        homeViewModel.isFollowing(currentUser.id,  currentPost.author.id))
-    }
+    var isFollowing by remember { mutableStateOf(author.isFollowing) }
+
     Column(
         modifier = Modifier
             .fillMaxHeight(0.45f)
@@ -82,14 +79,15 @@ fun MiddleSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround,
     ) {
-        AuthorSection( // Box chứa avatar và nút follow
-            avtarUrl =  currentPost.author.avatarUrl,
+        AuthorSection(
+            avtarUrl = author.avatarUrl,
             isFollowing = isFollowing,
             onClick = {
-                isFollowing = !isFollowing
-                homeViewModel.onSocialAction(SocialAction
-                    .Follow(currentUser.id, currentPost.author.id)
-                )
+//                isFollowing = !isFollowing
+//                postViewModel.onSocialAction(SocialAction
+//                    .Follow(author.id, author.id)
+//                )
+                null
             }
         )
         Spacer(modifier = Modifier.size(16.dp))
@@ -117,7 +115,7 @@ fun MiddleSection(
         if (isOpenCommentSheet) {
             CommentSheetContent(
                 currentPost = currentPost,
-                currentUser = currentUser,
+                currentUser = author,
                 onDismiss = {
                     isOpenCommentSheet = false
                 }
@@ -148,7 +146,7 @@ fun MiddleSection(
         )
         if (isOpenShareSheet) {
             ShareSheetContent(
-                currentUser = currentUser,
+                currentUser = author,
                 onDismiss = {
                     isOpenShareSheet = false
                 }
@@ -165,7 +163,7 @@ fun MainInteractiveItem(
     numberOfInteraction: Long,
     name: String,
     modifier: Modifier = Modifier,
-    tint: Color = Color.White.copy(alpha = 0.9f),// làm trong icon nhưng màu ko sáng, lởm vc
+    tint: Color = Color.White.copy(alpha = 0.9f),
     onClick: () -> Unit = {},
 ) {
     Column(
@@ -228,7 +226,7 @@ fun AuthorSection(
         ) {
             Icon(
                 imageVector = if (isFollowing) Icons.Filled.Check else Icons.Filled.Add,
-                contentDescription = "Share",
+                contentDescription = "Follow",
                 tint = if (isFollowing) RedHeart else Color.White,
                 modifier = Modifier
                     .size(20.dp)

@@ -1,9 +1,9 @@
 package com.example.tiktok_clone.features.social.ui
 
+import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.model.App
 import com.example.tiktok_clone.features.social.model.Comment
 import com.example.tiktok_clone.features.social.model.User
-import com.example.tiktok_clone.features.social.model.Post
 import com.example.tiktok_clone.features.social.model.ShareItem
 
 data class SocialUiState(

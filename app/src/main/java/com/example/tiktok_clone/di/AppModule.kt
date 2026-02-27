@@ -4,9 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.tiktok_clone.BuildConfig
 import com.example.tiktok_clone.core.config.ApiConfig
-import com.example.tiktok_clone.features.home.post.data.repository.PostApiService
-import com.example.tiktok_clone.features.home.post.data.repository.UploadRepository
-import com.example.tiktok_clone.features.home.post.viewmodel.PostViewModel
+import com.example.tiktok_clone.features.post.data.repository.PostApiService
+import com.example.tiktok_clone.features.post.data.repository.UploadRepository
+import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
+import com.example.tiktok_clone.features.user.data.UserApiService
+import com.example.tiktok_clone.features.user.data.UserRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -41,6 +43,14 @@ val appModule = module {
 
     single {
         UploadRepository(androidContext(), get())
+    }
+
+    single<UserApiService> {
+        get<Retrofit>().create(UserApiService::class.java)
+    }
+
+    single {
+        UserRepository(get())
     }
 
     single {

@@ -1,6 +1,4 @@
-package com.example.tiktok_clone.features.social.viewModel;
-
-import com.example.tiktok_clone.features.social.model.User
+package com.example.tiktok_clone.features.social.model
 
 sealed interface SocialAction{
     data class Like(val postId: String): SocialAction

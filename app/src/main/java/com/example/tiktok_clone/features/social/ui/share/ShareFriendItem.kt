@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.features.social.viewModel.SocialAction
+import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 
