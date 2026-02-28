@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.camera.ui
+package com.example.tiktok_clone.features.camera.ui
 
 import android.Manifest
 import android.os.Build
@@ -56,12 +56,12 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.tiktok_clone.R
-import com.example.tiktok_clone.features.home.camera.ui.components.BottomTabSection
-import com.example.tiktok_clone.features.home.camera.ui.components.CameraPreviewScreen
-import com.example.tiktok_clone.features.home.camera.ui.components.SnapAndTimeOption
-import com.example.tiktok_clone.features.home.camera.ui.components.getLastGalleryImageUri
-import com.example.tiktok_clone.features.home.camera.ui.components.openSystemSettings
-import com.example.tiktok_clone.features.home.camera.viewmodel.CameraViewModel
+import com.example.tiktok_clone.features.camera.ui.components.BottomTabSection
+import com.example.tiktok_clone.features.camera.ui.components.CameraPreviewScreen
+import com.example.tiktok_clone.features.camera.ui.components.SnapAndTimeOption
+import com.example.tiktok_clone.features.camera.ui.components.getLastGalleryImageUri
+import com.example.tiktok_clone.features.camera.ui.components.openSystemSettings
+import com.example.tiktok_clone.features.camera.viewmodel.CameraViewModel
 import com.example.tiktok_clone.features.post.data.model.PostType
 import com.example.tiktok_clone.features.post.ui.UploadState
 import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
@@ -77,6 +77,7 @@ fun CameraAccessScreen(
     onNavigationToHomeScreen: () -> Unit,
     cameraViewModel: CameraViewModel = koinViewModel(),
     postViewModel: PostViewModel = koinViewModel(),
+    onNavigateToPreview: (String, String) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -97,30 +98,32 @@ fun CameraAccessScreen(
             val postType = if (mimeType?.contains("video") == true) PostType.VIDEO else PostType.IMAGE
             Log.d("CameraAccessScreen", "Starting upload for URI: $uri, type: $postType, current state: $uploadState")
             
-            // Only start new upload if not already uploading
-            if (uploadState is UploadState.Idle) {
-                postViewModel.upload(it, "", postType)
-            } else {
-                Log.w("CameraAccessScreen", "Upload already in progress, ignoring new request")
-                Toast.makeText(context, "Please wait for current upload to complete", Toast.LENGTH_SHORT).show()
-            }
+//            // Only start new upload if not already uploading
+//            if (uploadState is UploadState.Idle) {
+//                postViewModel.upload(it, "", postType)
+//            } else {
+//                Log.w("CameraAccessScreen", "Upload already in progress, ignoring new request")
+//                Toast.makeText(context, "Please wait for current upload to complete", Toast.LENGTH_SHORT).show()
+//            }
+
+            onNavigateToPreview(it.toString(), postType.name)
         } ?: Log.d("CameraAccessScreen", "No URI selected from photo picker")
     }
 
-    LaunchedEffect(uploadState) {
-        when (uploadState) {
-            is UploadState.Success -> {
-                Toast.makeText(context, "Posted!", Toast.LENGTH_SHORT).show()
-                // Reset state immediately but don't navigate - let user decide
-                postViewModel.resetUploadState()
-            }
-            is UploadState.Error -> {
-                Toast.makeText(context, (uploadState as UploadState.Error).message, Toast.LENGTH_LONG).show()
-                postViewModel.resetUploadState()
-            }
-            else -> { }
-        }
-    }
+//    LaunchedEffect(uploadState) {
+//        when (uploadState) {
+//            is UploadState.Success -> {
+//                Toast.makeText(context, "Posted!", Toast.LENGTH_SHORT).show()
+//                // Reset state immediately but don't navigate - let user decide
+//                postViewModel.resetUploadState()
+//            }
+//            is UploadState.Error -> {
+//                Toast.makeText(context, (uploadState as UploadState.Error).message, Toast.LENGTH_LONG).show()
+//                postViewModel.resetUploadState()
+//            }
+//            else -> { }
+//        }
+//    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -352,5 +355,9 @@ private fun takePhoto(
 @Preview
 @Composable
 private fun PreviewCameraAccessScreen() {
-    CameraAccessScreen(onNavigationToHomeScreen = {})
+    CameraAccessScreen(
+        onNavigationToHomeScreen = {},
+        onNavigateToPreview = { uriString, type -> },
+    )
+
 }

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.home.ui.components
+package com.example.tiktok_clone.features.home.ui.components
 
 
 import androidx.compose.foundation.background
@@ -42,7 +42,6 @@ import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
 import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.formatCount
-import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 import com.example.tiktok_clone.ui.theme.YellowSave

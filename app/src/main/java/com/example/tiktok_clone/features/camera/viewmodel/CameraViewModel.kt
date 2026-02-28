@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.camera.viewmodel
+package com.example.tiktok_clone.features.camera.viewmodel
 
 import android.Manifest
 import android.content.ContentValues
@@ -19,8 +19,8 @@ import androidx.camera.view.video.AudioConfig
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tiktok_clone.features.home.camera.data.CameraUiState
-import com.example.tiktok_clone.features.home.camera.ui.components.getLastGalleryImageUri
+import com.example.tiktok_clone.features.camera.data.CameraUiState
+import com.example.tiktok_clone.features.camera.ui.components.getLastGalleryImageUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,6 +1,6 @@
 package com.example.tiktok_clone.di
 
-import com.example.tiktok_clone.features.home.camera.viewmodel.CameraViewModel
+import com.example.tiktok_clone.features.camera.viewmodel.CameraViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
