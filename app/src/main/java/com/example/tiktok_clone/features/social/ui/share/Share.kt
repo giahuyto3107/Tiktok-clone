@@ -21,7 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.features.social.model.ShareItem
 import com.example.tiktok_clone.features.social.model.ShareSheetMode
 import com.example.tiktok_clone.features.social.model.User
-import com.example.tiktok_clone.features.social.viewModel.SocialAction
+import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

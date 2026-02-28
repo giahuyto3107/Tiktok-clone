@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.Post
+import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 

@@ -62,9 +62,9 @@ import com.example.tiktok_clone.features.home.camera.ui.components.SnapAndTimeOp
 import com.example.tiktok_clone.features.home.camera.ui.components.getLastGalleryImageUri
 import com.example.tiktok_clone.features.home.camera.ui.components.openSystemSettings
 import com.example.tiktok_clone.features.home.camera.viewmodel.CameraViewModel
-import com.example.tiktok_clone.features.home.post.data.model.PostType
-import com.example.tiktok_clone.features.home.post.ui.UploadState
-import com.example.tiktok_clone.features.home.post.viewmodel.PostViewModel
+import com.example.tiktok_clone.features.post.data.model.PostType
+import com.example.tiktok_clone.features.post.ui.UploadState
+import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
@@ -76,7 +76,7 @@ import java.util.Locale
 fun CameraAccessScreen(
     onNavigationToHomeScreen: () -> Unit,
     cameraViewModel: CameraViewModel = koinViewModel(),
-    postViewModel: PostViewModel = koinViewModel()
+    postViewModel: PostViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

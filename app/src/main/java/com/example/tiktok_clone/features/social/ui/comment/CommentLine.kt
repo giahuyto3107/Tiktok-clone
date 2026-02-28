@@ -44,7 +44,7 @@ import com.example.tiktok_clone.features.social.ui.components.CommentItem
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.ui.components.toDateString
 import com.example.tiktok_clone.R.dimen
-import com.example.tiktok_clone.features.social.viewModel.SocialAction
+import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 import com.example.tiktok_clone.ui.theme.TextPrimaryGray

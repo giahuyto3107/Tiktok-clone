@@ -18,7 +18,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.Post
+import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
@@ -31,7 +31,7 @@ fun CommentSheetContent(
     viewModel: SocialViewModel = viewModel(),
     onDismiss: () -> Unit,
 ) {
-    val comments = viewModel.getComment(currentPost.id)
+    val comments = viewModel.getComment(currentPost.id.toString())
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
