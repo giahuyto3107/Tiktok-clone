@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.home.viewmodel
+package com.example.tiktok_clone.features.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

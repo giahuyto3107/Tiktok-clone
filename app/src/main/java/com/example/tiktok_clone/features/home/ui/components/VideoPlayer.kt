@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.home.ui.components
+package com.example.tiktok_clone.features.home.ui.components
 
 import android.view.ViewGroup
 import androidx.annotation.OptIn

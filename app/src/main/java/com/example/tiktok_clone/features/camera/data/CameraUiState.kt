@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.camera.data
+package com.example.tiktok_clone.features.camera.data
 
 import android.net.Uri
 

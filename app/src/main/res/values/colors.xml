@@ -6,4 +6,5 @@
     <color name="text_on_dark">#FFfbf2f7</color>
     <color name="text_secondary">#ff969696</color>
     <color name="disabled_text">#ff909790</color>
+    <color name="red">#ffff0033</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.home.home.ui
+package com.example.tiktok_clone.features.home.ui
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
@@ -41,10 +41,10 @@ import coil.compose.AsyncImage
 import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.R
 import com.example.tiktok_clone.core.navigation.AppNavigation
-import com.example.tiktok_clone.features.home.home.ui.components.MiddleSection
-import com.example.tiktok_clone.features.home.home.ui.components.VideoDescriptionSection
-import com.example.tiktok_clone.features.home.home.ui.components.VideoPlayer
-import com.example.tiktok_clone.features.home.home.viewmodel.HomeViewModel
+import com.example.tiktok_clone.features.home.ui.components.MiddleSection
+import com.example.tiktok_clone.features.home.ui.components.VideoDescriptionSection
+import com.example.tiktok_clone.features.home.ui.components.VideoPlayer
+import com.example.tiktok_clone.features.home.viewmodel.HomeViewModel
 import com.example.tiktok_clone.features.post.data.model.PostType
 
 @OptIn(UnstableApi::class)
