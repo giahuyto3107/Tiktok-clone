@@ -88,7 +88,7 @@ fun CameraAccessScreen(
         cameraViewModel.initializeCameraController(context)
     }
 
-    // PICKER: Setup the Photo Picker — upload selected image
+    // PICKER: Set up the Photo Picker — upload selected image
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
@@ -357,7 +357,7 @@ private fun takePhoto(
 private fun PreviewCameraAccessScreen() {
     CameraAccessScreen(
         onNavigationToHomeScreen = {},
-        onNavigateToPreview = { uriString, type -> },
+        onNavigateToPreview = { _, _ -> },
     )
 
 }

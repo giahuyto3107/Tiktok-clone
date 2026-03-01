@@ -15,19 +15,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.tiktok.features.auth.screens.LoginFormScreen
-import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
 import com.example.tiktok.features.auth.screens.SignUpFormScreen
 import com.example.tiktok_clone.core.ui.MainWrapper
 import com.example.tiktok_clone.features.auth.ui.AuthenticatedProfile
+import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
 import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
-import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.camera.ui.CameraAccessScreen
-import com.example.tiktok_clone.features.post.ui.PreviewScreen
 import com.example.tiktok_clone.features.home.ui.HomeScreen
 import com.example.tiktok_clone.features.inbox.ui.InboxScreen
+import com.example.tiktok_clone.features.post.ui.PrePostScreen
+import com.example.tiktok_clone.features.post.ui.PreviewScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
 import com.example.tiktok_clone.features.search.ui.SearchResultScreen
+import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
+
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -53,26 +55,26 @@ fun AppNavigation() {
                     }
                 },
                 onCameraClick = {
-                    navController.navigate(NavigationRoutes.cameraAccess)
+                    navController.navigate(NavigationRoutes.cameraAccessRoute)
                 }
             ) {
                 // Content based on selected tab
                 when (selectedTabIndex) {
                     0 -> HomeScreenContent(
-                        onSearchTap = { navController.navigate(NavigationRoutes.search) }
+                        onsearchTap = { navController.navigate(NavigationRoutes.searchRoute) }
                     )
                     1 -> ShopScreenContent()
                     3 -> InboxScreenContent()
                     4 -> ProfileScreenContent(
                         onLoginClick = {
-                            navController.navigate(NavigationRoutes.loginSelection)
+                            navController.navigate(NavigationRoutes.loginSelectionRoute)
                         }
                     )
                 }
             }
         }
 
-        composable(route = NavigationRoutes.cameraAccess) {
+        composable(route = NavigationRoutes.cameraAccessRoute) {
             CameraAccessScreen(
                 onNavigationToHomeScreen = {
                     navController.navigate(NavigationRoutes.mainWrapper) {
@@ -101,30 +103,59 @@ fun AppNavigation() {
             PreviewScreen(
                 mediaUri = decodedUri,
                 postType = postType,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNext = { uriString, type ->
+                    val encodedUri = Uri.encode(uriString)
+                    navController.navigate("pre_post_screen/$encodedUri/$type")
+                },
             )
         }
 
-        composable(NavigationRoutes.search) {
+        composable(
+            route = NavigationRoutes.prePostScreenRoute,
+            arguments = listOf(
+                navArgument("mediaUri") { type = NavType.StringType },
+                navArgument("postType") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val encodedUri = backStackEntry.arguments?.getString("mediaUri") ?: ""
+            val postType = backStackEntry.arguments?.getString("postType") ?: "IMAGE"
+
+            val decodedUri = Uri.decode(encodedUri)
+
+            PrePostScreen(
+                onBack = { navController.popBackStack() },
+                onPost = {
+                    navController.navigate(NavigationRoutes.mainWrapper) {
+                        popUpTo(NavigationRoutes.mainWrapper) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                mediaUri = decodedUri,
+                postType = postType
+            )
+        }
+
+        composable(NavigationRoutes.searchRoute) {
             SearchScreen(
                 onNavigateToResult = { query ->
-                    navController.navigate("${NavigationRoutes.searchResult}/$query")
+                    navController.navigate("${NavigationRoutes.searchResultRoute}/$query")
                 }
             )
         }
 
-        composable("${NavigationRoutes.searchResult}/{query}") {
+        composable("${NavigationRoutes.searchResultRoute}/{query}") {
             SearchResultScreen(
                 query = it.arguments?.getString("query") ?: "",
                 onBack = { navController.popBackStack() }
             )
         }
 
-        composable(route = NavigationRoutes.loginSelection) {
+        composable(route = NavigationRoutes.loginSelectionRoute) {
             LoginSelectionScreen(
                 onBack = { navController.popBackStack() },
-                onSignUpClick = { navController.navigate(NavigationRoutes.selectSignUp) },
-                onPhoneEmailLoginClick = { navController.navigate(NavigationRoutes.loginForm) },
+                onSignUpClick = { navController.navigate(NavigationRoutes.selectSignUpRoute) },
+                onPhoneEmailLoginClick = { navController.navigate(NavigationRoutes.loginFormRoute) },
                 onLoginSuccess = {
                     // 1. Reset ngay lập tức biến index về 0 (Home)
                     selectedTabIndex = 0
@@ -141,37 +172,37 @@ fun AppNavigation() {
             )
         }
 
-        composable(route = NavigationRoutes.selectSignUp) {
+        composable(route = NavigationRoutes.selectSignUpRoute) {
             SelectSignUpScreen(
-                onPhoneEmailClick = { navController.navigate(NavigationRoutes.signUpForm) },
+                onPhoneEmailClick = { navController.navigate(NavigationRoutes.signUpFormRoute) },
                 onLoginClick = {
                     // Quay lại màn hình login selection hoặc pop back
-                    navController.navigate(NavigationRoutes.loginSelection) {
-                        popUpTo(NavigationRoutes.loginSelection) { inclusive = true }
+                    navController.navigate(NavigationRoutes.loginSelectionRoute) {
+                        popUpTo(NavigationRoutes.loginSelectionRoute) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(route = NavigationRoutes.signUpForm) {
+        composable(route = NavigationRoutes.signUpFormRoute) {
             SignUpFormScreen(
                 onBack = { navController.popBackStack() },
                 onLoginClick = {
-                    navController.navigate(NavigationRoutes.loginSelection) {
-                        popUpTo(NavigationRoutes.loginSelection) { inclusive = true }
+                    navController.navigate(NavigationRoutes.loginSelectionRoute) {
+                        popUpTo(NavigationRoutes.loginSelectionRoute) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(route = NavigationRoutes.loginForm) {
+        composable(route = NavigationRoutes.loginFormRoute) {
             LoginFormScreen(
                 onBack = { navController.popBackStack() },
-                onSignUpClick = { navController.navigate(NavigationRoutes.selectSignUp) },
+                onSignUpClick = { navController.navigate(NavigationRoutes.selectSignUpRoute) },
                 onLoginSuccess = {
                     selectedTabIndex = 0
                     navController.navigate(NavigationRoutes.mainWrapper) {
-                        popUpTo(NavigationRoutes.loginSelection) { inclusive = true }
+                        popUpTo(NavigationRoutes.loginSelectionRoute) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
@@ -182,10 +213,10 @@ fun AppNavigation() {
 
 @Composable
 private fun HomeScreenContent(
-    onSearchTap: () -> Unit = {},
+    onsearchTap: () -> Unit = {},
 ) {
     HomeScreen(
-        onSearchTap = onSearchTap
+       onSearchTap = onsearchTap
     )
 }
 
