@@ -9,6 +9,7 @@
     <dimen name="spacing_xl">24dp</dimen>
     <dimen name="spacing_xxl">32dp</dimen>
     <dimen name="spacing_xxxl">48dp</dimen>
+    <dimen name="spacing_xxxxl">58dp</dimen>
     <dimen name="spacing_navigation_bar">100dp</dimen>
 
     <!-- Icon Sizes -->

@@ -156,7 +156,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .padding(
                                     start = dimensionResource(R.dimen.spacing_m),
-                                    end = dimensionResource(R.dimen.spacing_xxxl)
+                                    end = dimensionResource(R.dimen.spacing_xxxxl)
                                 )
                                 .align(Alignment.BottomStart)
                         )

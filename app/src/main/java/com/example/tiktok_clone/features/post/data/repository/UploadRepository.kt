@@ -103,7 +103,7 @@ class UploadRepository(
      */
     private fun createFilePartFromUri(uri: Uri, defaultFileName: String): MultipartBody.Part? {
         Log.d(TAG, "createFilePartFromUri called with URI: $uri, defaultFileName: $defaultFileName")
-        var stream: InputStream? = null
+        var stream: InputStream?
         try {
             stream = context.contentResolver.openInputStream(uri) ?: run {
                 Log.e(TAG, "Failed to open input stream for URI: $uri")

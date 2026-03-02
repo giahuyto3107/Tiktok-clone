@@ -63,12 +63,11 @@ import com.example.tiktok_clone.features.camera.ui.components.getLastGalleryImag
 import com.example.tiktok_clone.features.camera.ui.components.openSystemSettings
 import com.example.tiktok_clone.features.camera.viewmodel.CameraViewModel
 import com.example.tiktok_clone.features.post.data.model.PostType
-import com.example.tiktok_clone.features.post.ui.UploadState
-import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Cog
 import org.koin.androidx.compose.koinViewModel
+
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -76,19 +75,17 @@ import java.util.Locale
 fun CameraAccessScreen(
     onNavigationToHomeScreen: () -> Unit,
     cameraViewModel: CameraViewModel = koinViewModel(),
-    postViewModel: PostViewModel = koinViewModel(),
     onNavigateToPreview: (String, String) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val uiState by cameraViewModel.uiState.collectAsState()
-    val uploadState by postViewModel.uploadState.collectAsState()
 
     val cameraController = remember {
         cameraViewModel.initializeCameraController(context)
     }
 
-    // PICKER: Setup the Photo Picker — upload selected image
+    // PICKER: Set up the Photo Picker — upload selected image
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
@@ -96,7 +93,6 @@ fun CameraAccessScreen(
         uri?.let {
             val mimeType = context.contentResolver.getType(it)
             val postType = if (mimeType?.contains("video") == true) PostType.VIDEO else PostType.IMAGE
-            Log.d("CameraAccessScreen", "Starting upload for URI: $uri, type: $postType, current state: $uploadState")
             
 //            // Only start new upload if not already uploading
 //            if (uploadState is UploadState.Idle) {
@@ -110,20 +106,7 @@ fun CameraAccessScreen(
         } ?: Log.d("CameraAccessScreen", "No URI selected from photo picker")
     }
 
-//    LaunchedEffect(uploadState) {
-//        when (uploadState) {
-//            is UploadState.Success -> {
-//                Toast.makeText(context, "Posted!", Toast.LENGTH_SHORT).show()
-//                // Reset state immediately but don't navigate - let user decide
-//                postViewModel.resetUploadState()
-//            }
-//            is UploadState.Error -> {
-//                Toast.makeText(context, (uploadState as UploadState.Error).message, Toast.LENGTH_LONG).show()
-//                postViewModel.resetUploadState()
-//            }
-//            else -> { }
-//        }
-//    }
+
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -156,11 +139,6 @@ fun CameraAccessScreen(
         
         if (!uiState.hasCameraPermissions || !uiState.hasStoragePermissions) {
             permissionLauncher.launch(cameraViewModel.getRequiredPermissions())
-        }
-        
-        // Reset upload state when screen is displayed to prevent stuck states
-        if (uploadState !is UploadState.Idle) {
-            postViewModel.resetUploadState()
         }
     }
 
@@ -357,7 +335,7 @@ private fun takePhoto(
 private fun PreviewCameraAccessScreen() {
     CameraAccessScreen(
         onNavigationToHomeScreen = {},
-        onNavigateToPreview = { uriString, type -> },
+        onNavigateToPreview = { _, _ -> },
     )
 
 }
