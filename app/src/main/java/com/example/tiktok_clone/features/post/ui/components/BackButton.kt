@@ -77,12 +77,14 @@ fun NextButton(
 @Composable
 fun PostButton(
     onPost: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(R.color.red),
         ),
         onClick = { onPost() },
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row {

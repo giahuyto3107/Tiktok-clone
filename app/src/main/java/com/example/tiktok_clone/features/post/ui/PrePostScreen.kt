@@ -1,5 +1,6 @@
 package com.example.tiktok_clone.features.post.ui
 
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -16,16 +17,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -47,44 +52,94 @@ import com.example.tiktok_clone.R
 import com.example.tiktok_clone.features.post.data.model.PostType
 import com.example.tiktok_clone.features.post.ui.components.BackButton
 import com.example.tiktok_clone.features.post.ui.components.PostButton
+import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
+import org.koin.androidx.compose.koinViewModel
+import androidx.core.net.toUri
 
 @Composable
 fun PrePostScreen(
     mediaUri: String,
     postType: String,
     onBack: () -> Unit,
-    onPost: () -> Unit,
+    onPostSuccess: () -> Unit,
+    postViewModel: PostViewModel = koinViewModel(),
 ) {
+    val context = LocalContext.current
     var titleText by remember { mutableStateOf("") }
     var descriptionText by remember { mutableStateOf("") }
+    val uploadState by postViewModel.uploadState.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(R.color.white))
-    ) {
-        BackButton(
-            onClick = onBack,
-            icon = Icons.AutoMirrored.Filled.ArrowBackIos,
-            color = colorResource(R.color.black)
-        )
-        Spacer(Modifier.height(dimensionResource(R.dimen.spacing_m)))
-        ImageScrollerSection(
-            postType = postType,
-            mediaUri = mediaUri,
-            modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_m))
-        )
-        TitleSection(
-            value = titleText,
-            onValueChange = { titleText = it },
-            modifier = Modifier.fillMaxWidth()
-        )
-        DescriptionSection(
-            value = descriptionText,
-            onValueChange = { descriptionText = it },
-            modifier = Modifier.weight(1f).fillMaxWidth()
-        )
-        PostButton(onPost = onPost)
+    // Observe upload state and navigate on success
+    LaunchedEffect(uploadState) {
+        when (uploadState) {
+            is UploadState.Success -> {
+                Toast.makeText(context, "Posted successfully!", Toast.LENGTH_SHORT).show()
+                postViewModel.resetUploadState()
+                onPostSuccess()
+            }
+            is UploadState.Error -> {
+                Toast.makeText(
+                    context,
+                    (uploadState as UploadState.Error).message,
+                    Toast.LENGTH_LONG
+                ).show()
+                postViewModel.resetUploadState()
+            }
+            else -> { }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorResource(R.color.white))
+        ) {
+            BackButton(
+                onClick = onBack,
+                icon = Icons.AutoMirrored.Filled.ArrowBackIos,
+                color = colorResource(R.color.black)
+            )
+            Spacer(Modifier.height(dimensionResource(R.dimen.spacing_m)))
+            ImageScrollerSection(
+                postType = postType,
+                mediaUri = mediaUri,
+                modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_m))
+            )
+            TitleSection(
+                value = titleText,
+                onValueChange = { titleText = it },
+                modifier = Modifier.fillMaxWidth()
+            )
+            DescriptionSection(
+                value = descriptionText,
+                onValueChange = { descriptionText = it },
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            )
+            PostButton(
+                onPost = {
+                    val type = PostType.valueOf(postType)
+                    postViewModel.upload(
+                        uri = mediaUri.toUri(),
+                        caption = titleText,
+                        type = type
+                    )
+                },
+                enabled = uploadState !is UploadState.Loading
+            )
+        }
+
+        // Loading overlay
+        if (uploadState is UploadState.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = colorResource(R.color.red))
+            }
+        }
     }
 }
 
@@ -166,6 +221,8 @@ private fun TitleSection(
       },
         modifier = modifier,
         colors = TextFieldDefaults.colors(
+            focusedTextColor = colorResource(R.color.text_on_light),
+            unfocusedTextColor = colorResource(R.color.text_on_light),
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent
         ),
@@ -190,6 +247,8 @@ private fun DescriptionSection(
         },
         modifier = modifier,
         colors = TextFieldDefaults.colors(
+            focusedTextColor = colorResource(R.color.text_on_light),
+            unfocusedTextColor = colorResource(R.color.text_on_light),
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent
         )
@@ -199,14 +258,13 @@ private fun DescriptionSection(
 @Preview
 @Composable
 fun PreviewPrePostScreen(
-    onPost: () -> Unit = {},
+    onPostSuccess: () -> Unit = {},
     onBack: () -> Unit = {}
 ) {
     PrePostScreen(
         onBack = onBack,
-        onPost = onPost,
+        onPostSuccess = onPostSuccess,
         postType = "",
         mediaUri = ""
     )
 }
-

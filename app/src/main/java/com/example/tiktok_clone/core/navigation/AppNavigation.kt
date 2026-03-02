@@ -125,7 +125,7 @@ fun AppNavigation() {
 
             PrePostScreen(
                 onBack = { navController.popBackStack() },
-                onPost = {
+                onPostSuccess = {
                     navController.navigate(NavigationRoutes.mainWrapper) {
                         popUpTo(NavigationRoutes.mainWrapper) { inclusive = false }
                         launchSingleTop = true
