@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui
+package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyRow

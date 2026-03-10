@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui
+package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,16 +18,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
 fun InboxFriendItem(
     modifier: Modifier = Modifier,
     friend: User,
     isUser: Boolean = false,
+    onItemClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier

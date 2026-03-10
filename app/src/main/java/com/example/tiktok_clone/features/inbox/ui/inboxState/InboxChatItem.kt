@@ -1,14 +1,13 @@
-package com.example.tiktok_clone.features.inbox.ui
+package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CameraAlt
@@ -30,11 +29,13 @@ import com.example.tiktok_clone.features.social.ui.components.Avatar
 @Composable
 fun InboxChatItem(
     modifier: Modifier = Modifier,
-    chatWith: User
+    chatWith: User,
+    onChatClick: () -> Unit = {}
 ){
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onChatClick() }
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically
     ) {
