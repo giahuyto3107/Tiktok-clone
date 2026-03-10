@@ -1,9 +1,6 @@
 package com.example.tiktok_clone.features.inbox.ui.chatState
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,18 +19,21 @@ import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 @Composable
-fun Message(
-    user: User,
-    modifier: Modifier = Modifier
-) {
+fun MessageScreen(
+    modifier: Modifier = Modifier,
+    userId: String,
+    onBack: () -> Unit = {}
 
+) {
+    val socialViewModel: SocialViewModel = viewModel()
+    val currentUser = socialViewModel.getUser(userId)
     Column(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
             .imePadding(),
     ) {
-        MessageHead(user = user)
+        MessageHead(user = currentUser, onBack = onBack)
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
@@ -45,13 +45,3 @@ fun Message(
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-fun PreviewMessage() {
-    val socialViewModel: SocialViewModel = viewModel()
-    val user: List<User> = socialViewModel.user.collectAsState().value
-    Message(user[0])
-}
