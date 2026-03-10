@@ -90,7 +90,6 @@ fun CommentInput(
                     .heightIn(min = 50.dp)
 
             ) {
-
                 TextField(
                     value = commentText,
                     onValueChange = {
