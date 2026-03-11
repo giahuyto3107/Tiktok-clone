@@ -17,4 +17,5 @@ object NavigationRoutes {
     const val PREVIEW_SCREEN_ROUTE = "preview_screen/{mediaUri}/{postType}"
     const val cameraAccessRoute = "camera_access"
     const val prePostScreenRoute = "pre_post_screen/{mediaUri}/{postType}"
+    const val inboxRoute = "inbox"
 }

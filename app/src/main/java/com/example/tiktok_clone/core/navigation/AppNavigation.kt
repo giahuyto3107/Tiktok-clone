@@ -22,7 +22,8 @@ import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
 import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
 import com.example.tiktok_clone.features.camera.ui.CameraAccessScreen
 import com.example.tiktok_clone.features.home.ui.HomeScreen
-import com.example.tiktok_clone.features.inbox.ui.InboxScreen
+import com.example.tiktok_clone.features.inbox.ui.chatState.MessageScreen
+import com.example.tiktok_clone.features.inbox.ui.inboxState.InboxScreen
 import com.example.tiktok_clone.features.post.ui.PrePostScreen
 import com.example.tiktok_clone.features.post.ui.PreviewScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
@@ -64,7 +65,11 @@ fun AppNavigation() {
                         onsearchTap = { navController.navigate(NavigationRoutes.searchRoute) }
                     )
                     1 -> ShopScreenContent()
-                    3 -> InboxScreenContent()
+                    3 -> InboxScreenContent(
+                        onChatClick = { userId ->
+                            navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
+                        }
+                    )
                     4 -> ProfileScreenContent(
                         onLoginClick = {
                             navController.navigate(NavigationRoutes.loginSelectionRoute)
@@ -208,6 +213,20 @@ fun AppNavigation() {
                 }
             )
         }
+        composable (route = NavigationRoutes.inboxRoute){
+            InboxScreen(
+                currentUserId = "u1",
+                onChatClick = { userId ->
+                    navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
+                }
+            )
+        }
+        composable (route = "${NavigationRoutes.inboxRoute}/{userId}"){
+            MessageScreen(
+                userId = it.arguments?.getString("userId") ?: "",
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }
 
@@ -216,7 +235,7 @@ private fun HomeScreenContent(
     onsearchTap: () -> Unit = {},
 ) {
     HomeScreen(
-       onSearchTap = onsearchTap
+        onSearchTap = onsearchTap
     )
 }
 
@@ -226,8 +245,13 @@ private fun ShopScreenContent() {
 }
 
 @Composable
-private fun InboxScreenContent() {
-    InboxScreen()
+private fun InboxScreenContent(
+    onChatClick: (userId: String) -> Unit = {}
+) {
+    InboxScreen(
+        currentUserId = "u1",
+        onChatClick = onChatClick
+    )
 }
 
 @Composable
