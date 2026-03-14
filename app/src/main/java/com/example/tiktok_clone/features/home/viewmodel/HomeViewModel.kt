@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.post.data.repository.UploadRepository
-import com.example.tiktok_clone.features.social.model.User
-import com.example.tiktok_clone.features.social.model.SocialAction
+import com.example.tiktok_clone.features.social.data.model.User
+import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.user.data.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
