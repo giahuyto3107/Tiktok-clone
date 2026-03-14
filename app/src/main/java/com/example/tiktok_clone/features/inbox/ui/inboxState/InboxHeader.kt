@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Circle
@@ -21,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
+
 @Composable
 fun InboxHeader(
     modifier: Modifier = Modifier,
@@ -28,13 +32,16 @@ fun InboxHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 4.dp, end = 4.dp),
+            .padding(start = 16.dp, end = 14.dp, top = 12.dp)
+            .then(modifier),
         horizontalArrangement = Arrangement.SpaceBetween
     )
     {
         Icon(
             imageVector = Icons.Outlined.GroupAdd,
             contentDescription = "Add friend",
+            modifier = Modifier
+                .size(28.dp)
         )
         Row(
             modifier = Modifier,
@@ -43,38 +50,45 @@ fun InboxHeader(
         ) {
             Text(
                 text = "Hộp thư",
-                fontSize = 20.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
             Row(
                 modifier = Modifier
+                    .width(28.dp)
+                    .height(18.dp)
                     .background(
-                        color = Color.LightGray,
+                        color = Color.LightGray.copy(0.2f),
                         shape = RoundedCornerShape(4.dp)
                     )
-                    .align(Alignment.CenterVertically)
-                    ,
+                    .align(Alignment.CenterVertically),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = Icons.Filled.Circle,
                     contentDescription = "State",
+                    tint = Color.Gray,
                     modifier = Modifier
-                        .padding(start = 2.dp)
-                        .size(12.dp)
+                        .padding(start = 4.dp)
+                        .size(10.dp)
                 )
                 Icon(
                     imageVector = Icons.Filled.ArrowDropDown,
                     contentDescription = "State",
+                    tint = Color.Gray,
                     modifier = Modifier
                         .size(20.dp)
+                        .offset(x = (-2).dp)
                 )
             }
         }
         Icon(
             imageVector = Icons.Outlined.Search,
             contentDescription = "Search",
+            modifier = Modifier
+                .size(28.dp)
+                .offset(x = 6.dp)
         )
     }
 }

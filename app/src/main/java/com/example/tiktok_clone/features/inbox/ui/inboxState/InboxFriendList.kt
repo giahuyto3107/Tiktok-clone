@@ -1,24 +1,35 @@
 package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun InboxFriendList(
     currentUser: User,
-    viewModel: SocialViewModel = viewModel()
+    onChatClick: (userId: String) -> Unit = {},
+    viewModel: SocialViewModel = koinViewModel()
 ) {
-    val friends by viewModel.friends.collectAsState()
-    viewModel.loadFriends(currentUser.id)
+    val friendState by viewModel.friends.collectAsState()
+    val friend = viewModel.getUserList(friendState.map { it.uid })
+    val chatWiths = friend.filter { it.id != currentUser.id }
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp,Alignment.Start),
+        contentPadding = PaddingValues(start = 8.dp, top = 16.dp)
+
     ) {
         item {
             InboxFriendItem(
@@ -26,8 +37,11 @@ fun InboxFriendList(
                 isUser = true
             )
         }
-        items(friends.size) { index ->
-            InboxFriendItem(friend = friends[index])
+        items(chatWiths.size) { index ->
+            InboxFriendItem(
+                friend = chatWiths[index],
+                onChatClick = { onChatClick(chatWiths[index].id) }
+            )
         }
     }
 }
