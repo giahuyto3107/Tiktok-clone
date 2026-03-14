@@ -8,9 +8,13 @@ val White = Color(0xFFFFFFFF)
 
 // --- TikTok Brand Colors ---
 // The main "Follow" / Record button red
-val TikTokRed = Color(0xFFFE2C55)
+val TikTokBlack = Color(0xFF010101)      // Vivid Black
+val TikTokTurquoise = Color(0xFF25F4EE)  // Special Turquoise
+val TikTokWhite = Color(0xFFFFFFFF)      // Full White
+val TikTokRed = Color(0xFFEE1D52)
+val TikTokCyanDark = Color(0xFF1CD6D0)// Valentine
 // User provided RedHeart (keeping close to brand)
-val RedHeart = Color(0xFFFE2B54)
+val RedHeart = Color(0xFFFE2C55)
 val BlueAccent = Color(0xFF25F4EE) // Cyan/Blue often used in the logo split effect
 val YellowSave = Color(0xFFFDC123)
 
