@@ -1,10 +1,11 @@
 package com.example.tiktok_clone.features.social.ui
 
 import com.example.tiktok_clone.features.post.data.model.Post
-import com.example.tiktok_clone.features.social.model.App
-import com.example.tiktok_clone.features.social.model.Comment
-import com.example.tiktok_clone.features.social.model.User
-import com.example.tiktok_clone.features.social.model.ShareItem
+import com.example.tiktok_clone.features.post.ui.UploadState
+import com.example.tiktok_clone.features.social.data.model.App
+import com.example.tiktok_clone.features.social.data.model.Comment
+import com.example.tiktok_clone.features.social.data.model.User
+import com.example.tiktok_clone.features.social.data.model.ShareItem
 
 data class SocialUiState(
     val posts: List<Post> = emptyList(),
@@ -27,6 +28,7 @@ data class SocialUiState(
     val showCommentSheet: Boolean = false,
     val showShareSheet: Boolean = false,
     val selectedPostId: String? = null,
+    val uploadState: UploadState = UploadState.Idle,
     ){
     val currentPost: Post?
         get() = posts.getOrNull(currentPostIndex)
