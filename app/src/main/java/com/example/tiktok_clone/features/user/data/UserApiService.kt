@@ -1,6 +1,5 @@
 package com.example.tiktok_clone.features.user.data
 
-import com.example.tiktok_clone.features.social.model.User
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.GET
 import retrofit2.http.Path
