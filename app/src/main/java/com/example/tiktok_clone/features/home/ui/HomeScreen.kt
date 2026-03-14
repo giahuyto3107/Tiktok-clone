@@ -24,7 +24,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +37,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.Player
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
@@ -46,11 +49,17 @@ import com.example.tiktok_clone.features.home.ui.components.VideoDescriptionSect
 import com.example.tiktok_clone.features.home.ui.components.VideoPlayer
 import com.example.tiktok_clone.features.home.viewmodel.HomeViewModel
 import com.example.tiktok_clone.features.post.data.model.PostType
+import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
+import com.example.tiktok_clone.features.social.data.PostStateResponse
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(UnstableApi::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = koinViewModel(),
+    profileViewModel: ProfileViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     onSearchTap: () -> Unit = {}
 ) {
     val posts by homeViewModel.posts.collectAsState()
@@ -59,6 +68,13 @@ fun HomeScreen(
     val error by homeViewModel.error.collectAsState()
     val context = LocalContext.current
 
+    val currentUserId: String = profileViewModel.getProfileData()?.id.toString()
+    socialViewModel.getCurrentUser(currentUserId)
+    socialViewModel.getFriends(currentUserId)
+    val currentUser by socialViewModel.currentUser.collectAsState()
+
+    val postStates by socialViewModel.postStates.collectAsState()
+
     // Single shared ExoPlayer instance
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
@@ -66,14 +82,28 @@ fun HomeScreen(
             volume = 1f
         }
     }
-
     // Release player on dispose
     DisposableEffect(Unit) {
         onDispose { exoPlayer.release() }
     }
-
     val pagerState = rememberPagerState(pageCount = { posts.size })
 
+    // Load state + comment cho post hiện tại và prefetch cho post tiếp theo
+    LaunchedEffect(pagerState.currentPage, posts) {
+        val currentPost = posts.getOrNull(pagerState.currentPage)
+        if (currentPost != null) {
+            val currentId = currentPost.id.toString()
+            socialViewModel.loadPostState(currentId)
+            socialViewModel.loadComments(currentId)
+
+            val nextPost = posts.getOrNull(pagerState.currentPage + 1)
+            if (nextPost != null) {
+                val nextId = nextPost.id.toString()
+                socialViewModel.loadPostState(nextId)
+                socialViewModel.loadComments(nextId)
+            }
+        }
+    }
     // Infinite scroll: load more when near end
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { currentPage ->
@@ -82,8 +112,11 @@ fun HomeScreen(
             }
         }
     }
-
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
         if (isLoading && posts.isEmpty()) {
             // Loading state — show spinner instead of black screen
             Box(
@@ -104,66 +137,66 @@ fun HomeScreen(
                 )
             }
         } else {
-        VerticalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = 0 // Only compose the current page
-        ) { page ->
-            Column {
-                Box(modifier = Modifier.fillMaxHeight()) {
-                    val currentPost = posts.getOrNull(page)
-
-                    // Show image or video based on post type
-                    if (currentPost?.type == PostType.IMAGE) {
-                        AsyncImage(
-                            model = currentPost.mediaUrl,
-                            contentDescription = "Image Post",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        VideoPlayer(
-                            exoPlayer = exoPlayer,
-                            mediaUrl = currentPost?.mediaUrl ?: "",
-                            thumbnailUrl = currentPost?.thumbnailUrl,
-                            isCurrentPage = pagerState.currentPage == page
-                        )
-                    }
-
-                    posts.getOrNull(page)?.let { currentPost ->
-                        val author = users[currentPost.userId]
-
-                        // Social actions sidebar (like, comment, share, save)
-                        author?.let { user ->
-                            MiddleSection(
-                                author = user,
-                                currentPost = currentPost,
+            VerticalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                beyondViewportPageCount = 0 // Only compose the current page
+            ) { page ->
+                Column {
+                    Box(modifier = Modifier.fillMaxHeight()) {
+                        val currentPost = posts.getOrNull(page)
+                        // Show image or video based on post type
+                        if (currentPost?.type == PostType.IMAGE) {
+                            AsyncImage(
+                                model = currentPost.mediaUrl,
+                                contentDescription = "Image Post",
                                 modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(
-                                        bottom = dimensionResource(R.dimen.spacing_m),
-                                        end = dimensionResource(R.dimen.spacing_m)
-                                    )
+                                    .fillMaxSize()
+                                    .background(Color.Black),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            VideoPlayer(
+                                exoPlayer = exoPlayer,
+                                mediaUrl = currentPost?.mediaUrl ?: "",
+                                thumbnailUrl = currentPost?.thumbnailUrl,
+                                isCurrentPage = pagerState.currentPage == page
                             )
                         }
 
-                        // Caption and username overlay
-                        VideoDescriptionSection(
-                            userName = author?.userName ?: currentPost.userId,
-                            caption = currentPost.caption,
-                            modifier = Modifier
-                                .padding(
-                                    start = dimensionResource(R.dimen.spacing_m),
-                                    end = dimensionResource(R.dimen.spacing_xxxxl)
+                        posts.getOrNull(page)?.let { currentPost ->
+                            val author = users[currentPost.userId]
+                            // Social actions sidebar (like, comment, share, save)
+                            author?.let { user ->
+                                MiddleSection(
+                                    author = user,
+                                    currentPost = currentPost,
+                                    currentUser = currentUser,
+                                    postState = postStates[currentPost.id.toString()],
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(
+                                            bottom = dimensionResource(R.dimen.spacing_m),
+                                            end = dimensionResource(R.dimen.spacing_m)
+                                        )
                                 )
-                                .align(Alignment.BottomStart)
-                        )
+                            }
+
+                            // Caption and username overlay
+                            VideoDescriptionSection(
+                                userName = author?.userName ?: currentPost.userId,
+                                caption = currentPost.caption,
+                                modifier = Modifier
+                                    .padding(
+                                        start = dimensionResource(R.dimen.spacing_m),
+                                        end = dimensionResource(R.dimen.spacing_xxxxl)
+                                    )
+                                    .align(Alignment.BottomStart)
+                            )
+                        }
                     }
                 }
             }
-        }
         } // else (posts not empty)
 
         TopHeading(

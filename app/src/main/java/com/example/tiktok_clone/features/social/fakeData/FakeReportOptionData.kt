@@ -1,6 +1,6 @@
 package com.example.tiktok_clone.features.social.fakeData
 
-import com.example.tiktok_clone.features.social.model.ReasonOption
+import com.example.tiktok_clone.features.social.data.model.ReasonOption
 
 object FakeReportOptionData {
     val reportOptions = listOf(

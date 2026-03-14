@@ -12,14 +12,16 @@ object ApiConfig {
     // Keep this as server root; endpoints include `/api/v1/...` to avoid URL-join issues.
 
 //    const val BASE_URL = "http://10.0.2.2:8000/"
-    const val BASE_URL = "http://192.168.110.117:8000/"
-    
+//    const val BASE_URL = "http://192.168.110.117:8000/"
+    const val BASE_URL = "http://192.168.101.73:8000/"
+
+
     // Environment-specific URLs
     const val LOCAL_EMULATOR = "http://10.0.2.2:8000/"
     const val LOCAL_DEVICE = "http://192.168.110.117:8000/"
     const val STAGING = "http://staging-api.yourapp.com/"
     const val PRODUCTION = "http://api.yourapp.com/"
-    
+
     // Auto-detect environment (optional)
     fun getBaseUrl(): String {
         return when {

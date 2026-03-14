@@ -50,52 +50,61 @@ class UploadRepository(
         caption: String,
         userId: String
     ): Result<Boolean> =
-    withContext(Dispatchers.IO) {
-        try {
-            Log.d(TAG, "uploadImage starting for URI: $uri")
-            val filePart = createFilePartFromUri(uri, "image.jpg")
-                ?: return@withContext Result.failure(IllegalArgumentException("Could not read image from URI"))
-            Log.d(TAG, "filePart created successfully")
-            val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-            val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
+        withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "uploadImage starting for URI: $uri")
+                val filePart = createFilePartFromUri(uri, "image.jpg")
+                    ?: return@withContext Result.failure(IllegalArgumentException("Could not read image from URI"))
+                Log.d(TAG, "filePart created successfully")
+                val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+                val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
 
-            val response = apiService.uploadImage(filePart, captionPart, userIdPart)
-            Log.d(TAG, "uploadImage response: code=${response.code()}, successful=${response.isSuccessful}")
-            if (response.isSuccessful) Result.success(true)
-            else {
-                val request = response.raw().request
-                Log.e(TAG, "Image upload failed: code=${response.code()} method=${request.method} url=${request.url}")
-                Result.failure(Exception("Upload failed: ${response.code()}"))
+                val response = apiService.uploadImage(filePart, captionPart, userIdPart)
+                Log.d(
+                    TAG,
+                    "uploadImage response: code=${response.code()}, successful=${response.isSuccessful}"
+                )
+                if (response.isSuccessful) Result.success(true)
+                else {
+                    val request = response.raw().request
+                    Log.e(
+                        TAG,
+                        "Image upload failed: code=${response.code()} method=${request.method} url=${request.url}"
+                    )
+                    Result.failure(Exception("Upload failed: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "uploadImage exception", e)
+                Result.failure(e)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "uploadImage exception", e)
-            Result.failure(e)
         }
-    }
 
     private suspend fun uploadVideo(
         uri: Uri,
         caption: String,
         userId: String
     ): Result<Boolean> =
-    withContext(Dispatchers.IO) {
-        try {
-            val filePart = createFilePartFromUri(uri, "video.mp4")
-                ?: return@withContext Result.failure(IllegalArgumentException("Could not read video from URI"))
-            val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-            val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
+        withContext(Dispatchers.IO) {
+            try {
+                val filePart = createFilePartFromUri(uri, "video.mp4")
+                    ?: return@withContext Result.failure(IllegalArgumentException("Could not read video from URI"))
+                val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+                val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
 
-            val response = apiService.uploadVideo(filePart, captionPart, userIdPart)
-            if (response.isSuccessful) Result.success(true)
-            else {
-                val request = response.raw().request
-                Log.e(TAG, "Video upload failed: code=${response.code()} method=${request.method} url=${request.url}")
-                Result.failure(Exception("Upload failed: ${response.code()}"))
+                val response = apiService.uploadVideo(filePart, captionPart, userIdPart)
+                if (response.isSuccessful) Result.success(true)
+                else {
+                    val request = response.raw().request
+                    Log.e(
+                        TAG,
+                        "Video upload failed: code=${response.code()} method=${request.method} url=${request.url}"
+                    )
+                    Result.failure(Exception("Upload failed: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
-    }
 
     /**
      * Copies content from [uri] into a temp file and creates a [MultipartBody.Part].
@@ -111,9 +120,12 @@ class UploadRepository(
             }
             val mimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
             val fileName = uri.lastPathSegment?.takeIf { it.contains('.') } ?: defaultFileName
-            val tempFile = File.createTempFile("upload_${System.currentTimeMillis()}_${uri.hashCode()}", "_$fileName")
+            val tempFile = File.createTempFile(
+                "upload_${System.currentTimeMillis()}_${uri.hashCode()}",
+                "_$fileName"
+            )
             Log.d(TAG, "Created temp file: ${tempFile.absolutePath}")
-            
+
             return try {
                 FileOutputStream(tempFile).use { out ->
                     stream.use { it.copyTo(out) }

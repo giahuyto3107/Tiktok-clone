@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.model
+package com.example.tiktok_clone.features.social.data.model
 
 sealed class ShareSheetMode{
     object Default: ShareSheetMode()

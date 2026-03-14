@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.model
+package com.example.tiktok_clone.features.inbox.data.model
 
 // Message.kt - Data model
 data class Message(
@@ -12,4 +12,4 @@ data class Message(
 )
 
 enum class MessageType { TEXT, IMAGE, VIDEO }
-enum class MessageStatus { SENDING, SENT, DELIVERED, SEEN }
+enum class MessageStatus { SENDING, SENT, DELIVERED, SEEN, NEW }

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.model
+package com.example.tiktok_clone.features.social.data.model
 
 
 data class User(

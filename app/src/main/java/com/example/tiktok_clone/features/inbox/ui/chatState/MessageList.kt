@@ -14,16 +14,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.tiktok_clone.features.inbox.fakeData.FakeMessData
-import com.example.tiktok_clone.features.inbox.model.Message
+import com.example.tiktok_clone.features.inbox.data.model.Message
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.ui.theme.GrayBackground
 
 @Composable
 fun MessageList(
     modifier: Modifier = Modifier,
-    messages: List<Message> = FakeMessData.messages,
-    currentUser: String = FakeMessData.ME,
-){
+    messages: List<Message> = emptyList(),
+    chatWithUser: User,
+    currentUser: String,
+) {
     val listState = rememberLazyListState()
     LaunchedEffect(messages.size) {
         listState.animateScrollToItem(messages.size)
@@ -32,6 +33,7 @@ fun MessageList(
         messages
             .mapIndexedNotNull { index, message ->
                 val nextMessage = messages.getOrNull(index + 1) //index - 1 chỉ lấy tin nhắn đầu
+
                 // kiểm tra xem có phải là tin nhắn cuối cùng của me hoặc other ko
                 val isLastInGroup = nextMessage == null || nextMessage.senderId != message.senderId
                 if (isLastInGroup) message.id else null
@@ -58,7 +60,7 @@ fun MessageList(
             Messageline(
                 message = message,
                 isCurrentUser = message.senderId == currentUser,
-                otherUserId = message.senderId,
+                chatWithUser = chatWithUser,
                 isLastMessage = message.id in showLastMessage
             )
             //line

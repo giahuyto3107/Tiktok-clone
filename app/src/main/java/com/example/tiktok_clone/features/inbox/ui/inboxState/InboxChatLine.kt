@@ -2,6 +2,7 @@ package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,64 +24,72 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.inbox.data.model.Message
+import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
+import com.example.tiktok_clone.features.social.ui.components.toDateString
 
 @Composable
-fun InboxChatItem(
+fun InboxChatLine(
     modifier: Modifier = Modifier,
     chatWith: User,
-    onChatClick: () -> Unit = {}
-){
+    message: Message,
+    currentUserId: String = "",
+    onChatClick: (chatWithId: String) -> Unit = {}
+) {
+    val isMessageNew: Boolean = message.status == MessageStatus.NEW
+    val lastMessageStatus: String =
+        if (message.senderId == currentUserId) {
+            if (isMessageNew)
+                "Đã gửi ${message.timestamp.toDateString()}"
+            else "Đã xem"
+        } else {
+            message.content
+        }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onChatClick() }
+            .padding(horizontal = 14.dp)
+            .clickable { onChatClick(chatWith.id) }
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = modifier
-                .border(
-                    0.2.dp,
-                    Color.LightGray.copy(alpha = 0.5f),
-                    CircleShape
-                )
-                .size(60.dp)
-                .clip(CircleShape),
-        ) {
-            Avatar(
-                avatarUrl = chatWith.avatarUrl,
-                modifier = Modifier
-                    .matchParentSize()
-            )
-        }
+        Avatar(
+            avatarUrl = chatWith.avatarUrl,
+            avatarSize = 60,
+        )
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
                 text = chatWith.userName,
                 maxLines = 1,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
+                fontWeight = if (isMessageNew) FontWeight.Bold else FontWeight.Normal,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
 
             )
             Text(
-                text = "Đã xem",
+                text = lastMessageStatus,
                 maxLines = 1,
-                fontSize = 18.sp,
+                fontSize = 12.sp,
+                lineHeight = 14.sp,
+                fontWeight = if (isMessageNew) FontWeight.Bold else FontWeight.Normal,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
-                color = Color.Gray
+                color = if (isMessageNew) Color.Black else Color.Gray,
             )
         }
         Icon(
             imageVector = Icons.Outlined.CameraAlt,
-            contentDescription = "State",
+            contentDescription = "Send photo",
         )
     }
 }

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,66 +19,75 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.features.social.model.ShareItem
+import com.example.tiktok_clone.features.social.data.model.ShareItem
 
 
 @Composable
 fun ShareActionItem(
-    itemUi: ShareActionUi,
-    onActionClick: (ShareItem) -> Unit
+    modifier: Modifier = Modifier,
+    icon: ImageVector = Icons.Filled.MoreHoriz,
+    iconName: String = "",
+    iconNameSize: Int = 10,
+    iconSize: Int = 24,
+    iconColor: Color = Color.White,
+    isText: Boolean = true,
+    textIcon: String = "",
+    textIconSize: Int = 12,
+    textColor: Color = Color.White,
+    backgroundColor: Color = Color.White,
+    onClick: () -> Unit,
 ) {
     Column(
+        modifier = Modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier
-            .padding(start = 4.dp, end = 4.dp)
-            .clickable {
-            onActionClick(itemUi.action)
-        },
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(55.dp)
-                .border(0.2.dp, Color.LightGray, CircleShape)
                 .clip(CircleShape)
-                .background(itemUi.backgroundColor),
+                .background(backgroundColor)
+                .border(0.3.dp, Color.LightGray, CircleShape)
+                .size(50.dp)
+                .clickable(
+                    onClick = onClick
+                ),
             contentAlignment = Alignment.Center
-        ) {
-            when (val iconStyle = itemUi.iconStyle) {
-                is ShareIconStyle.Vector -> {
-                    Icon(
-                        imageVector = iconStyle.icon,
-                        contentDescription = itemUi.action.title,
-                        tint = itemUi.tint,
-                        modifier = itemUi.modifier
-                            .size(itemUi.iconStyle.size)
-                    )
-                }
-
-                is ShareIconStyle.Letter -> {
-                    Text(
-                        text = iconStyle.text,
-                        fontSize = iconStyle.fontSize,
-                        color = itemUi.tint,
-                        fontWeight = FontWeight.Medium,
-                        modifier = itemUi.modifier
-                    )
-                }
-            }
+        )
+        {
+            if (!isText)
+                Icon(
+                    imageVector = icon,
+                    contentDescription = iconName,
+                    tint = iconColor,
+                    modifier = Modifier
+                        .size(iconSize.dp)
+                        .then(modifier)
+                )
+            else
+                Text(
+                    text = textIcon,
+                    fontSize = textIconSize.sp,
+                    lineHeight = textIconSize.sp,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                )
         }
         Text(
-            text = itemUi.action.title,
-            fontSize = 12.sp,
+            text = iconName,
+            fontSize = iconNameSize.sp,
+            lineHeight = 12.sp,
+            textAlign = TextAlign.Center,
             maxLines = 2,
-            lineHeight = 14.sp,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(55.dp),
-            textAlign = TextAlign.Center
+            color = Color.Black,
+            modifier = Modifier
+                .width(60.dp)
         )
     }
 }

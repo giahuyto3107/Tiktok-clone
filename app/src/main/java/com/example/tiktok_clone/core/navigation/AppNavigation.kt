@@ -214,8 +214,9 @@ fun AppNavigation() {
             )
         }
         composable (route = NavigationRoutes.inboxRoute){
+            val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
             InboxScreen(
-                currentUserId = "u1",
+                currentUserId = currentUserUid,
                 onChatClick = { userId ->
                     navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
                 }
@@ -223,7 +224,7 @@ fun AppNavigation() {
         }
         composable (route = "${NavigationRoutes.inboxRoute}/{userId}"){
             MessageScreen(
-                userId = it.arguments?.getString("userId") ?: "",
+                chatWithId = it.arguments?.getString("userId") ?: "",
                 onBack = { navController.popBackStack() }
             )
         }
@@ -248,8 +249,9 @@ private fun ShopScreenContent() {
 private fun InboxScreenContent(
     onChatClick: (userId: String) -> Unit = {}
 ) {
+    val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     InboxScreen(
-        currentUserId = "u1",
+        currentUserId = currentUserUid,
         onChatClick = onChatClick
     )
 }

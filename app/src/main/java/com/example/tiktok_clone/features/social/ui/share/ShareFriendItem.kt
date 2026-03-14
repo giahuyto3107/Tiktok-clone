@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,82 +26,78 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.data.FollowUserResponse
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.features.social.model.SocialAction
+import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ShareFriendItem(
     onShare: (User) -> Unit,
     friend: User,
-    viewModel: SocialViewModel = viewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
 ) {
-    val selectedFriendShare by viewModel.selectedFriendShare.collectAsState()
+    val selectedFriendShare by socialViewModel.selectedFriendShare.collectAsState()
     val isOnShare = friend.id in selectedFriendShare
 
     Column(
         modifier = Modifier.clickable(onClick = {
             onShare(friend)
-            viewModel.onAction(SocialAction.SelectedFriendShare(friend.id))
+            socialViewModel.onAction(
+                SocialAction.SelectedFriendShare(friend.id)
+            )
         }),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val avatarSize: Int = 50
         Box(
-            modifier = Modifier
+            modifier = Modifier,
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .border(0.2.dp, Color.LightGray, CircleShape)
-                    .size(55.dp)
-                    .clip(CircleShape)
-            ) {
-                Avatar(
-                    avatarUrl = friend.avatarUrl,
-                    modifier = Modifier
-                        .matchParentSize()
-                )
-                if (isOnShare) {
-                    Box(
-                        modifier = Modifier
-                            .size(55.dp)
-                            .background(Color.White.copy(alpha = 0.5f), CircleShape)
-                    )
-                }
-            }
+            Avatar(
+                avatarUrl = friend.avatarUrl,
+                avatarSize = avatarSize,
+            )
             if (isOnShare) {
                 Box(
                     modifier = Modifier
-                        .padding(end = 6.dp, bottom = 6.dp)
-                        .clip(CircleShape)
-                        .background(color = Color.White)
-                        .size(24.dp)
-                        .align(Alignment.BottomEnd)
-                )
-                {
-                    Icon(
-                        imageVector = Icons.Filled.Check,
-                        contentDescription = "Share",
-                        tint = Color.White,
+                        .size(avatarSize.dp)
+                        .background(Color.White.copy(alpha = 0.5f), CircleShape)
+                ) {
+                    Box(
                         modifier = Modifier
-                            .size(20.dp)
                             .clip(CircleShape)
-                            .background(color = RedHeart)
-                            .align(Alignment.Center)
+                            .background(color = Color.White)
+                            .size(20.dp)
+                            .align(Alignment.BottomEnd)
+
                     )
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "Share",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(color = RedHeart)
+                                .align(Alignment.Center)
+                        )
+                    }
                 }
             }
         }
         Text(
             text = friend.userName,
-            fontSize = 12.sp,
+            fontSize = 10.sp,
             color = Color.Black,
             textAlign = TextAlign.Center,
-            modifier = Modifier.width(50.dp),
+            modifier = Modifier.width(65.dp),
             maxLines = 2,
-            lineHeight = 14.sp,
+            lineHeight = 12.sp,
             overflow = TextOverflow.Ellipsis
         )
     }

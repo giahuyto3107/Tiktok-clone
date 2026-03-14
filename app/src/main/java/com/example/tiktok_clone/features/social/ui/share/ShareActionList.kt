@@ -7,21 +7,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.tiktok_clone.features.social.model.ShareCategory
-import com.example.tiktok_clone.features.social.model.ShareItem
+import com.example.tiktok_clone.features.post.data.model.Post
+import com.example.tiktok_clone.features.social.data.PostStateResponse
+import com.example.tiktok_clone.features.social.data.model.User
 
 @Composable
 fun ShareActionList(
-    items: List<ShareItem>,
-    onActionClick: (ShareItem) -> Unit
+    currentPost: Post,
+    currentUser: User?,
+    isShared: Boolean
 ) {
     Column(
         modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+        verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
-        ShareActionRow(items = items, category = ShareCategory.APP, onActionClick)
-        ShareActionRow(items = items, category = ShareCategory.REPORT, onActionClick)
+        ShareActions(
+            currentPost = currentPost,
+            currentUser = currentUser,
+            isShared = isShared
+        )
+        PostOptions(
+            currentPost = currentPost,
+            currentUser = currentUser,
+            isShared = isShared
+        )
     }
 }

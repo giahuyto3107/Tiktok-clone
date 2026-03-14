@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 
 @Composable
@@ -26,35 +27,23 @@ fun InboxFriendItem(
     modifier: Modifier = Modifier,
     friend: User,
     isUser: Boolean = false,
-    onItemClick: () -> Unit = {}
+    onChatClick: (friendId: String) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
-            .width(90.dp)
+            .clickable { onChatClick(friend.id) }
             .then(modifier),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = modifier
-                .border(
-                    0.4.dp,
-                    Color.LightGray.copy(alpha = 0.5f),
-                    CircleShape
-                )
-                .size(80.dp)
-                .clip(CircleShape),
-        ) {
-            Avatar(
-                avatarUrl = friend.avatarUrl,
-                modifier = Modifier
-                    .matchParentSize()
-            )
-        }
+        Avatar(
+            avatarUrl = friend.avatarUrl,
+            avatarSize = 90,
+        )
         Text(
             text = if (isUser) "Quay" else friend.userName,
             maxLines = 1,
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center

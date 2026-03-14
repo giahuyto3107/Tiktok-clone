@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.features.post.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.core.user.domain.repository.UserRepository
@@ -29,7 +30,6 @@ class PostViewModel(
                 type = type,
                 userId = currentUser.getCurrentUser()?.id ?: "0"
             )
-
             result.fold(
                 onSuccess = { isSuccess ->
                     if (isSuccess) {

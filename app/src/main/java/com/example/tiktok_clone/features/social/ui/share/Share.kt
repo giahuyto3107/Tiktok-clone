@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -15,98 +16,79 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.ShareItem
-import com.example.tiktok_clone.features.social.model.ShareSheetMode
-import com.example.tiktok_clone.features.social.model.User
-import com.example.tiktok_clone.features.social.model.SocialAction
+import androidx.media3.common.util.Log
+import com.example.tiktok_clone.features.post.data.model.Post
+import com.example.tiktok_clone.features.social.data.PostStateResponse
+import com.example.tiktok_clone.features.social.data.model.ShareItem
+import com.example.tiktok_clone.features.social.data.model.ShareSheetMode
+import com.example.tiktok_clone.features.social.data.model.User
+import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import org.checkerframework.checker.units.qual.s
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareSheetContent(
-    currentUser: User,
-    viewModel: SocialViewModel = viewModel(),
+    currentPost: Post,
+    currentUser: User?,
+    isShared: Boolean,
+    socialViewModel: SocialViewModel = koinViewModel(),
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     val handleDismiss = {
-        viewModel.onAction(SocialAction.ClearSelectedFriendShare)
+        socialViewModel.onAction(SocialAction.ClearSelectedFriendShare)
         onDismiss()
     }
-    val selectedFriendShare by viewModel.selectedFriendShare.collectAsState()
-    val shareSheetMode by viewModel.shareSheetMode.collectAsState()
-    val shareItems by viewModel.shareItems.collectAsState()
-
+    val selectedFriendShare by socialViewModel.selectedFriendShare.collectAsState()
     ModalBottomSheet(
         onDismissRequest = handleDismiss,
         containerColor = Color.White,
         modifier = Modifier,
         sheetState = sheetState,
-        dragHandle = null //{ BottomSheetDefaults.DragHandle() },
+        dragHandle = null,
     ) {
-
-        when (shareSheetMode) {
-            ShareSheetMode.Default -> {
-                DefaultShareSheet(
-                    currentUser = currentUser,
-                    viewModel = viewModel,
-                    handleDismiss = handleDismiss,
-                    selectedFriendShare = selectedFriendShare.toList(),
-                    shareItems = shareItems
-                )
-            }
-            ShareSheetMode.Report -> {
-                Option(
-                    viewModel = viewModel,
-                    optionType = "report",
-                    onDismiss = viewModel::dismissReportSheet
-                )
-            }
-            ShareSheetMode.NotInterested -> {
-                Option(
-                    viewModel = viewModel,
-                    optionType = "not_interested",
-                    onDismiss = viewModel::dismissReportSheet
-                )
-            }
-            ShareSheetMode.Speed -> {
-                Option(
-                    viewModel = viewModel,
-                    optionType = "speed",
-                    onDismiss = viewModel::dismissReportSheet
-                )
-            }
-        }
+        DefaultShareSheet(
+            currentUser = currentUser,
+            currentPost = currentPost,
+            isShared = isShared,
+            handleDismiss = handleDismiss,
+            selectedFriendShare = selectedFriendShare.toList(),
+        )
     }
 }
 
 @Composable
 fun DefaultShareSheet(
-    currentUser: User,
-    viewModel: SocialViewModel,
+    currentPost: Post,
+    currentUser: User?,
+    isShared: Boolean,
+    socialViewModel: SocialViewModel = koinViewModel(),
     handleDismiss: () -> Unit,
     selectedFriendShare: List<String>,
-    shareItems: List<ShareItem>
-){
+
+    ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         ShareHeader(
-            modifier = Modifier,
+            modifier = Modifier
+                .padding(horizontal = 8.dp),
             onClose = handleDismiss
         )
         ShareFriendList(
-            currentUser = currentUser,
-            viewModel = viewModel
+            socialViewModel = socialViewModel
         )
         Box( //vẽ line
             modifier = Modifier
@@ -120,14 +102,14 @@ fun DefaultShareSheet(
         ) {
             if (selectedFriendShare.isNotEmpty()) {
                 ShareInput(
-                    viewModel = viewModel,
+                    socialViewModel = socialViewModel,
                     selectedFriendShare = selectedFriendShare,
                 )
-            }
-            else{
+            } else {
                 ShareActionList(
-                    items = shareItems,
-                    onActionClick = viewModel::onShareActionClicked
+                    currentUser = currentUser,
+                    currentPost = currentPost,
+                    isShared = isShared
                 )
             }
         }

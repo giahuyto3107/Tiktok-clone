@@ -1,7 +1,7 @@
 package com.example.tiktok_clone.features.user.data
 
 import android.util.Log
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.data.model.User
 
 /**
  * Repository for fetching Firebase user data from the backend.

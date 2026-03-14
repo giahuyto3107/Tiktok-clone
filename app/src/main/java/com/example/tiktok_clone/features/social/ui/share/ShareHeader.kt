@@ -38,8 +38,7 @@ fun ShareHeader(
             showText = false,
             modifier = Modifier
                 .padding(4.dp)
-                .size(24.dp)
-
+                .size(30.dp)
         )
         Text(
             text = "Gửi đến",
@@ -54,7 +53,7 @@ fun ShareHeader(
             showText = false,
             modifier = Modifier
                 .padding(4.dp)
-                .size(24.dp)
+                .size(30.dp)
         )
 
     }
