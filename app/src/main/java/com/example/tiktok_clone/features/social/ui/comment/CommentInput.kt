@@ -13,12 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,12 +30,13 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.post.data.model.Post
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.data.model.SocialAction
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.features.social.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.ui.theme.RedHeart
 import com.example.tiktok_clone.ui.theme.TextPrimaryGray
 import compose.icons.FontAwesomeIcons
@@ -45,85 +45,76 @@ import compose.icons.fontawesomeicons.solid.ArrowUp
 
 @Composable
 fun CommentInput(
-    modifier: Modifier = Modifier,
-    viewModel: SocialViewModel = viewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     post: Post,
-    user: User,
+    currentUser: User?,
     isCommenting: Boolean,
     onCommenting: () -> Unit,
     onDismiss: () -> Unit
 ) {
-
     var commentText by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = Color.White)
-            .then(modifier)
             .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier
                 .background(color = Color.White)
-                .padding(8.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
 
         ) {
+            Avatar(
+                avatarUrl = currentUser?.avatarUrl,
+                avatarSize = 40,
+            )
             Box(
                 modifier = Modifier
-                    .border(0.1.dp, TextPrimaryGray.copy(alpha = 0.5f), CircleShape)
-                    .size(50.dp)
-                    .clip(CircleShape)
-            ) {
-                Avatar(
-                    avatarUrl = user.avatarUrl,
-                    modifier = Modifier
-                        .matchParentSize()
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
                     .background(color = Color.White)
-                    .padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
-                    .heightIn(min = 50.dp)
-
+                    .padding(horizontal = 10.dp)
+                    .heightIn(min = 40.dp),
             ) {
-
-                TextField(
+                BasicTextField(
                     value = commentText,
                     onValueChange = {
                         commentText = it
                         onCommenting()
                     },
                     textStyle = TextStyle(color = Color.Black),
-                    placeholder = {
-                        Text("Thêm bình luận...", color = Color.Gray)
-
+                    decorationBox = { innerTextField ->
+                        Box(contentAlignment = Alignment.CenterStart) {
+                            if (commentText.isEmpty()) {
+                                Text(
+                                    text = "Thêm bình luận...",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp,
+                                    lineHeight = 14.sp
+                                )
+                            }
+                            innerTextField()
+                        }
                     },
-                    shape = RoundedCornerShape(30.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Gray.copy(alpha = 0.1f),
-                        unfocusedContainerColor = Color.Gray.copy(alpha = 0.2f),
-                        disabledContainerColor = Color.Gray.copy(alpha = 0.2f),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                    ),
+                    minLines = 1,
+                    maxLines = 5,
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
+                        .heightIn(45.dp)
+                        .clip(RoundedCornerShape(25.dp))
+                        .background(Color.LightGray.copy(0.5f))
+                        .padding(horizontal = 12.dp, vertical = 10.dp)
                         .onFocusChanged(
                             onFocusChanged = {
                                 if (!it.isFocused) {
                                     onDismiss()
                                 }
                             }
-                        )
+                        ),
                 )
-
-
             }
 
         }
@@ -142,12 +133,17 @@ fun CommentInput(
                 val pushColor =
                     if (commentText.isEmpty()) RedHeart.copy(alpha = 0.6f) else RedHeart
 
-
                 Button(
                     onClick = {
-                            viewModel.onAction(SocialAction.AddComment(post.id.toString(), commentText, user))
-                            commentText = ""
-                            onDismiss()
+                        socialViewModel.onAction(
+                            SocialAction.AddComment(
+                                post.id.toString(),
+                                commentText,
+                                currentUser?.id.toString()
+                            )
+                        )
+                        commentText = ""
+                        onDismiss()
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = pushColor,

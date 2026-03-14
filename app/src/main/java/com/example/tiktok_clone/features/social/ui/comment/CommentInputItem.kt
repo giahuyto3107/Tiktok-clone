@@ -27,10 +27,6 @@ fun CommentInputItem(
             showText = false,
             modifier = Modifier
                 .size(28.dp),
-//                            .graphicsLayer( //phóng to UI element lên 1.2 lần, vì Icons có padding ẩn
-//                                scaleX = 1.2f,
-//                                scaleY = 1.2f
-//                            ),
             onClick = {},
             tint = Color.Black,
             text = "Ảnh"
@@ -49,10 +45,6 @@ fun CommentInputItem(
             showText = false,
             modifier = Modifier
                 .size(28.dp),
-//                            .graphicsLayer(
-//                                scaleX = 1.2f,
-//                                scaleY = 1.2f
-//                            ),
             onClick = {},
             tint = Color.Black,
             text = "tag"

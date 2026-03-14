@@ -1,15 +1,26 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowRightAlt
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.More
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.ArrowRightAlt
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Icon
@@ -21,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.dimensionResource
@@ -49,30 +61,11 @@ fun CommentHeader(
     modifier: Modifier = Modifier
 ) {
     var isSort by remember { mutableStateOf(false) }
-
-    val inLineContent = mapOf(
-        "searchIcon" to InlineTextContent(
-            Placeholder(
-                width = 16.sp,
-                height = 16.sp,
-                placeholderVerticalAlign = PlaceholderVerticalAlign
-                    .AboveBaseline //căn đáy của vật thể nằm khớp trên đường chân chữ (baseline) để không bị lún xuống phần đuôi của các ký tự có nét móc dưới.
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                tint = TextPrimaryBlue,
-                contentDescription = "search"
-            )
-        }
-    )
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 4.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .then(modifier),
-        //horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier
@@ -81,34 +74,42 @@ fun CommentHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = buildAnnotatedString {
-                    append("Tìm kiếm: ")
-                    withStyle(
-                        style = SpanStyle(color = TextPrimaryBlue)
-                    ) {
-                        append(search)
-                    }
-                    appendInlineContent("searchIcon", "[icon]")
-                },
-                inlineContent = inLineContent,
-                fontWeight = FontWeight.Bold,
-                fontSize = dimensionResource(dimen.font_xl).value.sp,
-                modifier = Modifier.padding(4.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Bottom),
+            Row(
+            ) {
+                Text(
+                    text = "Tìm kiếm: ",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = dimensionResource(dimen.font_s).value.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = search,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = dimensionResource(dimen.font_s).value.sp,
+                    color = TextPrimaryBlue
+                )
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    tint = TextPrimaryBlue,
+                    contentDescription = "search",
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Row(
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.spacedBy(25.dp),
+                verticalAlignment = Alignment.CenterVertically
 
-                ) {
-                Row(
-                    modifier = Modifier,
-                    horizontalArrangement = Arrangement.spacedBy(15.dp),
-                    verticalAlignment = Alignment.CenterVertically
-
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            isSort = !isSort
+                        },
+                    contentAlignment = Alignment.Center,
                 ) {
                     CommentItem(
-                        icon = FontAwesomeIcons.Solid.SortAmountDownAlt,
+                        icon = Icons.AutoMirrored.Filled.Notes,
                         onClick = {
                             isSort = !isSort
                         },
@@ -116,36 +117,46 @@ fun CommentHeader(
                         showText = false,
                         tint = Color.Black,
                         modifier = Modifier
-                            .size(16.dp)
-                            .graphicsLayer(
-                                scaleX = -1f
-                            )
+                            .size(20.dp)
                     )
                     CommentItem(
-                        icon = Icons.Outlined.Close,
-                        onClick = onClose,
-                        text = "Đóng",
-                        tint = Color.Black,
+                        icon = Icons.AutoMirrored.Filled.ArrowRightAlt,
+                        onClick = {
+                            isSort = !isSort
+                        },
+                        text = "Sắp xếp",
                         showText = false,
+                        tint = Color.Black,
                         modifier = Modifier
-                            .padding(4.dp)
-                            .size(24.dp)
+                            .rotate(90f)
+                            .offset(y = - 10.dp)
+                            .size(22.dp)
 
                     )
                 }
+                CommentItem(
+                    icon = Icons.Outlined.Close,
+                    onClick = onClose,
+                    text = "Đóng",
+                    tint = Color.Black,
+                    showText = false,
+                    modifier = Modifier
+                        .size(24.dp)
+
+                )
             }
+
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Text(
                 text = "${formatCount(commentCount)} bình luận",
                 modifier = Modifier.padding(4.dp),
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
+                fontSize = dimensionResource(dimen.font_s).value.sp,
                 color = Color.Black
             )
         }
