@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.Icon
@@ -25,16 +25,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.ui.theme.GrayBackground
-import compose.icons.FontAwesomeIcons
-import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.ArrowLeft
 
 @Composable
 fun MessageHead(
-    user: User,
+    chatWithUser: User,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
 ) {
@@ -51,30 +48,19 @@ fun MessageHead(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Icon(
-                imageVector = FontAwesomeIcons.Solid.ArrowLeft,
+                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = "Back",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(32.dp)
                     .clickable(onClick = onBack)
             )
-            Box(
-                modifier = modifier
-                    .border(
-                        0.2.dp,
-                        Color.LightGray.copy(alpha = 0.5f),
-                        CircleShape
-                    )
-                    .size(50.dp)
-                    .clip(CircleShape),
-            ) {
-                Avatar(
-                    avatarUrl = user.avatarUrl,
-                    modifier = Modifier.matchParentSize()
-                )
-            }
+            Avatar(
+                avatarUrl = chatWithUser.avatarUrl,
+                avatarSize = 40,
+            )
             Text(
-                text = user.userName,
-                fontSize = 20.sp,
+                text = chatWithUser.userName,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
             )
         }

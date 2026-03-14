@@ -9,39 +9,55 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.model.User
+import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.google.firebase.auth.FirebaseAuth
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MessageScreen(
     modifier: Modifier = Modifier,
-    userId: String,
+    chatWithId: String,
     onBack: () -> Unit = {}
-
 ) {
-    val socialViewModel: SocialViewModel = viewModel()
-    val currentUser = socialViewModel.getUser(userId)
+    val inboxViewModel: InboxViewModel = koinViewModel()
+    val socialViewModel: SocialViewModel = koinViewModel()
+    val messages by inboxViewModel.messages.collectAsState()
+    val chatWithUser = socialViewModel.getUser(chatWithId)
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    LaunchedEffect(chatWithId) {
+        inboxViewModel.loadMessages(chatWithId)
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
             .imePadding(),
     ) {
-        MessageHead(user = currentUser, onBack = onBack)
+        MessageHead(chatWithUser = chatWithUser, onBack = onBack)
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.LightGray)
                 .size(0.5.dp)
         )
-        MessageList(modifier = Modifier.weight(1f))
-        MessageBottom()
+        MessageList(
+            modifier = Modifier.weight(1f),
+            messages = messages,
+            chatWithUser = chatWithUser,
+            currentUser = currentUserId,
+        )
+        MessageBottom(
+            otherUid = chatWithId,
+            onSend = { text -> inboxViewModel.sendTextMessage(chatWithId, text) },
+        )
     }
 }
-

@@ -1,5 +1,6 @@
 package com.example.tiktok_clone.features.inbox.ui.chatState
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,25 +28,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.tiktok_clone.features.inbox.model.Message
-import com.example.tiktok_clone.features.inbox.model.MessageStatus
-import com.example.tiktok_clone.features.inbox.model.MessageType
+import com.example.tiktok_clone.features.inbox.data.model.Message
+import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
+import com.example.tiktok_clone.features.inbox.data.model.MessageType
+import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.TextPrimaryBlue
 
 @Composable
 fun Messageline(
     message: Message,
     isCurrentUser: Boolean,
-    otherUserId: String,
+    chatWithUser: User,
     isLastMessage: Boolean
 ) {
-    val viewModel: SocialViewModel = viewModel()
-    val user = viewModel.getUser(otherUserId)
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isCurrentUser) Arrangement.End else Arrangement.Start,
@@ -53,20 +50,13 @@ fun Messageline(
     ) {
         if (!isCurrentUser) {
             if (isLastMessage) {
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape),
-                ) {
-                    Avatar(
-                        avatarUrl = user.avatarUrl,
-                        modifier = Modifier.matchParentSize()
-                    )
-                }
-            }
-            else Spacer(modifier = Modifier.width(50.dp))
+                Avatar(
+                    avatarUrl = chatWithUser.avatarUrl,
+                    avatarSize = 30,
+                )
+            } else Spacer(modifier = Modifier.width(30.dp))
         }
-        Spacer(modifier = Modifier.width(8.dp)) // ← thay thế spacedBy
+        Spacer(modifier = Modifier.width(8.dp))
         MessageContent(message, isCurrentUser, isLastMessage)
     }
 }
@@ -77,8 +67,9 @@ private fun MessageContent(
     isCurrentUser: Boolean,
     isLastMessage: Boolean
 ) {
+    Log.d("MessageContent", "MessageContent: ${message.type}")
     when (message.type) {
-        MessageType.TEXT -> TextContent(message, isCurrentUser,isLastMessage )
+        MessageType.TEXT -> TextContent(message, isCurrentUser, isLastMessage)
         MessageType.IMAGE -> ImageContent(message, isCurrentUser)
         MessageType.VIDEO -> VideoContent(message, isCurrentUser)
     }
@@ -89,24 +80,23 @@ private fun TextContent(message: Message, isCurrentUser: Boolean, isLastMessage:
     Box(
         modifier = Modifier
             .wrapContentWidth()        // ← co lại theo content
-            .widthIn(max = 320.dp)
+            .widthIn(max = 315.dp)
             .clip(
                 if (isLastMessage)
-                RoundedCornerShape(
-                    8.dp,
-                    8.dp,
-                    if (isCurrentUser) 0.dp else 8.dp,
-                    if (isCurrentUser) 8.dp else 0.dp
-                )
-                else RoundedCornerShape(8.dp)
+                    RoundedCornerShape(
+                        15.dp,
+                        15.dp,
+                        if (isCurrentUser) 0.dp else 15.dp,
+                        if (isCurrentUser) 15.dp else 0.dp
+                    )
+                else RoundedCornerShape(15.dp)
             )
             .background(if (isCurrentUser) TextPrimaryBlue else Color.White)
-            .padding(16.dp)
+            .padding(horizontal = 10.dp, vertical = 8.dp)
     ) {
         Text(
             text = message.content,
-            fontSize = 20.sp,
-            lineHeight = 30.sp,
+            fontSize = 14.sp,
             color = if (isCurrentUser) Color.White else Color.Black,
             modifier = Modifier
         )
@@ -126,8 +116,6 @@ private fun ImageContent(message: Message, isCurrentUser: Boolean) {
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-
-        // Trạng thái đang gửi
         if (message.status == MessageStatus.SENDING) {
             Box(
                 modifier = Modifier
