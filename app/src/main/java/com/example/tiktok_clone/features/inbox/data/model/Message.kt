@@ -12,4 +12,4 @@ data class Message(
 )
 
 enum class MessageType { TEXT, IMAGE, VIDEO }
-enum class MessageStatus { SENDING, SENT, DELIVERED, SEEN }
+enum class MessageStatus { SENDING, SENT, DELIVERED, SEEN, NEW }

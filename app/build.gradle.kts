@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
 
     implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.ui.geometry)
 
     // 1. Java 8+ API desugaring support (Required for older Android versions)
 

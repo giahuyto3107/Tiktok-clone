@@ -2,6 +2,7 @@ package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.features.inbox.model.MessageStatus
 import com.example.tiktok_clone.features.social.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 
@@ -30,11 +32,13 @@ import com.example.tiktok_clone.features.social.ui.components.Avatar
 fun InboxChatItem(
     modifier: Modifier = Modifier,
     chatWith: User,
+    messageStatus: MessageStatus,
     onChatClick: () -> Unit = {}
 ){
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 14.dp)
             .clickable { onChatClick() }
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically
@@ -59,12 +63,14 @@ fun InboxChatItem(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
                 text = chatWith.userName,
                 maxLines = 1,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
+                fontWeight = if( messageStatus == MessageStatus.NEW) FontWeight.Bold else FontWeight.Normal,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
 
@@ -72,7 +78,9 @@ fun InboxChatItem(
             Text(
                 text = "Đã xem",
                 maxLines = 1,
-                fontSize = 18.sp,
+                fontSize = 12.sp,
+                lineHeight = 14.sp,
+                fontWeight = if( messageStatus == MessageStatus.NEW) FontWeight.Bold else FontWeight.Normal,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
                 color = Color.Gray
@@ -80,7 +88,7 @@ fun InboxChatItem(
         }
         Icon(
             imageVector = Icons.Outlined.CameraAlt,
-            contentDescription = "State",
+            contentDescription = "Send photo",
         )
     }
 }
