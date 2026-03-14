@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.model
+package com.example.tiktok_clone.features.social.data.model
 
 sealed interface SocialAction{
     data class Like(val postId: String): SocialAction
@@ -11,9 +11,9 @@ sealed interface SocialAction{
     data class SelectedFriendShare(val friendId: String): SocialAction
 
     data object ClearSelectedFriendShare: SocialAction
+    data class Refetch(val postId: String): SocialAction
 
-
-    data class AddComment(val postId: String, val commentText: String, val author: User): SocialAction
+    data class AddComment(val postId: String, val commentText: String, val userId: String): SocialAction
     data object DismissReportSheet: SocialAction
     data object OpenReportOption: SocialAction
 

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.model
+package com.example.tiktok_clone.features.social.data.model
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color

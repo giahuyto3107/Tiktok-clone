@@ -1,9 +1,9 @@
-package com.example.tiktok_clone.features.social.model
+package com.example.tiktok_clone.features.social.data.model
 
 data class Comment(
     val id: String,
     val postId: String,
-    val author: User,
+    val userId: String,
 
     val content: String,
 
