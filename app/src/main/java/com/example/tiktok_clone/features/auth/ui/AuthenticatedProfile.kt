@@ -1,5 +1,7 @@
 package com.example.tiktok_clone.features.auth.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -25,26 +27,43 @@ fun AuthenticatedProfile(
     val currentUser = profileViewModel.getProfileData()
     val displayName = currentUser?.displayName ?: "Người dùng TikTok"
     val email = currentUser?.email ?: "Chưa có email"
-    val photoUrl = currentUser?.avtPhotoUrl ?: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+    val photoUrl = currentUser?.avtPhotoUrl
+        ?: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = 60.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 60.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 1. Ảnh đại diện
         AsyncImage(
             model = photoUrl,
             contentDescription = "Avatar",
-            modifier = Modifier.size(100.dp).clip(CircleShape),
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .border(0.5.dp, Color.LightGray, CircleShape),
             contentScale = ContentScale.Crop
         )
 
         // 2. Tên và Email
-        Text(text = "@${displayName.replace(" ", "_").lowercase()}", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(top = 12.dp))
+        Text(
+            text = "@${displayName.replace(" ", "_").lowercase()}",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier.padding(top = 12.dp),
+            color = Color.Black
+        )
         Text(text = email, fontSize = 14.sp, color = Color.Gray)
 
         // 3. Chỉ số (Following, Followers, Likes)
-        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp), horizontalArrangement = Arrangement.Center) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
             ProfileStat("128", "Đang follow")
             ProfileStat("1.2M", "Follower")
             ProfileStat("10.5M", "Thích")
@@ -52,14 +71,22 @@ fun AuthenticatedProfile(
 
         // 4. Nút chức năng
         Row(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Button(onClick = { /* Edit profile */ }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE9E9E9)), modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = { /* Edit profile */ },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE9E9E9)),
+                modifier = Modifier.weight(1f)
+            ) {
                 Text("Sửa hồ sơ", color = Color.Black)
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-                FirebaseAuth.getInstance().signOut()
-                onLogout()
-            }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red), modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    onLogout()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                modifier = Modifier.weight(1f)
+            ) {
                 Text("Đăng xuất", color = Color.White)
             }
         }
@@ -68,7 +95,10 @@ fun AuthenticatedProfile(
 
 @Composable
 fun ProfileStat(value: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 15.dp)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 15.dp)
+    ) {
         Text(text = value, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Text(text = label, color = Color.Gray, fontSize = 12.sp)
     }
