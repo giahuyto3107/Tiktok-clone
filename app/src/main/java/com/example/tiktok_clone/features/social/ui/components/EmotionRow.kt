@@ -22,31 +22,28 @@ import com.example.tiktok_clone.ui.theme.GrayIcon
 @Composable
 fun EmotionRow(
     onSelect: (String) -> Unit
-){
-    val emotions: List<String> = listOf("👍", "❤️", "😂", "😮", "😢", "😡","😎")
+) {
+    val emotions: List<String> = listOf("👍", "❤️", "😂", "😮", "😢", "😡", "😎")
     LazyRow(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 14.dp, end = 14.dp)
-        ,
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
-            items(emotions.size) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(30.dp))
-                        .background(Color.LightGray.copy(0.4f))
-                        .padding(horizontal = 15.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = emotion,
-                        fontSize = 16.sp,
-                        modifier = Modifier
-                            .clickable { onSelect(emotion) },
-                    )
-                }
+        items(emotions.size) {index->
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(30.dp))
+                    .background(Color.LightGray.copy(0.4f))
+                    .padding(horizontal = 15.dp, vertical = 3.dp)
+                    .clickable{onSelect(emotions[index])}
+            ) {
+                Text(
+                    text = emotions[index],
+                    fontSize = 16.sp,
+                )
             }
-        
+        }
+
     }
 }
