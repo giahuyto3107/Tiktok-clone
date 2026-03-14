@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.model
+package com.example.tiktok_clone.features.inbox.data.model
 
 // Message.kt - Data model
 data class Message(
