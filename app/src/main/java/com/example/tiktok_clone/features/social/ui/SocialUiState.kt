@@ -17,9 +17,6 @@ data class SocialUiState(
 
     val apps: List<App> = emptyList(),
 
-    val shareActions: List<ShareItem> = emptyList(),
-
-
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
 
