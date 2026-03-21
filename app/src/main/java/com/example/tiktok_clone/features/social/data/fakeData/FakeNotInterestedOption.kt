@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.fakeData
+package com.example.tiktok_clone.features.social.data.fakeData
 
 import com.example.tiktok_clone.features.social.data.model.ReasonOption
 
