@@ -18,4 +18,10 @@ object NavigationRoutes {
     const val cameraAccessRoute = "camera_access"
     const val prePostScreenRoute = "pre_post_screen/{mediaUri}/{postType}"
     const val inboxRoute = "inbox"
+
+    // Notifications
+    const val notificationSocialRoute = "notification/social"
+    const val notificationUserRoute = "notification/user"
+    // Backward-compat: giữ alias để các chỗ chưa kịp cập nhật vẫn trỏ sang social.
+    const val notificationRoute = notificationSocialRoute
 }

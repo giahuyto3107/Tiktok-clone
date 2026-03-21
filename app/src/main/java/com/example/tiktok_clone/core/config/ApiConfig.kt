@@ -25,11 +25,16 @@ object ApiConfig {
     // Auto-detect environment (optional)
     fun getBaseUrl(): String {
         return when {
-            // You can add logic here to auto-detect environment
             BuildConfig.DEBUG -> BASE_URL
             else -> PRODUCTION
         }
     }
+
+    // WebSocket base URL: http → ws, https → wss
+    fun getWsBaseUrl(): String =
+        getBaseUrl()
+            .replace("https://", "wss://")
+            .replace("http://", "ws://")
 }
 
 /**

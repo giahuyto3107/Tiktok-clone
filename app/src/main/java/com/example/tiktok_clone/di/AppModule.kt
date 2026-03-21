@@ -2,9 +2,9 @@ package com.example.tiktok_clone.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import com.example.tiktok_clone.BuildConfig
 import com.example.tiktok_clone.core.config.ApiConfig
+import com.example.tiktok_clone.core.network.RealtimeWebSocketClient
 import com.example.tiktok_clone.features.inbox.data.InboxApiService
 import com.example.tiktok_clone.features.inbox.data.InboxRepository
 import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
@@ -28,45 +28,27 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 val appModule = module {
-    // SharedPreferences example
+
     single<SharedPreferences> {
         androidContext().getSharedPreferences("tiktok_prefs", Context.MODE_PRIVATE)
     }
-    single { SocialRepository(get()) }
-    viewModel { SocialViewModel(get(), get()) }
-    single {
+
+    // OkHttpClient singleton — dùng cho cả Retrofit và WebSocket
+    single<OkHttpClient> {
         val logging = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+                    else HttpLoggingInterceptor.Level.NONE
         }
-
-        // ❌ Code cũ (chỉ log, không gắn Authorization)
-        // val okHttpClient = OkHttpClient.Builder()
-        //     .addInterceptor(logging)
-        //     .build()
-        //
-        // Retrofit.Builder()
-        //     .baseUrl(ApiConfig.getBaseUrl())  // Use centralized config
-        //     .client(okHttpClient)
-        //     .addConverterFactory(GsonConverterFactory.create())
-        //     .build()
-
-        // ✅ Code mới: gắn Firebase ID token vào Authorization header
         val auth = FirebaseAuth.getInstance()
-        val okHttpClient = OkHttpClient.Builder()
+        OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val user = auth.currentUser
                 val token: String? = if (user != null) {
                     runBlocking {
                         try {
-                            // ✅ false = dùng cache, Firebase tự refresh khi gần hết hạn
                             user.getIdToken(false).await().token
-                        } catch (e: Exception) {
-                            try {
-                                // Fallback: force refresh nếu cache fail
-                                user.getIdToken(true).await().token
-                            } catch (e2: Exception) {
-                                null
-                            }
+                        } catch (_: Exception) {
+                            try { user.getIdToken(true).await().token } catch (_: Exception) { null }
                         }
                     }
                 } else null
@@ -75,59 +57,35 @@ val appModule = module {
                     chain.request().newBuilder()
                         .header("Authorization", "Bearer $token")
                         .build()
-                } else {
-                    chain.request()
-                }
+                } else chain.request()
+
                 chain.proceed(request)
             }
             .addInterceptor(logging)
             .build()
+    }
 
+    single<Retrofit> {
         Retrofit.Builder()
-            .baseUrl(ApiConfig.getBaseUrl())  // Use centralized config
-            .client(okHttpClient)
+            .baseUrl(ApiConfig.getBaseUrl())
+            .client(get())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
-    single<PostApiService> {
-        get<Retrofit>().create(PostApiService::class.java)
-    }
+    single<PostApiService> { get<Retrofit>().create(PostApiService::class.java) }
+    single { UploadRepository(androidContext(), get()) }
 
-    single {
-        UploadRepository(androidContext(), get())
-    }
+    single<UserApiService> { get<Retrofit>().create(UserApiService::class.java) }
+    single { UserRepository(get()) }
 
-    single<UserApiService> {
-        get<Retrofit>().create(UserApiService::class.java)
-    }
+    single<SocialApiService> { get<Retrofit>().create(SocialApiService::class.java) }
+    single { SocialRepository(get()) }
+    viewModel { SocialViewModel(get(), get(), get()) }
 
-    single {
-        UserRepository(get())
-    }
+    single<InboxApiService> { get<Retrofit>().create(InboxApiService::class.java) }
+    single { InboxRepository(get()) }
+    viewModel { InboxViewModel(get(), get()) }
 
-    single<SocialApiService> {
-        get<Retrofit>().create(SocialApiService::class.java)
-    }
-
-    single<InboxApiService> {
-        get<Retrofit>().create(InboxApiService::class.java)
-    }
-
-    single {
-        InboxRepository(get())
-    }
-
-    single {
-        PostViewModel(get(), get())
-    }
-    viewModel {
-        InboxViewModel(get())
-    }
-    
-    // Add other app-level singletons here:
-    // single { NetworkUtils() }
-    // single { DatabaseHelper(get()) }
-    // single { ApiClient() }
+    single { PostViewModel(get(), get()) }
 }
-

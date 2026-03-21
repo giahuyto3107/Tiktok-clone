@@ -7,6 +7,8 @@ data class Comment(
 
     val content: String,
 
+    val imageUri: String? = null,
+
     val likeCount: Long = 0,
     val isLiked: Boolean = false,
 

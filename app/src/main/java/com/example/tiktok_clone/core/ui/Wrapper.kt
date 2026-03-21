@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.core.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.ForwardToInbox
+import androidx.compose.material.icons.automirrored.outlined.Chat
+import androidx.compose.material.icons.automirrored.outlined.Comment
+import androidx.compose.material.icons.automirrored.outlined.ForwardToInbox
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Mail
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Mail
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.ShoppingBasket
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -66,21 +83,24 @@ private fun BottomNavigationBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = dimensionResource(R.dimen.spacing_m),
-                bottom = dimensionResource(R.dimen.spacing_m)),
+            .background(color = if (selectedIndex == 0) Color.Black else Color.White)
+            .padding(
+                horizontal = dimensionResource(R.dimen.spacing_m),
+                vertical = dimensionResource(R.dimen.spacing_xs)
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
         BottomNavigationItem(
             name = "Home",
-            icon = FontAwesomeIcons.Solid.Home,
+            icon = if (selectedIndex == 0) Icons.Filled.Home else Icons.Outlined.Home,
             isSelected = selectedIndex == 0,
             onTap = { onTapSelected(0) }
         )
 
         BottomNavigationItem(
             name = "Shop",
-            icon = FontAwesomeIcons.Solid.ShoppingBag,
+            icon = if (selectedIndex == 1) Icons.Filled.ShoppingBasket else Icons.Outlined.ShoppingBasket,
             isSelected = selectedIndex == 1,
             onTap = { onTapSelected(1) }
         )
@@ -96,14 +116,14 @@ private fun BottomNavigationBar(
 
         BottomNavigationItem(
             name = "Inbox",
-            icon = FontAwesomeIcons.Solid.Envelope,
+            icon = if (selectedIndex == 3) Icons.Filled.Mail else Icons.Outlined.Mail,
             isSelected = selectedIndex == 3,
             onTap = { onTapSelected(3) }
         )
 
         BottomNavigationItem(
             name = "Profile",
-            icon = FontAwesomeIcons.Solid.User,
+            icon = if (selectedIndex == 4) Icons.Filled.Person else Icons.Outlined.Person,
             isSelected = selectedIndex == 4,
             onTap = { onTapSelected(4) }
         )
@@ -126,13 +146,29 @@ private fun BottomNavigationItem(
         Icon(
             imageVector = icon,
             contentDescription = name,
-            tint = if (isSelected) colorResource(R.color.text_on_dark) else colorResource(R.color.text_secondary),
+            tint = if (isSelected && name == "Home")
+                colorResource(
+                    R.color.text_on_dark
+                )
+            else if (isSelected)
+                colorResource(
+                    R.color.text_on_light
+                )
+            else colorResource(
+                R.color.text_secondary
+            ),
             modifier = Modifier.size(size = dimensionResource(R.dimen.font_title_m))
         )
 
         Text(
             name,
-            color = if (isSelected) colorResource(R.color.text_on_dark) else colorResource(R.color.text_secondary),
+            color = if (isSelected && name == "Home")
+                colorResource(
+                    R.color.text_on_dark
+                )
+            else colorResource(
+                R.color.text_secondary
+            ),
             style = MaterialTheme.typography.labelSmall,
         )
     }

@@ -3,10 +3,10 @@ package com.example.tiktok_clone.features.home.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Reply
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Pending
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,13 +22,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -39,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.media3.common.util.Log
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.data.PostStateResponse
 import com.example.tiktok_clone.features.social.data.model.SocialAction
@@ -50,8 +47,12 @@ import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.example.tiktok_clone.ui.theme.RedHeart
-import com.example.tiktok_clone.ui.theme.YellowSave
+import com.example.tiktok_clone.ui.theme.TikTokRed
+import com.example.tiktok_clone.ui.theme.TikTokYellow
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.Check
+import compose.icons.fontawesomeicons.solid.Plus
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,9 +75,8 @@ fun MiddleSection(
     val shareCount = thisPostState?.shareCount?.toLong() ?: 0L
     val isShared = thisPostState?.isShared == true
 
-    var isFollowing by remember(author.id) {
-        mutableStateOf(socialViewModel.isFollowing(author.id))
-    }
+    val following by socialViewModel.following.collectAsState()
+    val isFollowing = following.contains(author.id)
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
 
@@ -86,11 +86,12 @@ fun MiddleSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        // Follow
         AuthorSection(
             avtarUrl = author.avatarUrl,
             isFollowing = isFollowing,
+            isCanFollow = currentUser?.id != author.id,
             onClick = {
-                isFollowing = !isFollowing
                 socialViewModel.onAction(
                     SocialAction
                         .Follow(currentUser?.id.toString(), author.id)
@@ -100,12 +101,12 @@ fun MiddleSection(
         // Like
         MainInteractiveItem(
             icon = Icons.Filled.Favorite,
-            tint = if (isLiked) RedHeart else Color.White.copy(alpha = 0.9f),
+            tint = if (isLiked) TikTokRed else Color.White.copy(alpha = 0.9f),
             name = "Like",
             numberOfInteraction = likeCount,
             onClick = {
                 socialViewModel.onAction(
-                    SocialAction.Like(
+                    SocialAction.LikePost(
                         postId = currentPost.id.toString(),
                     )
                 )
@@ -132,12 +133,12 @@ fun MiddleSection(
         // Save
         MainInteractiveItem(
             icon = Icons.Filled.Bookmark,
-            tint = if (isSaved) YellowSave else Color.White.copy(alpha = 0.9f),
+            tint = if (isSaved) TikTokYellow else Color.White.copy(alpha = 0.9f),
             name = "Save",
             numberOfInteraction = saveCount,
             onClick = {
                 socialViewModel.onAction(
-                    SocialAction.Save(currentPost.id.toString())
+                    SocialAction.SavePost(currentPost.id.toString())
                 )
             }
         )
@@ -178,10 +179,12 @@ fun OpenComment(
     Column(
         modifier = Modifier
             .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
                 onClick = {
                     onComment(true)
                     socialViewModel.onAction(
-                        SocialAction.Comment(currentPost.id.toString())
+                        SocialAction.LoadComment(currentPost.id.toString()) //load comment
                     )
                 }
             ),
@@ -226,7 +229,6 @@ fun OpenComment(
     }
 }
 
-
 @Composable
 fun MainInteractiveItem(
     modifier: Modifier = Modifier,
@@ -246,7 +248,11 @@ fun MainInteractiveItem(
             tint = tint,
             modifier = Modifier
                 .size(size = 40.dp)
-                .clickable(onClick = onClick)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onClick
+                )
                 .then(modifier)
 
         )
@@ -262,10 +268,11 @@ fun MainInteractiveItem(
 
 @Composable
 fun AuthorSection(
+    modifier: Modifier = Modifier,
     avtarUrl: String?,
     isFollowing: Boolean,
+    isCanFollow: Boolean = true,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = Modifier
@@ -276,26 +283,28 @@ fun AuthorSection(
             avatarUrl = avtarUrl ?: "",
             avatarSize = 45,
         )
-        Box(
-            modifier = Modifier
-                .padding(top = 40.dp)
-                .background(
-                    if (isFollowing) Color.White else RedHeart,
-                    CircleShape
-                )
-                .clickable(onClick = onClick)
-                .size(22.dp),
-            contentAlignment = Alignment.Center
-
-        ) {
-            Icon(
-                imageVector = if (isFollowing) Icons.Filled.Check else Icons.Filled.Add,
-                contentDescription = "Follow",
-                tint = if (isFollowing) RedHeart else Color.White,
+        if (isCanFollow) {
+            Box(
                 modifier = Modifier
-                    .size(20.dp)
+                    .padding(top = 40.dp)
+                    .background(
+                        if (isFollowing) Color.White else TikTokRed,
+                        CircleShape
+                    )
+                    .clickable(onClick = onClick)
+                    .size(22.dp),
+                contentAlignment = Alignment.Center
 
-            )
+            ) {
+                Icon(
+                    imageVector = if (isFollowing) FontAwesomeIcons.Solid.Check else FontAwesomeIcons.Solid.Plus,
+                    contentDescription = "Follow",
+                    tint = if (isFollowing) TikTokRed else Color.White,
+                    modifier = Modifier
+                        .size(12.dp)
+
+                )
+            }
         }
     }
 }

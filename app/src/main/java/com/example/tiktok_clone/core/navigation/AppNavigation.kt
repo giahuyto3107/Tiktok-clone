@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.core.navigation
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import com.example.tiktok_clone.features.profile.ui.ProfileScreen
 import com.example.tiktok_clone.features.search.ui.SearchResultScreen
 import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
+import com.example.tiktok_clone.features.social.ui.notification.Notification
 
 import com.google.firebase.auth.FirebaseAuth
 
@@ -68,7 +70,13 @@ fun AppNavigation() {
                     3 -> InboxScreenContent(
                         onChatClick = { userId ->
                             navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
-                        }
+                        },
+                        onUserNotificationClick = {
+                            navController.navigate(NavigationRoutes.notificationUserRoute)
+                        },
+                        onSocialNotificationClick = {
+                            navController.navigate(NavigationRoutes.notificationSocialRoute)
+                        },
                     )
                     4 -> ProfileScreenContent(
                         onLoginClick = {
@@ -214,12 +222,16 @@ fun AppNavigation() {
             )
         }
         composable (route = NavigationRoutes.inboxRoute){
-            val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
             InboxScreen(
-                currentUserId = currentUserUid,
                 onChatClick = { userId ->
                     navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
-                }
+                },
+                onUserNotificationClick = {
+                    navController.navigate(NavigationRoutes.notificationUserRoute)
+                },
+                onSocialNotificationClick = {
+                    navController.navigate(NavigationRoutes.notificationSocialRoute)
+                },
             )
         }
         composable (route = "${NavigationRoutes.inboxRoute}/{userId}"){
@@ -228,6 +240,19 @@ fun AppNavigation() {
                 onBack = { navController.popBackStack() }
             )
         }
+        composable(route = NavigationRoutes.notificationSocialRoute){
+            Notification(
+                notificationType = "social",
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(route = NavigationRoutes.notificationUserRoute){
+            Notification(
+                notificationType = "user",
+                onBack = { navController.popBackStack() }
+            )
+        }
+
     }
 }
 
@@ -247,12 +272,14 @@ private fun ShopScreenContent() {
 
 @Composable
 private fun InboxScreenContent(
-    onChatClick: (userId: String) -> Unit = {}
+    onChatClick: (userId: String) -> Unit = {},
+    onUserNotificationClick: () -> Unit = {},
+    onSocialNotificationClick: () -> Unit = {},
 ) {
-    val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     InboxScreen(
-        currentUserId = currentUserUid,
-        onChatClick = onChatClick
+        onChatClick = onChatClick,
+        onUserNotificationClick = onUserNotificationClick,
+        onSocialNotificationClick = onSocialNotificationClick,
     )
 }
 

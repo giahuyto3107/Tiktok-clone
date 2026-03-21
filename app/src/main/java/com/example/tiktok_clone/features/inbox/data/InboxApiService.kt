@@ -57,7 +57,7 @@ interface InboxApiService {
     suspend fun uploadMessage(
         @Path("otherUid") otherUid: String,
         @Part file: MultipartBody.Part,
-        @Part("type") type: RequestBody,
+        @Part("type") type: RequestBody?,
         @Part("content") content: RequestBody?,
     ): MessageDto
 }
@@ -85,6 +85,7 @@ data class MessageDto(
     val type: String = "TEXT",
     val status: String = "SENT",
     val imageUri: String? = null,
+    val receiptStatus: String? = null,
 )
 
 data class MessagesResponse(
