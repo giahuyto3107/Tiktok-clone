@@ -175,6 +175,7 @@ fun LoginSelectionScreen(
                 )
             }
 
+
             // --- LỚP PHỦ LOADING (Hiện lên khi isAuthenticating = true) ---
             if (isAuthenticating) {
                 Surface(

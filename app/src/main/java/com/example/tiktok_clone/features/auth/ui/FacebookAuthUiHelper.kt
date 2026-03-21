@@ -11,6 +11,7 @@ import kotlinx.coroutines.tasks.await
 class FacebookAuthUiHelper {
     private val auth = FirebaseAuth.getInstance()
 
+
     suspend fun signInWithFacebookCredential(accessToken: AccessToken): Result<AuthResult> {
         return try {
             val credential = FacebookAuthProvider.getCredential(accessToken.token)
