@@ -22,6 +22,23 @@ class InboxRepository(
         return res.messages.map { it.toMessage() }
     }
 
+    data class MessagesPage(
+        val messages: List<Message>,
+        val total: Int,
+    )
+
+    suspend fun getMessagesPage(
+        chatId: Int,
+        limit: Int? = null,
+        offset: Int? = null,
+    ): MessagesPage {
+        val res = api.getMessages(chatId = chatId, limit = limit, offset = offset)
+        return MessagesPage(
+            messages = res.messages.map { it.toMessage() },
+            total = res.total,
+        )
+    }
+
     /**
      * Gửi tin nhắn TEXT (không upload file).
      */
@@ -46,11 +63,16 @@ class InboxRepository(
         file: File,
         type: String,
         content: String? = null,
+        mimeType: String? = null,
     ): Message {
-        val mediaType = when (type.uppercase()) {
-            "VIDEO" -> "video/*"
-            else -> "image/*"
-        }.toMediaType()
+        val normalizedType = type.uppercase()
+
+        val mediaTypeString = mimeType
+            ?: when (normalizedType) {
+                "VIDEO" -> "video/mp4"
+                else -> "image/jpeg"
+            }
+        val mediaType = mediaTypeString.toMediaType()
 
         val requestBody = file.asRequestBody(mediaType)
         val filePart = MultipartBody.Part.createFormData(
@@ -59,7 +81,7 @@ class InboxRepository(
             body = requestBody,
         )
 
-        val typeBody = type.toRequestBody("text/plain".toMediaType())
+        val typeBody = normalizedType.toRequestBody("text/plain".toMediaType())
         val contentBody = content?.toRequestBody("text/plain".toMediaType())
 
         val dto = api.uploadMessage(
@@ -83,6 +105,7 @@ private fun MessageDto.toMessage(): Message = Message(
     type = type.toMessageType(),
     status = status.toMessageStatus(),
     imageUri = imageUri,
+    receiptStatus = receiptStatus?.toMessageStatus(),
 )
 
 private fun String.toMessageType(): MessageType = when (uppercase()) {

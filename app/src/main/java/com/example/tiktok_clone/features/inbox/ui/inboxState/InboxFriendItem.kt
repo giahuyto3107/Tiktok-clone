@@ -1,19 +1,15 @@
 package com.example.tiktok_clone.features.inbox.ui.inboxState
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,7 +27,13 @@ fun InboxFriendItem(
 ) {
     Column(
         modifier = Modifier
-            .clickable { onChatClick(friend.id) }
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = {
+                    onChatClick(friend.id)
+                }
+            )
             .then(modifier),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -43,11 +45,11 @@ fun InboxFriendItem(
         Text(
             text = if (isUser) "Quay" else friend.userName,
             maxLines = 1,
-            fontSize = 12.sp,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center
-
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(70.dp)
         )
     }
 }

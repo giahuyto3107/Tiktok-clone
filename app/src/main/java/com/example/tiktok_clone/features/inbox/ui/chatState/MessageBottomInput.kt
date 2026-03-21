@@ -15,8 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.outlined.AddReaction
-import androidx.compose.material.icons.outlined.MicNone
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -33,7 +31,7 @@ import com.example.tiktok_clone.ui.theme.TikTokCyanDark
 import com.example.tiktok_clone.ui.theme.TikTokRed
 
 @Composable
-fun MessageBottomItems(
+fun MessageBottomInput(
     modifier: Modifier = Modifier,
     isMessage: Boolean = false,
     onGalleryClick: () -> Unit = {},
