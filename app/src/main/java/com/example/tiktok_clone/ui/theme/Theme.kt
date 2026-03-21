@@ -26,7 +26,7 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = TextOnDark, // Soft white
     surface = DarkSurface, // Dark Gray for Bottom Sheets
     onSurface = White,
-    error = RedHeart
+    error = TikTokRed
 )
 
 // Light Mode (For Profile/Inbox if following system theme)
@@ -40,7 +40,7 @@ private val LightColorScheme = lightColorScheme(
     surface = White,
     onSurface = Black,
     surfaceVariant = GrayBackground, // Search bars
-    error = RedHeart
+    error = TikTokRed
 )
 
 @Composable
