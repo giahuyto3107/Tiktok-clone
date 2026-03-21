@@ -46,7 +46,6 @@ class PostViewModel(
             )
         }
     }
-
     fun resetUploadState() {
         _uploadState.value = UploadState.Idle
     }

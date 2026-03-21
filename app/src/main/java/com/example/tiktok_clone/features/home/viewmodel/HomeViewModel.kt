@@ -6,6 +6,7 @@ import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.post.data.repository.UploadRepository
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.data.model.SocialAction
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.features.user.data.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     private val postRepository: UploadRepository,
     private val userRepository: UserRepository,
+    private val socialViewModel: SocialViewModel
 ) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
@@ -51,6 +53,10 @@ class HomeViewModel(
                     .filter { it.mediaUrl.isNotBlank() }  // Skip posts still processing
                 _posts.value = loadedPosts.sortedBy { it.id }
 
+//                // Load postState ngay khi load được 2 post đầu tiên
+//                loadedPosts.take(1).forEach { post ->
+//                    socialViewModel.loadPostState(post.id.toString())
+//                }
                 // Fetch users for all unique userIds in the posts
                 val userIds = loadedPosts.map { it.userId }.distinct()
                 if (userIds.isNotEmpty()) {

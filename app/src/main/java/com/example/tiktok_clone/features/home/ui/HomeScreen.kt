@@ -1,6 +1,5 @@
 package com.example.tiktok_clone.features.home.ui
 
-import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -24,9 +23,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,10 +34,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.Player
-import androidx.media3.common.util.Log
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.R
 import com.example.tiktok_clone.core.navigation.AppNavigation
@@ -50,18 +46,18 @@ import com.example.tiktok_clone.features.home.ui.components.VideoPlayer
 import com.example.tiktok_clone.features.home.viewmodel.HomeViewModel
 import com.example.tiktok_clone.features.post.data.model.PostType
 import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
-import com.example.tiktok_clone.features.social.data.PostStateResponse
+import com.example.tiktok_clone.features.social.viewModel.NotificationViewModel
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.google.firebase.auth.FirebaseAuth
 
-@OptIn(UnstableApi::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = koinViewModel(),
     profileViewModel: ProfileViewModel = koinViewModel(),
     socialViewModel: SocialViewModel = koinViewModel(),
+    notificationViewModel: NotificationViewModel = koinViewModel(),
     onSearchTap: () -> Unit = {}
 ) {
+
     val posts by homeViewModel.posts.collectAsState()
     val users by homeViewModel.users.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
@@ -69,11 +65,19 @@ fun HomeScreen(
     val context = LocalContext.current
 
     val currentUserId: String = profileViewModel.getProfileData()?.id.toString()
-    socialViewModel.getCurrentUser(currentUserId)
-    socialViewModel.getFriends(currentUserId)
     val currentUser by socialViewModel.currentUser.collectAsState()
-
     val postStates by socialViewModel.postStates.collectAsState()
+
+    LaunchedEffect(currentUserId) {
+        if (currentUserId.isBlank() || currentUserId == "null") return@LaunchedEffect
+        socialViewModel.getCurrentUser(currentUserId)
+        socialViewModel.getFriends(currentUserId)
+        socialViewModel.loadFollowers(currentUserId)
+        socialViewModel.loadFollowing(currentUserId)
+    }
+    LaunchedEffect(Unit) {
+        notificationViewModel.loadNotifications()
+    }
 
     // Single shared ExoPlayer instance
     val exoPlayer = remember {
@@ -82,26 +86,33 @@ fun HomeScreen(
             volume = 1f
         }
     }
+
+
     // Release player on dispose
     DisposableEffect(Unit) {
-        onDispose { exoPlayer.release() }
+        onDispose {
+            exoPlayer.release()
+            socialViewModel.disconnectPostRealtime()     // Khi post focus thay đổi
+        }
     }
     val pagerState = rememberPagerState(pageCount = { posts.size })
 
-    // Load state + comment cho post hiện tại và prefetch cho post tiếp theo
-    LaunchedEffect(pagerState.currentPage, posts) {
-        val currentPost = posts.getOrNull(pagerState.currentPage)
-        if (currentPost != null) {
-            val currentId = currentPost.id.toString()
-            socialViewModel.loadPostState(currentId)
-            socialViewModel.loadComments(currentId)
+    val currentPost = posts.getOrNull(pagerState.currentPage)
+    val currentPostId = currentPost?.id?.toString()
+    val nextPostId = posts.getOrNull(pagerState.currentPage + 1)?.id?.toString()
 
-            val nextPost = posts.getOrNull(pagerState.currentPage + 1)
-            if (nextPost != null) {
-                val nextId = nextPost.id.toString()
-                socialViewModel.loadPostState(nextId)
-                socialViewModel.loadComments(nextId)
-            }
+    // Ưu tiên load dữ liệu cho post hiện tại trước.
+    // Chỉ rerun khi `currentPostId` đổi để tránh burst request khi `posts` update.
+    LaunchedEffect(currentPostId) {
+        if (currentPostId.isNullOrBlank()) return@LaunchedEffect
+
+        socialViewModel.loadPostState(currentPostId)
+        socialViewModel.connectPostRealtime(currentPostId)
+
+        // Prefetch next comment sau 300ms để giảm cạnh tranh network/render.
+        if (!nextPostId.isNullOrBlank()) {
+            delay(300)
+            socialViewModel.loadComments(nextPostId)
         }
     }
     // Infinite scroll: load more when near end
