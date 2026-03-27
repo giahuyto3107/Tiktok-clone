@@ -1,5 +1,8 @@
 package com.example.tiktok_clone.features.inbox.data
 
+import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
+import com.example.tiktok_clone.features.inbox.data.model.MessageType
+import com.example.tiktok_clone.features.social.data.FollowUserResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -16,6 +19,18 @@ import retrofit2.http.Query
  * Auth: Authorization: Bearer <Firebase_ID_Token>
  */
 interface InboxApiService {
+
+    /**
+     * GET /api/v1/inbox/contacts
+     * Query: limit (default 50), offset (default 0)
+     *
+     * Trả về danh sách user đã từng nhắn tin với user hiện tại.
+     */
+    @GET("api/v1/inbox/contacts")
+    suspend fun getContacts(
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null,
+    ): ContactsResponse
 
     /**
      * GET /api/v1/inbox/chats
@@ -69,6 +84,11 @@ data class ChatsResponse(
     val total: Int,
 )
 
+data class ContactsResponse(
+    val users: List<FollowUserResponse>,
+    val total: Int,
+)
+
 data class ChatResponse(
     val chatId: Int,
     val otherUserId: String,
@@ -82,8 +102,8 @@ data class MessageDto(
     val content: String?,
     val senderId: String,
     val timestamp: Long,
-    val type: String = "TEXT",
-    val status: String = "SENT",
+    val type: String?= MessageType.TEXT.toString(),
+    val status: String? = MessageStatus.SENT.toString(),
     val imageUri: String? = null,
     val receiptStatus: String? = null,
 )

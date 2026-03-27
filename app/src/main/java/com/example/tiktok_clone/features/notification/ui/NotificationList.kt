@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.notification
+package com.example.tiktok_clone.features.notification.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,3 +78,4 @@ fun NotificationList(
         }
     }
 }
+

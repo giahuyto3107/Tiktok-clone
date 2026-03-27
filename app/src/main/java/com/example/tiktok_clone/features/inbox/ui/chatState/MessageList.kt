@@ -11,7 +11,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,7 +22,6 @@ import com.example.tiktok_clone.features.inbox.data.model.Message
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.ui.theme.GrayBackground
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
 
 @Composable
 fun MessageList(
@@ -30,40 +32,51 @@ fun MessageList(
     onLoadMore: () -> Unit = {},
 ) {
     val listState = rememberLazyListState()
+    var hasInitialScrollDone by remember { mutableStateOf(false) }
 
     // Chỉ scroll xuống đáy khi tin nhắn CUỐI cùng thay đổi (tin mới gửi/nhận).
     // Khi prepend tin cũ (load more), lastMessageId không đổi → không scroll.
-    val lastMessageId = messages.lastOrNull()?.id
-    LaunchedEffect(lastMessageId) {
-        if (lastMessageId != null) {
-            listState.animateScrollToItem(messages.size - 1)
+    val newestMessage = messages.firstOrNull()
+    val newestMessageId = newestMessage?.id
+    LaunchedEffect(newestMessageId, currentUser) {
+        if (newestMessageId != null && messages.isNotEmpty()) {
+            val shouldScroll = !hasInitialScrollDone || newestMessage.senderId == currentUser
+            if (shouldScroll) {
+                hasInitialScrollDone = true
+                listState.animateScrollToItem(0)
+                hasInitialScrollDone
+            }
+        } else if (messages.isEmpty()) {
+            hasInitialScrollDone = false
+            hasInitialScrollDone
         }
     }
 
-    // Trigger load more khi user kéo lên tới đầu list.
-    // drop(1): bỏ qua emit đầu tiên ngay lúc compose (index = 0 lúc mở màn).
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex }
+    LaunchedEffect(listState, messages.size) {
+        snapshotFlow {
+            val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+            lastVisibleIndex == messages.lastIndex && listState.isScrollInProgress
+        }
             .distinctUntilChanged()
-            .drop(1)
-            .collect { index ->
-                if (index == 0) onLoadMore()
+            .collect { atTopAndScrolling ->
+                if (atTopAndScrolling) onLoadMore()
             }
     }
     val showLastMessage = remember(messages) {
         messages
             .mapIndexedNotNull { index, message ->
-                val nextMessage = messages.getOrNull(index + 1)
-                val isLastInGroup = nextMessage == null || nextMessage.senderId != message.senderId
+                val previousMessage = messages.getOrNull(index - 1)
+                val isLastInGroup = previousMessage == null || previousMessage.senderId != message.senderId
                 if (isLastInGroup) message.id else null
             }
             .toSet()
     }
     val lastCurrentUserMessageId = remember(messages, currentUser) {
-        messages.lastOrNull { it.senderId == currentUser }?.id
+        messages.firstOrNull { it.senderId == currentUser }?.id
     }
     LazyColumn(
         state = listState,
+        reverseLayout = true,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
             .fillMaxWidth()
@@ -72,7 +85,9 @@ fun MessageList(
     ) {
         itemsIndexed(
             items = messages,
-            key = { _, message -> message.id },
+            key = { index, message ->
+                message.id.ifBlank { "${message.senderId}_${message.timestamp}" } + "_$index"
+            },
         ) { index, message ->
             val prev = messages.getOrNull(index - 1)
 

@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.social.ui.notification
+package com.example.tiktok_clone.features.notification.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -49,3 +49,4 @@ fun NotificationHeader(
         Box(modifier = Modifier.size(32.dp))
     }
 }
+

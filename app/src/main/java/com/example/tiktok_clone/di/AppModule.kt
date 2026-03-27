@@ -81,7 +81,7 @@ val appModule = module {
 
     single<SocialApiService> { get<Retrofit>().create(SocialApiService::class.java) }
     single { SocialRepository(get()) }
-    viewModel { SocialViewModel(get(), get(), get()) }
+    viewModel { SocialViewModel(get(), get(), get(), get()) }
 
     single<InboxApiService> { get<Retrofit>().create(InboxApiService::class.java) }
     single { InboxRepository(get()) }

@@ -23,7 +23,13 @@ fun CommentBottomBar(
         currentUser = currentUser,
         commentRoot = commentRoot,
         isCommenting = isCommenting,
-        onDismiss = { isCommenting = false },
-        onCommenting = { isCommenting = true }
+        onDismiss = {
+            isCommenting = false
+            isCommenting
+        },
+        onCommenting = {
+            isCommenting = true
+            isCommenting
+        }
     )
 }

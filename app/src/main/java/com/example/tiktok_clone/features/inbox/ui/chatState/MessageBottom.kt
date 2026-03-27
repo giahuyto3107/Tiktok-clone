@@ -1,5 +1,5 @@
 package com.example.tiktok_clone.features.inbox.ui.chatState
-import android.content.Context
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -34,11 +34,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.tiktok_clone.features.inbox.data.model.InboxAction
+import com.example.tiktok_clone.features.inbox.ui.components.resolvePickedMedia
 import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
 import com.example.tiktok_clone.features.social.ui.components.EmotionRow
 import com.example.tiktok_clone.ui.theme.GrayBackground
-import java.io.File
 import org.koin.androidx.compose.koinViewModel
+import java.io.File
+
 @Composable
 fun MessageBottom(
     otherUid: String,
@@ -55,21 +58,12 @@ fun MessageBottom(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null && otherUid.isNotEmpty()) {
-            val mime = context.contentResolver.getType(uri)
-            val type = if (mime?.startsWith("video") == true) "VIDEO" else "IMAGE"
-            val ext = when {
-                mime?.startsWith("video") == true -> ".mp4"
-                mime == "image/jpeg" || mime == "image/jpg" -> ".jpg"
-                mime == "image/png" -> ".png"
-                mime == "image/gif" -> ".gif"
-                mime == "image/webp" -> ".webp"
-                else -> ".jpg"
-            }
-            val file = uriToTempFile(context, uri, ext) ?: return@rememberLauncherForActivityResult
-            selectedMediaUri = uri
-            selectedFile = file
-            selectedType = type
-            selectedMimeType = mime
+            val pickedMedia =
+                resolvePickedMedia(context, uri) ?: return@rememberLauncherForActivityResult
+            selectedMediaUri = pickedMedia.uri
+            selectedFile = pickedMedia.file
+            selectedType = pickedMedia.type
+            selectedMimeType = pickedMedia.mimeType
         }
     }
     Column(
@@ -86,7 +80,9 @@ fun MessageBottom(
         ) {
             BasicTextField(
                 value = messageText,
-                onValueChange = { messageText = it },
+                onValueChange = {
+                    messageText = it
+                },
                 textStyle = TextStyle(
                     color = Color.Black,
                     fontSize = 16.sp,
@@ -162,12 +158,14 @@ fun MessageBottom(
                     val text = messageText.trim()
                     val file = selectedFile
                     if (file != null && otherUid.isNotEmpty()) {
-                        inboxViewModel.sendMessageWithFile(
-                            otherUid = otherUid,
-                            file = file,
-                            type = selectedType ?: "IMAGE",
-                            content = text.ifBlank { null },
-                            mimeType = selectedMimeType,
+                        inboxViewModel.onAction(
+                            InboxAction.SendMessageWithFile(
+                                otherUid = otherUid,
+                                file = file,
+                                type = selectedType ?: "IMAGE",
+                                content = text.ifBlank { null },
+                                mimeType = selectedMimeType,
+                            ),
                         )
                         messageText = ""
                         selectedMediaUri = null
@@ -181,15 +179,5 @@ fun MessageBottom(
                 },
             )
         }
-    }
-}
-private fun uriToTempFile(context: Context, uri: Uri, extension: String): File? {
-    return try {
-        val input = context.contentResolver.openInputStream(uri) ?: return null
-        val file = File.createTempFile("inbox_msg_", extension, context.cacheDir)
-        file.outputStream().use { out -> input.copyTo(out) }
-        file
-    } catch (_: Exception) {
-        null
     }
 }

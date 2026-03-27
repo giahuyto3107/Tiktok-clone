@@ -17,7 +17,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.inbox.data.model.Message
-import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
+import com.example.tiktok_clone.features.inbox.ui.components.buildChatPreviewText
+import com.example.tiktok_clone.features.inbox.ui.components.statusLabel
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 
@@ -26,36 +27,25 @@ fun InboxChatLine(
     modifier: Modifier = Modifier,
     chatWith: User,
     message: Message,
+    unreadCount: Int,
     currentUserId: String?,
     onChatClick: (chatWithId: String) -> Unit = {},
 ) {
-    val lastMessageStatus: String = if (message.senderId == currentUserId) {
-        when (message.receiptStatus) {
-            MessageStatus.SEEN -> "Đã xem"
-            MessageStatus.DELIVERED -> "Đã gửi"
-            else -> when (message.status) {
-                MessageStatus.SENDING -> "Đang gửi"
-                else -> "Đã gửi"
-            }
-        }
+    val lastMessageStatus = if (message.senderId == currentUserId) {
+        message.statusLabel()
     } else {
-        if (message.receiptStatus == MessageStatus.SEEN) {
-            "Đã xem"
-        } else message.content
+        buildChatPreviewText(message, chatWith, currentUserId)
     }
+    val isNewMessage = unreadCount > 0
+    val previewText = buildChatPreviewText(message, chatWith, currentUserId)
 
-    val isNewMessage = message.content == lastMessageStatus
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                horizontal = 14.dp
-            )
-            .clickable {
-                onChatClick(chatWith.id)
-            }
+            .padding(horizontal = 14.dp)
+            .clickable { onChatClick(chatWith.id) }
             .then(modifier),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Avatar(
             avatarUrl = chatWith.avatarUrl,
@@ -65,7 +55,7 @@ fun InboxChatLine(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = chatWith.userName,
@@ -74,11 +64,10 @@ fun InboxChatLine(
                 lineHeight = 16.sp,
                 fontWeight = if (isNewMessage) FontWeight.Bold else FontWeight.Normal,
                 overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center
-
+                textAlign = TextAlign.Center,
             )
             Text(
-                text = lastMessageStatus,
+                text = if (isNewMessage) previewText else lastMessageStatus,
                 maxLines = 1,
                 fontSize = 12.sp,
                 lineHeight = 14.sp,
@@ -88,9 +77,5 @@ fun InboxChatLine(
                 color = if (isNewMessage) Color.Black else Color.Gray,
             )
         }
-//        Icon(
-//            imageVector = Icons.Outlined.CameraAlt,
-//            contentDescription = "Send photo",
-//        )
     }
 }

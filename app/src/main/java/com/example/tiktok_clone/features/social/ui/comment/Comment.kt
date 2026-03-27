@@ -34,7 +34,9 @@ import com.example.tiktok_clone.R
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.post.ui.UploadState
 import com.example.tiktok_clone.features.social.data.model.Comment
+import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.data.model.User
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -48,20 +50,23 @@ fun CommentSheetContent(
 ) {
     var isCommenting by remember { mutableStateOf(false) }
     var commentRoot by remember { mutableStateOf<Comment?>(null) }
-    val allComments by socialViewModel.comments.collectAsState()
+    val uiState by socialViewModel.uiState.collectAsState()
+    val allComments = (uiState as? SocialUiState.Success)?.data?.comments ?: emptyList()
     val postId = currentPost.id.toString()
     val comments = remember(allComments, postId) {
         allComments.filter { it.postId == postId }
     }
-    val uploadState by socialViewModel.uploadState.collectAsState()
-    val commentHasMore by socialViewModel.commentHasMore.collectAsState()
+    val uploadState =
+        (uiState as? SocialUiState.Success)?.data?.uploadState ?: UploadState.Idle
+    val commentHasMore =
+        (uiState as? SocialUiState.Success)?.data?.commentHasMore ?: emptyMap()
     val hasMoreForPost = commentHasMore[currentPost.id.toString()] ?: true
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
     LaunchedEffect(uploadState) {
         if (uploadState is UploadState.Success)
-            socialViewModel.loadComments(currentPost.id.toString(), force = true)
+            socialViewModel.onAction(SocialAction.LoadComment(currentPost.id.toString()))
     }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -84,7 +89,7 @@ fun CommentSheetContent(
             ) {
                 CommentHeader(
                     commentCount = comments.size.toLong(),
-                    search = "Search",
+//                    search = "Search",
                     onClose = onDismiss,
                 )
                 if (comments.isEmpty() && currentUser?.id != currentPost.userId) {
@@ -117,7 +122,11 @@ fun CommentSheetContent(
                             .nestedScroll(rememberNestedScrollInteropConnection()),
                         comments = comments,
                         hasMore = hasMoreForPost,
-                        onLoadMore = { socialViewModel.loadMoreComments(currentPost.id.toString()) },
+                        onLoadMore = {
+                            socialViewModel.onAction(
+                                SocialAction.LoadMoreComment(currentPost.id.toString())
+                            )
+                        },
                         onReply = { value -> isCommenting = value },
                         parent = { value -> commentRoot = value }
                     )

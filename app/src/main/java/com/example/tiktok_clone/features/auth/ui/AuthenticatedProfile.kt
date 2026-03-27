@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -14,21 +16,31 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.util.Log
 import coil.compose.AsyncImage // Nhớ thêm thư viện Coil vào build.gradle
 import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
+import com.example.tiktok_clone.features.social.ui.components.Avatar
+import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthenticatedProfile(
     onLogout: () -> Unit,
-    profileViewModel: ProfileViewModel = koinViewModel()
+    profileViewModel: ProfileViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel()
 ) {
     val currentUser = profileViewModel.getProfileData()
     val displayName = currentUser?.displayName ?: "Người dùng TikTok"
     val email = currentUser?.email ?: "Chưa có email"
     val photoUrl = currentUser?.avtPhotoUrl
-        ?: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+
+    socialViewModel.loadFollowing(currentUser?.id.toString())
+    socialViewModel.loadFollowers(currentUser?.id.toString())
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    val followingCount = (socialUiState as? SocialUiState.Success)?.data?.following?.size ?: 0
+    val followersCount = (socialUiState as? SocialUiState.Success)?.data?.followers?.size ?: 0
 
     Column(
         modifier = Modifier
@@ -37,14 +49,18 @@ fun AuthenticatedProfile(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 1. Ảnh đại diện
-        AsyncImage(
-            model = photoUrl,
-            contentDescription = "Avatar",
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-                .border(0.5.dp, Color.LightGray, CircleShape),
-            contentScale = ContentScale.Crop
+//        AsyncImage(
+//            model = photoUrl,
+//            contentDescription = "Avatar",
+//            modifier = Modifier
+//                .size(100.dp)
+//                .clip(CircleShape)
+//                .border(0.5.dp, Color.LightGray, CircleShape),
+//            contentScale = ContentScale.Crop
+//        )
+        Avatar(
+            avatarUrl = if (photoUrl == "null") null else photoUrl,
+            avatarSize = 100,
         )
 
         // 2. Tên và Email
@@ -64,8 +80,8 @@ fun AuthenticatedProfile(
                 .padding(vertical = 20.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            ProfileStat("128", "Đang follow")
-            ProfileStat("1.2M", "Follower")
+            ProfileStat(followingCount.toString(), "Đã follow")
+            ProfileStat(followersCount.toString(), "Follower")
             ProfileStat("10.5M", "Thích")
         }
 

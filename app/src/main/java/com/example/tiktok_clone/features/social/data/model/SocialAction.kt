@@ -1,5 +1,7 @@
 package com.example.tiktok_clone.features.social.data.model
 
+import java.io.File
+
 sealed interface SocialAction{
     data class LikePost(val postId: String): SocialAction
     data class LikeComment(val commentId: String): SocialAction
@@ -19,6 +21,13 @@ sealed interface SocialAction{
         val userId: String,
         val parentId: String? = null,
     ): SocialAction
+    data class AddCommentWithImage(
+        val postId: String,
+        val commentText: String,
+        val parentId: String? = null,
+        val file: File,
+    ): SocialAction
+    data class LoadMoreComment(val postId: String): SocialAction
     data object DismissReportSheet: SocialAction
     data object OpenReportOption: SocialAction
 

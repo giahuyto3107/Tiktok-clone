@@ -21,7 +21,6 @@ fun Avatar(
     modifier: Modifier = Modifier,
     avatarSize: Int = 50,
     avatarUrl: String? = "",
-
     ) {
     Box(
         modifier = Modifier
