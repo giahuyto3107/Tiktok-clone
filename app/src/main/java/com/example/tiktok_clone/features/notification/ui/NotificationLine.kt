@@ -1,11 +1,11 @@
-package com.example.tiktok_clone.features.social.ui.notification
+package com.example.tiktok_clone.features.notification.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -44,6 +44,7 @@ fun NotificationLine(
     } else {
         followNotification?.receiptStatus == FollowNotificationReceiptStatus.DELIVERED
     }
+
     val notificationActionType = when (socialNotification?.actionType) {
         NotificationActionType.LIKE -> "đã thích $postType của bạn. "
         NotificationActionType.COMMENT -> "đã bình luận về $postType của bạn. "
@@ -52,8 +53,10 @@ fun NotificationLine(
         NotificationActionType.REPOST -> "đã đăng lại cùng một bài đăng. "
         null -> ""
     }
+
     val createdAtMillis =
         if (notificationType == "social") socialNotification?.createdAt else followNotification?.createdAt
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,12 +64,13 @@ fun NotificationLine(
             .background(if (isNew) Color(0xFFEAF4FF) else Color.Transparent)
             .padding(vertical = 6.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Avatar(
             avatarUrl = fromAvatarUrl,
             avatarSize = 50,
         )
+
         Text(
             text = buildAnnotatedString {
                 withStyle(
@@ -79,6 +83,7 @@ fun NotificationLine(
                     append(fromUserName)
                     append(" ")
                 }
+
                 withStyle(
                     SpanStyle(
                         color = Color.Black,
@@ -88,6 +93,7 @@ fun NotificationLine(
                 ) {
                     append(if (notificationType == "social") notificationActionType else "đã theo dõi bạn. ")
                 }
+
                 withStyle(
                     SpanStyle(
                         color = Color.Gray,
@@ -102,6 +108,7 @@ fun NotificationLine(
             lineHeight = 16.sp,
             modifier = Modifier.weight(1f)
         )
+
         if (notificationType == "social") {
             Box(
                 modifier = Modifier
@@ -112,10 +119,10 @@ fun NotificationLine(
                 AsyncImage(
                     model = postMediaUrl,
                     contentDescription = "avatar",
-                    modifier = Modifier
-                        .matchParentSize()
+                    modifier = Modifier.matchParentSize()
                 )
             }
         }
     }
 }
+

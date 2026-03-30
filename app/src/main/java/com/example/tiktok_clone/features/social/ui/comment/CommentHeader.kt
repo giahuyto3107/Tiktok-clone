@@ -25,9 +25,8 @@ import com.example.tiktok_clone.features.social.ui.components.formatCount
 @Composable
 fun CommentHeader(
     commentCount: Long,
-    search: String,
+//    search: String,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = Modifier

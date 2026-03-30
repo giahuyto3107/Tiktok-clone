@@ -22,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +61,7 @@ fun MiddleSection(
     author: User,
     currentPost: Post,
     currentUser: User?,
+    following: Set<String>,
     postState: PostStateResponse?,
     socialViewModel: SocialViewModel = koinViewModel(),
 ) {
@@ -75,7 +75,6 @@ fun MiddleSection(
     val shareCount = thisPostState?.shareCount?.toLong() ?: 0L
     val isShared = thisPostState?.isShared == true
 
-    val following by socialViewModel.following.collectAsState()
     val isFollowing = following.contains(author.id)
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }

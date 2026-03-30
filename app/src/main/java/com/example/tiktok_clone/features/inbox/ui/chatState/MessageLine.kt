@@ -2,8 +2,6 @@
 
 package com.example.tiktok_clone.features.inbox.ui.chatState
 
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -49,6 +50,7 @@ import coil.request.ImageRequest
 import com.example.tiktok_clone.features.inbox.data.model.Message
 import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
 import com.example.tiktok_clone.features.inbox.data.model.MessageType
+import com.example.tiktok_clone.features.inbox.ui.components.statusLabel
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.ui.theme.TikTokCyanDark
@@ -76,22 +78,16 @@ fun Messageline(
                         avatarUrl = chatWithUser.avatarUrl,
                         avatarSize = 30,
                     )
-                } else Spacer(modifier = Modifier.width(30.dp))
+                } else {
+                    Spacer(modifier = Modifier.width(30.dp))
+                }
             }
             Spacer(modifier = Modifier.width(8.dp))
             MessageContent(message, isCurrentUser, isLastMessage)
         }
         if (isCurrentUser && isLastMessageInList) {
-            val label = when (message.receiptStatus) {
-                MessageStatus.SEEN -> "Đã xem"
-                MessageStatus.DELIVERED -> "Đã gửi"
-                else -> when (message.status) {
-                    MessageStatus.SENDING -> "Đang gửi"
-                    else -> "Đã gửi"
-                }
-            }
             Text(
-                text = label,
+                text = message.statusLabel(),
                 fontSize = 11.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(end = 4.dp, top = 2.dp),
@@ -104,7 +100,7 @@ fun Messageline(
 private fun MessageContent(
     message: Message,
     isCurrentUser: Boolean,
-    isLastMessage: Boolean
+    isLastMessage: Boolean,
 ) {
     if (message.type == MessageType.TEXT) {
         TextContent(message, isCurrentUser, isLastMessage)
@@ -113,11 +109,11 @@ private fun MessageContent(
 
     Column(
         horizontalAlignment = if (isCurrentUser) Alignment.End else Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         when (message.type) {
-            MessageType.IMAGE -> ImageContent(message, isCurrentUser)
-            MessageType.VIDEO -> VideoContent(message, isCurrentUser)
+            MessageType.IMAGE -> ImageContent(message)
+            MessageType.VIDEO -> VideoContent(message)
             MessageType.TEXT -> Unit
         }
         if (message.content.isNotBlank()) {
@@ -133,14 +129,16 @@ private fun TextContent(message: Message, isCurrentUser: Boolean, isLastMessage:
             .wrapContentWidth()
             .widthIn(max = 315.dp)
             .clip(
-                if (isLastMessage)
+                if (isLastMessage) {
                     RoundedCornerShape(
                         15.dp,
                         15.dp,
                         if (isCurrentUser) 0.dp else 15.dp,
-                        if (isCurrentUser) 15.dp else 0.dp
+                        if (isCurrentUser) 15.dp else 0.dp,
                     )
-                else RoundedCornerShape(15.dp)
+                } else {
+                    RoundedCornerShape(15.dp)
+                }
             )
             .background(if (isCurrentUser) TikTokCyanDark else Color.White)
             .padding(horizontal = 10.dp, vertical = 8.dp)
@@ -149,38 +147,36 @@ private fun TextContent(message: Message, isCurrentUser: Boolean, isLastMessage:
             text = message.content,
             fontSize = 14.sp,
             color = if (isCurrentUser) Color.White else Color.Black,
-            modifier = Modifier
         )
     }
 }
 
 @Composable
-private fun ImageContent(message: Message, isCurrentUser: Boolean) {
+private fun ImageContent(message: Message) {
     var isFullScreen by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize(0.3f)
+            .aspectRatio(9f / 16f)
             .clip(RoundedCornerShape(10.dp))
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
-                onClick = {
-                    isFullScreen = true
-                }
+                onClick = { isFullScreen = true },
             )
     ) {
         AsyncImage(
             model = message.imageUri,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.matchParentSize(),
         )
         if (message.status == MessageStatus.SENDING) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .matchParentSize()
                     .background(Color.Black.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
             }
@@ -189,7 +185,7 @@ private fun ImageContent(message: Message, isCurrentUser: Boolean) {
     if (isFullScreen) {
         Dialog(
             onDismissRequest = { isFullScreen = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
+            properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
             Box(
                 modifier = Modifier
@@ -198,16 +194,14 @@ private fun ImageContent(message: Message, isCurrentUser: Boolean) {
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
-                        onClick = {
-                            isFullScreen = false
-                        }
+                        onClick = { isFullScreen = false },
                     )
             ) {
                 AsyncImage(
                     model = message.imageUri,
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }
@@ -215,21 +209,20 @@ private fun ImageContent(message: Message, isCurrentUser: Boolean) {
 }
 
 @Composable
-private fun VideoContent(message: Message, isCurrentUser: Boolean) {
+private fun VideoContent(message: Message) {
     val context = LocalContext.current
     var isPlaying by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize(0.3f)
+            .aspectRatio(9f / 16f)
             .clip(RoundedCornerShape(10.dp))
             .background(Color.Black)
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
-                onClick = {
-                    isPlaying = true
-                }
+                onClick = { isPlaying = true },
             )
     ) {
         AsyncImage(
@@ -239,7 +232,7 @@ private fun VideoContent(message: Message, isCurrentUser: Boolean) {
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.matchParentSize(),
         )
         Icon(
             imageVector = Icons.Filled.PlayCircle,
@@ -247,13 +240,13 @@ private fun VideoContent(message: Message, isCurrentUser: Boolean) {
             tint = Color.White,
             modifier = Modifier
                 .size(48.dp)
-                .align(Alignment.Center)
+                .align(Alignment.Center),
         )
     }
     if (isPlaying) {
         Dialog(
             onDismissRequest = { isPlaying = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
+            properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
             val exoPlayer = remember {
                 ExoPlayer.Builder(context).build().apply {
@@ -262,7 +255,9 @@ private fun VideoContent(message: Message, isCurrentUser: Boolean) {
                     playWhenReady = true
                 }
             }
-            DisposableEffect(Unit) { onDispose { exoPlayer.release() } }
+            DisposableEffect(Unit) {
+                onDispose { exoPlayer.release() }
+            }
 
             Box(
                 modifier = Modifier
@@ -271,14 +266,12 @@ private fun VideoContent(message: Message, isCurrentUser: Boolean) {
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
-                        onClick = {
-                            isPlaying = false
-                        }
+                        onClick = { isPlaying = false },
                     )
             ) {
                 AndroidView(
                     factory = { PlayerView(it).apply { player = exoPlayer } },
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }

@@ -1,8 +1,10 @@
-package com.example.tiktok_clone.features.social.viewModel
+package com.example.tiktok_clone.features.notification.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.core.network.RealtimeWebSocketClient
+import com.example.tiktok_clone.features.notification.data.model.FollowNotificationAction
+import com.example.tiktok_clone.features.notification.ui.NotificationUiState
 import com.example.tiktok_clone.features.social.data.FollowNotificationRepository
 import com.example.tiktok_clone.features.social.data.model.FollowNotification
 import com.google.firebase.auth.FirebaseAuth
@@ -17,7 +19,10 @@ class FollowNotificationViewModel(
     private val repository: FollowNotificationRepository,
     okHttpClient: OkHttpClient,
 ) : ViewModel() {
-
+    private val _uiState = MutableStateFlow<NotificationUiState<FollowNotification>>(
+        NotificationUiState.Loading
+    )
+    val uiState: StateFlow<NotificationUiState<FollowNotification>> = _uiState.asStateFlow()
     private val wsClient = RealtimeWebSocketClient(okHttpClient)
     private var connectedUid: String? = null
 
@@ -28,12 +33,11 @@ class FollowNotificationViewModel(
     val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
     private var isScreenOpen: Boolean = false
+    private var wsReloadInFlight: Boolean = false
     private var hasLoadedOnce: Boolean = false
 
     fun preloadNotificationsIfNeeded() {
@@ -48,11 +52,23 @@ class FollowNotificationViewModel(
         viewModelScope.launch {
             wsClient.disconnect()
             wsClient.connect("api/v1/ws/social/users/$uid") { event, _ ->
-                if (event == "follow_notification_created" || event == "follow_notification_updated") {
-                    viewModelScope.launch {
-                        if (isScreenOpen) refreshListAndBadge() else refreshUnreadOnly()
-                    }
-                }
+                handleWsEvent(event)
+            }
+        }
+    }
+
+    private fun handleWsEvent(event: String) {
+        if (event != "follow_notification_created" && event != "follow_notification_updated") return
+        if (wsReloadInFlight) return
+        wsReloadInFlight = true
+        viewModelScope.launch {
+            try {
+                _notifications.value = repository.getNotifications(limit = 20, offset = 0)
+                _unreadCount.value = repository.getUnreadCount()
+            } catch (_: Exception) {
+                // im lang
+            } finally {
+                wsReloadInFlight = false
             }
         }
     }
@@ -61,23 +77,36 @@ class FollowNotificationViewModel(
         isScreenOpen = open
     }
 
+    fun onAction(action: FollowNotificationAction) {
+        when (action) {
+            is FollowNotificationAction.SetScreenOpen -> setScreenOpen(action.open)
+            FollowNotificationAction.PreloadIfNeeded -> preloadNotificationsIfNeeded()
+            FollowNotificationAction.LoadNotifications -> loadNotifications()
+            FollowNotificationAction.MarkAllSeen -> markAllSeen()
+        }
+    }
+
     fun loadNotifications() {
         viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
+            _uiState.value = NotificationUiState.Loading
             try {
                 val uid = FirebaseAuth.getInstance().currentUser?.uid
                 if (!uid.isNullOrBlank()) ensureWsConnected(uid)
-
-                _notifications.value = repository.getNotifications(limit = 20, offset = 0)
-                _unreadCount.value = repository.getUnreadCount()
+                val items = repository.getNotifications()
+                val unread = repository.getUnreadCount()
+                _notifications.value = items
+                _unreadCount.value = unread
+                _uiState.value = NotificationUiState.Success(
+                    items = items,
+                    unreadCount = unread,
+                )
                 hasLoadedOnce = true
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _error.value = e.message
-            } finally {
-                _isLoading.value = false
+                _uiState.value = NotificationUiState.Error(
+                    message = e.message ?: "Lỗi tải thông báo"
+                )
             }
         }
     }
@@ -115,3 +144,4 @@ class FollowNotificationViewModel(
         wsClient.disconnect()
     }
 }
+

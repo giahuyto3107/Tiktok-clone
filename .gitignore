@@ -50,5 +50,15 @@ Thumbs.db
 .cursorindexingignore
 .cursor/
 
-# (giữ lại nếu sau này cần track riêng lẻ)
 # .specstory/.what-is-this.md
+
+# =====================
+# Docs / backup / scratch 
+# =====================
+*.docx
+*_backup
+*_backup.*
+**/*_heads*.txt
+
+
+docs

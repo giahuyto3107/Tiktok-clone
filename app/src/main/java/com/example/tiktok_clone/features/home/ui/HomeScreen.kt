@@ -46,8 +46,10 @@ import com.example.tiktok_clone.features.home.ui.components.VideoPlayer
 import com.example.tiktok_clone.features.home.viewmodel.HomeViewModel
 import com.example.tiktok_clone.features.post.data.model.PostType
 import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
-import com.example.tiktok_clone.features.social.viewModel.NotificationViewModel
+import com.example.tiktok_clone.features.notification.data.model.SocialNotificationAction
+import com.example.tiktok_clone.features.notification.viewModel.NotificationViewModel
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 
 @Composable
 fun HomeScreen(
@@ -65,8 +67,11 @@ fun HomeScreen(
     val context = LocalContext.current
 
     val currentUserId: String = profileViewModel.getProfileData()?.id.toString()
-    val currentUser by socialViewModel.currentUser.collectAsState()
-    val postStates by socialViewModel.postStates.collectAsState()
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    val socialData = (socialUiState as? SocialUiState.Success)?.data
+    val currentUser = socialData?.currentUser
+    val postStates = socialData?.postStates ?: emptyMap()
+    val following = socialData?.following ?: emptySet()
 
     LaunchedEffect(currentUserId) {
         if (currentUserId.isBlank() || currentUserId == "null") return@LaunchedEffect
@@ -76,7 +81,7 @@ fun HomeScreen(
         socialViewModel.loadFollowing(currentUserId)
     }
     LaunchedEffect(Unit) {
-        notificationViewModel.loadNotifications()
+        notificationViewModel.onAction(SocialNotificationAction.LoadNotifications)
     }
 
     // Single shared ExoPlayer instance
@@ -183,6 +188,7 @@ fun HomeScreen(
                                     author = user,
                                     currentPost = currentPost,
                                     currentUser = currentUser,
+                                    following = following,
                                     postState = postStates[currentPost.id.toString()],
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)

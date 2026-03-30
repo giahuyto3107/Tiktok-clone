@@ -3,6 +3,7 @@ package com.example.tiktok_clone.features.inbox.data
 import com.example.tiktok_clone.features.inbox.data.model.Message
 import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
 import com.example.tiktok_clone.features.inbox.data.model.MessageType
+import com.example.tiktok_clone.features.social.data.FollowUserResponse
 import java.io.File
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -12,14 +13,72 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class InboxRepository(
     private val api: InboxApiService,
 ) {
+    data class CachedMessages(
+        val chatId: Int,
+        /**
+         * Dữ liệu raw theo đúng format backend trả về.
+         * UI sẽ tự reverse để hiển thị theo thứ tự mong muốn.
+         */
+        val rawMessages: List<Message>,
+    )
+
+    private val cacheLock = Any()
+    private val chatIdByOtherUid: MutableMap<String, Int> = mutableMapOf()
+    private val messagesCacheByChatId: MutableMap<Int, List<Message>> = mutableMapOf()
+
+    fun putChatIdMapping(chatWithId: String, chatId: Int) {
+        synchronized(cacheLock) {
+            chatIdByOtherUid[chatWithId] = chatId
+        }
+    }
+
+    fun getCachedMessages(chatWithId: String): CachedMessages? {
+        val resolvedChatId = chatWithId.toIntOrNull() ?: synchronized(cacheLock) {
+            chatIdByOtherUid[chatWithId]
+        } ?: return null
+
+        return synchronized(cacheLock) {
+            messagesCacheByChatId[resolvedChatId]?.let { raw ->
+                CachedMessages(chatId = resolvedChatId, rawMessages = raw)
+            }
+        }
+    }
+
+    /**
+     * Trả về danh sách contact theo "shape" giống getFollowers/getFollowing (Social).
+     * Dễ reuse UI hiện có đang consume List<FollowUserResponse>.
+     */
+    suspend fun getContacts(
+        limit: Int? = 50,
+        offset: Int? = 0,
+    ): List<FollowUserResponse> {
+        val res = api.getContacts(limit = limit, offset = offset)
+        return res.users.map { u ->
+            FollowUserResponse(
+                uid = u.uid,
+                username = u.username,
+                avatarUrl = u.avatarUrl,
+            )
+        }
+    }
 
     suspend fun getChats(limit: Int? = null, offset: Int? = null): ChatsResponse {
-        return api.getChats(limit = limit, offset = offset)
+        val res = api.getChats(limit = limit, offset = offset)
+        synchronized(cacheLock) {
+            res.chats.forEach { chat ->
+                chatIdByOtherUid[chat.otherUserId] = chat.chatId
+            }
+        }
+        return res
     }
 
     suspend fun getMessages(chatId: Int, limit: Int? = null, offset: Int? = null): List<Message> {
         val res = api.getMessages(chatId = chatId, limit = limit, offset = offset)
-        return res.messages.map { it.toMessage() }
+        val mapped = res.messages.map { it.toMessage() }
+        synchronized(cacheLock) {
+            messagesCacheByChatId[chatId] = mapped
+        }
+        return mapped
     }
 
     data class MessagesPage(
@@ -33,10 +92,11 @@ class InboxRepository(
         offset: Int? = null,
     ): MessagesPage {
         val res = api.getMessages(chatId = chatId, limit = limit, offset = offset)
-        return MessagesPage(
-            messages = res.messages.map { it.toMessage() },
-            total = res.total,
-        )
+        val mapped = res.messages.map { it.toMessage() }
+        synchronized(cacheLock) {
+            messagesCacheByChatId[chatId] = mapped
+        }
+        return MessagesPage(messages = mapped, total = res.total)
     }
 
     /**
@@ -50,6 +110,20 @@ class InboxRepository(
             content = content,
             imageUri = null,
             type = "TEXT",
+        )
+        return api.sendMessage(otherUid, body).toMessage()
+    }
+
+    suspend fun sendMediaMessage(
+        otherUid: String,
+        imageUri: String,
+        type: String,
+        content: String? = null,
+    ): Message {
+        val body = SendMessageRequest(
+            content = content,
+            imageUri = imageUri,
+            type = type.uppercase(),
         )
         return api.sendMessage(otherUid, body).toMessage()
     }
@@ -102,8 +176,8 @@ private fun MessageDto.toMessage(): Message = Message(
     content = content ?: "",
     senderId = senderId,
     timestamp = timestamp,
-    type = type.toMessageType(),
-    status = status.toMessageStatus(),
+    type = type?.toMessageType() ?: MessageType.TEXT,
+    status = status?.toMessageStatus() ?: MessageStatus.SENT,
     imageUri = imageUri,
     receiptStatus = receiptStatus?.toMessageStatus(),
 )
@@ -121,3 +195,4 @@ private fun String.toMessageStatus(): MessageStatus = when (uppercase()) {
     "SEEN" -> MessageStatus.SEEN
     else -> MessageStatus.SENT
 }
+

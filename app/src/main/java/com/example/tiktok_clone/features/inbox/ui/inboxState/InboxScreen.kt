@@ -14,10 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.setValue
+import com.example.tiktok_clone.features.inbox.data.model.InboxAction
 import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
-import com.example.tiktok_clone.features.social.viewModel.FollowNotificationViewModel
-import com.example.tiktok_clone.features.social.viewModel.NotificationViewModel
+import com.example.tiktok_clone.features.inbox.ui.InboxUiState
+import com.example.tiktok_clone.features.notification.data.model.FollowNotificationAction
+import com.example.tiktok_clone.features.notification.data.model.SocialNotificationAction
+import com.example.tiktok_clone.features.notification.viewModel.FollowNotificationViewModel
+import com.example.tiktok_clone.features.notification.viewModel.NotificationViewModel
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
@@ -33,7 +38,7 @@ fun InboxScreen(
     val socialViewModel: SocialViewModel = koinViewModel()
     val notificationViewModel: NotificationViewModel = koinViewModel()
     val followNotificationViewModel: FollowNotificationViewModel = koinViewModel()
-    val chats by inboxViewModel.chats.collectAsState()
+    val chatsUiState by inboxViewModel.chatsUiState.collectAsState()
     val auth = FirebaseAuth.getInstance()
     var currentUserId by remember { mutableStateOf(auth.currentUser?.uid.orEmpty()) }
 
@@ -47,9 +52,10 @@ fun InboxScreen(
 
     LaunchedEffect(currentUserId) {
         if (currentUserId.isNotBlank()) {
-            inboxViewModel.loadChats()
-            notificationViewModel.preloadNotificationsIfNeeded()
-            followNotificationViewModel.preloadNotificationsIfNeeded()
+            inboxViewModel.ensureUserInboxWsConnected(currentUserId)
+            inboxViewModel.onAction(InboxAction.LoadChats(force = false))
+            notificationViewModel.onAction(SocialNotificationAction.PreloadIfNeeded)
+            followNotificationViewModel.onAction(FollowNotificationAction.PreloadIfNeeded)
         }
     }
 
@@ -71,14 +77,26 @@ fun InboxScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         InboxHeader()
-        InboxChatList(
-            currentUser = currentUser,
-            chats = chats,
-            inboxViewModel = inboxViewModel,
-            socialViewModel = socialViewModel,
-            onChatClick = onChatClick,
-            onUserNotificationClick = onUserNotificationClick,
-            onSocialNotificationClick = onSocialNotificationClick,
-        )
+        when (val state = chatsUiState) {
+            InboxUiState.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            is InboxUiState.Error -> {
+                Text(text = state.message)
+            }
+
+            is InboxUiState.Success -> {
+                InboxChatList(
+                    currentUser = currentUser,
+                    chats = state.items,
+                    inboxViewModel = inboxViewModel,
+                    socialViewModel = socialViewModel,
+                    onChatClick = onChatClick,
+                    onUserNotificationClick = onUserNotificationClick,
+                    onSocialNotificationClick = onSocialNotificationClick,
+                )
+            }
+        }
     }
 }

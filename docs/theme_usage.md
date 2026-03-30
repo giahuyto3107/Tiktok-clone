@@ -7,7 +7,7 @@ Use these files instead of hard‑coding colors, text sizes, or spacings in your
 
 - **`Color.kt`**  
   Defines the app’s color palette:
-  - **Brand / primary colors**: `TikTokRed`, `RedHeart`, `BlueAccent`, `YellowSave`
+  - **Brand / primary colors**: `TikTokRed`, `BlueAccent`, `YellowSave`
   - **Base colors**: `Black`, `White`, `DarkSurface`, `GrayBackground`, etc.
   - **Text colors**: `TextOnLight`, `TextOnDark`, `TextSecondary`, `TextPrimaryLight`, `TextPrimaryDark`, etc.  
   These are used by `Theme.kt` to build the Material 3 `ColorScheme`, and can also be used directly in custom composables if needed.

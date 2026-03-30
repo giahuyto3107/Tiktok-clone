@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -16,19 +15,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.util.Log
 import com.example.tiktok_clone.features.post.data.model.Post
-import com.example.tiktok_clone.features.social.data.PostStateResponse
-import com.example.tiktok_clone.features.social.data.model.ShareItem
-import com.example.tiktok_clone.features.social.data.model.ShareSheetMode
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.data.model.SocialAction
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import org.checkerframework.checker.units.qual.s
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +40,9 @@ fun ShareSheetContent(
         socialViewModel.onAction(SocialAction.ClearSelectedFriendShare)
         onDismiss()
     }
-    val selectedFriendShare by socialViewModel.selectedFriendShare.collectAsState()
+    val uiState by socialViewModel.uiState.collectAsState()
+    val selectedFriendShare =
+        (uiState as? SocialUiState.Success)?.data?.selectedFriendShare ?: emptySet()
     ModalBottomSheet(
         onDismissRequest = handleDismiss,
         containerColor = Color.White,
@@ -104,6 +99,8 @@ fun DefaultShareSheet(
                 ShareInput(
                     socialViewModel = socialViewModel,
                     selectedFriendShare = selectedFriendShare,
+                    currentPost = currentPost,
+                    onDismiss = handleDismiss
                 )
             } else {
                 ShareActionList(

@@ -7,7 +7,7 @@ enum class PostType {
 data class Post(
     val id: Int = 0,
     val userId: String = "0",
-    val type: PostType = PostType.VIDEO,
+    val type: PostType = PostType.VIDEO, //enum
     val mediaUrl: String = "",
     val thumbnailUrl: String = "",       // Nếu là video thì có thumb, nếu là ảnh thì dùng chung mediaUrl
     val caption: String = "",

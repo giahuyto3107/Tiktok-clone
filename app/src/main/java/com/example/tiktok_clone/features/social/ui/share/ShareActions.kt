@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.data.model.SocialAction
-import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
@@ -43,7 +42,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ShareActions(
     currentPost: Post,
-    currentUser: User?,
     isShared: Boolean,
     socialViewModel: SocialViewModel = koinViewModel()
 ) {
@@ -73,7 +71,7 @@ fun ShareActions(
                         .rotate(90f),
                     onClick = {
                         socialViewModel.onAction(
-                            SocialAction.Share(
+                            SocialAction.SharePost(
                                 currentPost.id.toString()
                             )
                         )

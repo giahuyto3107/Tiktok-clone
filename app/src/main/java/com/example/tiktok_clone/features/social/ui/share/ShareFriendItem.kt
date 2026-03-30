@@ -1,12 +1,10 @@
 package com.example.tiktok_clone.features.social.ui.share
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -24,14 +22,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.data.FollowUserResponse
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.data.model.SocialAction
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.example.tiktok_clone.ui.theme.RedHeart
+import com.example.tiktok_clone.ui.theme.TikTokRed
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -40,11 +38,16 @@ fun ShareFriendItem(
     friend: User,
     socialViewModel: SocialViewModel = koinViewModel(),
 ) {
-    val selectedFriendShare by socialViewModel.selectedFriendShare.collectAsState()
+    val uiState by socialViewModel.uiState.collectAsState()
+    val selectedFriendShare =
+        (uiState as? SocialUiState.Success)?.data?.selectedFriendShare ?: emptySet()
     val isOnShare = friend.id in selectedFriendShare
 
     Column(
-        modifier = Modifier.clickable(onClick = {
+        modifier = Modifier.clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() },
+            onClick = {
             onShare(friend)
             socialViewModel.onAction(
                 SocialAction.SelectedFriendShare(friend.id)
@@ -52,7 +55,7 @@ fun ShareFriendItem(
         }),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val avatarSize: Int = 50
+        val avatarSize = 50
         Box(
             modifier = Modifier,
             contentAlignment = Alignment.Center
@@ -83,7 +86,7 @@ fun ShareFriendItem(
                             modifier = Modifier
                                 .size(16.dp)
                                 .clip(CircleShape)
-                                .background(color = RedHeart)
+                                .background(color = TikTokRed)
                                 .align(Alignment.Center)
                         )
                     }

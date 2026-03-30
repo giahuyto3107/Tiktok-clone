@@ -1,6 +1,5 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
-import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.social.data.model.Comment
 import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.data.model.User
+import com.example.tiktok_clone.features.social.ui.components.resolvePickedCommentImage
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -76,17 +76,10 @@ fun CommentInput(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val mime = context.contentResolver.getType(uri)
-        if (mime?.startsWith("image") != true) return@rememberLauncherForActivityResult
-        val ext = when (mime) {
-            "image/png" -> ".png"
-            "image/gif" -> ".gif"
-            "image/webp" -> ".webp"
-            else -> ".jpg"
-        }
-        val file = uriToTempFile(context, uri, ext) ?: return@rememberLauncherForActivityResult
-        selectedImageUri = uri
-        selectedImageFile = file
+        val pickedImage =
+            resolvePickedCommentImage(context, uri) ?: return@rememberLauncherForActivityResult
+        selectedImageUri = pickedImage.uri
+        selectedImageFile = pickedImage.file
         onCommenting()
     }
 
@@ -218,11 +211,13 @@ fun CommentInput(
                         val text = commentText.trim()
                         val selectedFile = selectedImageFile
                         if (selectedFile != null) {
-                            socialViewModel.addCommentWithImage(
-                                postId = postId,
-                                commentText = text,
-                                parentId = commentRoot?.id,
-                                file = selectedFile,
+                            socialViewModel.onAction(
+                                SocialAction.AddCommentWithImage(
+                                    postId = postId,
+                                    commentText = text,
+                                    parentId = commentRoot?.id,
+                                    file = selectedFile,
+                                )
                             )
                         } else {
                             socialViewModel.onAction(
@@ -257,16 +252,5 @@ fun CommentInput(
                 }
             }
         }
-    }
-}
-
-private fun uriToTempFile(context: Context, uri: Uri, extension: String): File? {
-    return try {
-        val input = context.contentResolver.openInputStream(uri) ?: return null
-        val file = File.createTempFile("comment_img_", extension, context.cacheDir)
-        file.outputStream().use { out -> input.copyTo(out) }
-        file
-    } catch (_: Exception) {
-        null
     }
 }

@@ -8,16 +8,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ShareFriendList(
     socialViewModel: SocialViewModel = koinViewModel(),
 ) {
-    val friendState by socialViewModel.friends.collectAsState()
+    val uiState by socialViewModel.uiState.collectAsState()
+    val friendState = (uiState as? SocialUiState.Success)?.data?.friends ?: emptyList()
     val friend = socialViewModel.getUserList(friendState.map { it.uid })
 
     LazyRow(
@@ -25,6 +25,7 @@ fun ShareFriendList(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(friend.size) { index ->
+            Log.d("ShareFriendList", "ShareFriendList: ${friend[index].id}")
             ShareFriendItem(
                 friend = friend[index],
                 onShare = {

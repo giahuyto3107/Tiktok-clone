@@ -31,7 +31,7 @@ import com.example.tiktok_clone.features.profile.ui.ProfileScreen
 import com.example.tiktok_clone.features.search.ui.SearchResultScreen
 import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
-import com.example.tiktok_clone.features.social.ui.notification.Notification
+import com.example.tiktok_clone.features.notification.ui.Notification
 
 import com.google.firebase.auth.FirebaseAuth
 

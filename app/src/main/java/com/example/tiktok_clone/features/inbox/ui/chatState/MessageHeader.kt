@@ -26,7 +26,6 @@ import com.example.tiktok_clone.ui.theme.GrayBackground
 @Composable
 fun MessageHead(
     chatWithUser: User,
-    modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
 ) {
     Row(

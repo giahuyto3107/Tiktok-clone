@@ -1,8 +1,10 @@
-package com.example.tiktok_clone.features.social.viewModel
+package com.example.tiktok_clone.features.notification.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tiktok_clone.core.network.RealtimeWebSocketClient
+import com.example.tiktok_clone.features.notification.data.model.SocialNotificationAction
+import com.example.tiktok_clone.features.notification.ui.NotificationUiState
 import com.example.tiktok_clone.features.social.data.NotificationRepository
 import com.example.tiktok_clone.features.social.data.model.Notification
 import com.google.firebase.auth.FirebaseAuth
@@ -17,6 +19,10 @@ class NotificationViewModel(
     private val repository: NotificationRepository,
     okHttpClient: OkHttpClient,
 ) : ViewModel() {
+    private val _uiState = MutableStateFlow<NotificationUiState<Notification>>(
+        NotificationUiState.Loading
+    )
+    val uiState: StateFlow<NotificationUiState<Notification>> = _uiState.asStateFlow()
 
     private val wsClient = RealtimeWebSocketClient(okHttpClient)
     private var connectedUid: String? = null
@@ -28,7 +34,6 @@ class NotificationViewModel(
     val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
@@ -44,32 +49,32 @@ class NotificationViewModel(
 
     fun loadNotifications() {
         viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
+            _uiState.value = NotificationUiState.Loading
             try {
                 val uid = FirebaseAuth.getInstance().currentUser?.uid
                 if (!uid.isNullOrBlank()) ensureWsConnected(uid)
-
-                _notifications.value = repository.getNotifications()
-                _unreadCount.value = repository.getUnreadCount()
+                val items = repository.getNotifications()
+                val unread = repository.getUnreadCount()
+                _uiState.value = NotificationUiState.Success(
+                    items = items,
+                    unreadCount = unread,
+                )
                 hasLoadedOnce = true
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _error.value = e.message ?: "Lỗi tải thông báo"
-            } finally {
-                _isLoading.value = false
+                _uiState.value = NotificationUiState.Error(
+                    message = e.message ?: "Lỗi tải thông báo"
+                )
             }
         }
     }
-
     private fun ensureWsConnected(uid: String) {
         if (connectedUid == uid) return
         connectedUid = uid
         viewModelScope.launch {
             wsClient.disconnect()
             wsClient.connect("api/v1/ws/social/users/$uid") { event, _ ->
-                // Callback chạy trên IO thread
                 handleWsEvent(event)
             }
         }
@@ -84,7 +89,7 @@ class NotificationViewModel(
                 _notifications.value = repository.getNotifications()
                 _unreadCount.value = repository.getUnreadCount()
             } catch (_: Exception) {
-                // Không làm gì nếu lỗi để tránh crash.
+                // im lặng
             } finally {
                 wsReloadInFlight = false
             }
@@ -93,6 +98,15 @@ class NotificationViewModel(
 
     fun clearError() {
         _error.value = null
+    }
+
+    fun onAction(action: SocialNotificationAction) {
+        when (action) {
+            SocialNotificationAction.PreloadIfNeeded -> preloadNotificationsIfNeeded()
+            SocialNotificationAction.LoadNotifications -> loadNotifications()
+            SocialNotificationAction.MarkAllSeen -> markAllSeen()
+            SocialNotificationAction.ClearError -> clearError()
+        }
     }
 
     fun markAllSeen() {
@@ -115,10 +129,9 @@ class NotificationViewModel(
         }
     }
 
-    // Để giữ code đơn giản, realtime chỉ trigger reload từ REST thay vì parse payload WS.
-
     override fun onCleared() {
         super.onCleared()
         wsClient.disconnect()
     }
 }
+

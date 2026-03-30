@@ -17,8 +17,8 @@ import com.example.tiktok_clone.features.social.ui.components.CommentItem
 fun CommentInputItem(
     modifier: Modifier = Modifier,
     onGalleryClick: () -> Unit = {},
-    onStickerClick: () -> Unit = {},
-    onTagClick: () -> Unit = {},
+//    onStickerClick: () -> Unit = {},
+//    onTagClick: () -> Unit = {},
 ) {
     Row(
         modifier = modifier,
