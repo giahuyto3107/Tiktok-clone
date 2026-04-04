@@ -30,11 +30,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Define BuildConfig fields from .env
-        buildConfigField("String", "API_BASE_URL", "\"${env.getProperty("API_BASE_URL") ?: ""}\"")
-        buildConfigField("String", "API_URL_EMULATOR", "\"${env.getProperty("API_URL_EMULATOR") ?: ""}\"")
-        buildConfigField("String", "API_URL_DEVICE", "\"${env.getProperty("API_URL_DEVICE") ?: ""}\"")
-        buildConfigField("String", "API_URL_STAGING", "\"${env.getProperty("API_URL_STAGING") ?: ""}\"")
-        buildConfigField("String", "API_URL_PRODUCTION", "\"${env.getProperty("API_URL_PRODUCTION") ?: ""}\"")
+        val apiBaseUrl = (env.getProperty("API_BASE_URL") ?: "").replace("\"", "").trim()
+        val apiEmulatorUrl = (env.getProperty("API_URL_EMULATOR") ?: "").replace("\"", "").trim()
+        val apiDeviceUrl = (env.getProperty("API_URL_DEVICE") ?: "").replace("\"", "").trim()
+        val apiStagingUrl = (env.getProperty("API_URL_STAGING") ?: "").replace("\"", "").trim()
+        val apiProductionUrl = (env.getProperty("API_URL_PRODUCTION") ?: "").replace("\"", "").trim()
+
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        buildConfigField("String", "API_URL_EMULATOR", "\"$apiEmulatorUrl\"")
+        buildConfigField("String", "API_URL_DEVICE", "\"$apiDeviceUrl\"")
+        buildConfigField("String", "API_URL_STAGING", "\"$apiStagingUrl\"")
+        buildConfigField("String", "API_URL_PRODUCTION", "\"$apiProductionUrl\"")
     }
     buildTypes {
         debug {
