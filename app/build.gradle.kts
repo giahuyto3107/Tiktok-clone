@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +10,14 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }
+
+val env = Properties().apply {
+    val envFile = project.rootProject.file(".env")
+    if (envFile.exists()) {
+        load(FileInputStream(envFile))
+    }
+}
+
 android {
     namespace = "com.example.tiktok_clone"
     compileSdk = 35
@@ -17,6 +28,13 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Define BuildConfig fields from .env
+        buildConfigField("String", "API_BASE_URL", "\"${env.getProperty("API_BASE_URL") ?: ""}\"")
+        buildConfigField("String", "API_URL_EMULATOR", "\"${env.getProperty("API_URL_EMULATOR") ?: ""}\"")
+        buildConfigField("String", "API_URL_DEVICE", "\"${env.getProperty("API_URL_DEVICE") ?: ""}\"")
+        buildConfigField("String", "API_URL_STAGING", "\"${env.getProperty("API_URL_STAGING") ?: ""}\"")
+        buildConfigField("String", "API_URL_PRODUCTION", "\"${env.getProperty("API_URL_PRODUCTION") ?: ""}\"")
     }
     buildTypes {
         debug {

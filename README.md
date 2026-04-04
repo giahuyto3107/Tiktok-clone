@@ -4,23 +4,29 @@ A modern Android application built with Jetpack Compose that replicates the core
 
 ## 📱 Features
 
-### 🏠 Home Screen
-- **Vertical Video Feed**: Swipe vertically to browse through videos
-- **Interactive Elements**: Like, comment, save, and share buttons
-- **Video Information**: User profiles and video descriptions
-- **Bottom Navigation**: Home, Shop, Camera, Inbox, and Profile sections
+### 🏠 Home Screen & Video Feed
+- **Vertical Video Feed**: Swipe vertically to browse through videos with API pagination support.
+- **Video Player**: High-performance video playback using **ExoPlayer** with proper lifecycle management.
+- **Interactive Elements**: Like, comment, save, and share buttons.
+- **Video Information**: Accurately fetch and display user profiles (e.g., display names) and video descriptions from the backend.
+- **Bottom Navigation**: Home, Shop, Camera, Inbox, and Profile sections.
 
-### 📸 Camera & Video Creation
-- **Live Camera Preview**: Real-time camera feed using CameraX
-- **Permission Management**: Smart handling of camera and microphone permissions
-- **Recording Options**: Multiple duration settings (10m, 60s, 15s, PHOTO)
-- **Post Categories**: Choose between POST, CREATE, and LIVE modes
+### 📸 Camera & Post Creation
+- **Live Camera Preview**: Real-time camera feed using CameraX.
+- **Media Capture**: Record videos or capture photos natively with multiple duration settings (10m, 60s, 15s, PHOTO).
+- **Preview & Publish**: Review recorded videos or photos before publishing via a dedicated Preview screen.
+- **Media Uploading**: Robust image and video upload to the backend API.
+- **Permission Management**: Smart handling of camera and microphone permissions.
 
-### 🎨 User Interface
-- **Modern Design**: Clean, intuitive interface following Material Design 3
-- **Dark Theme**: Optimized for video viewing experience
-- **Smooth Animations**: Fluid transitions and interactions
-- **Responsive Layout**: Adapts to different screen sizes
+### 🔐 Authentication & Backend Integration
+- **Firebase Authentication**: Secure user login and identity management using Firebase.
+- **API & Backend**: Connected to a custom Node.js backend leveraging the Firebase Admin SDK for secure token verification.
+- **Data Synchronization**: Dynamically fetch posts, user details, and formatted absolute media URLs from the server.
+
+### 🎨 User Interface & Navigation
+- **Modern Design**: Clean, intuitive interface following Material Design 3.
+- **Seamless Flow**: Smooth navigation across Camera -> Preview -> Post -> Main Feed utilizing shared scalable ViewModels.
+- **Dark Theme**: Optimized for a rich video viewing experience.
 
 ## 🏗️ Architecture
 
