@@ -4,8 +4,10 @@ object NavigationRoutes {
     const val mainWrapper = "main_wrapper"
 
 
-    const val searchRoute = "search"
-    const val searchResultRoute = "search_result"
+    /** Nested graph: shared SearchViewModel between home + result */
+    const val searchGraphRoute = "search_flow"
+    const val searchHomeRoute = "search_flow/home"
+    const val searchResultRoute = "search_flow/result"
 
 
     const val selectSignUpRoute = "select_signup"

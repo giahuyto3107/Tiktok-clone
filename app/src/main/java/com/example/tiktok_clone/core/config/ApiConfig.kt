@@ -11,14 +11,14 @@ object ApiConfig {
     // Retrofit requires baseUrl to end with "/"
     // Keep this as server root; endpoints include `/api/v1/...` to avoid URL-join issues.
 
-//    const val BASE_URL = "http://10.0.2.2:8000/"
-//    const val BASE_URL = "http://192.168.110.117:8000/"
-    const val BASE_URL = "http://192.168.101.73:8000/"
-
+    // Emulator: 10.0.2.2 = máy dev (localhost trên PC). KHÔNG dùng 127.0.0.1 — đó là chính điện thoại.
+    const val BASE_URL = "http://10.0.2.2:8000/"
+    // Máy thật: IP Wi‑Fi của PC, ví dụ "http://192.168.1.50:8000/" + chạy uvicorn --host 0.0.0.0
 
     // Environment-specific URLs
     const val LOCAL_EMULATOR = "http://10.0.2.2:8000/"
-    const val LOCAL_DEVICE = "http://192.168.110.117:8000/"
+    /** Điện thoại thật: thay bằng IP LAN thật của PC (ipconfig), không dùng 127.0.0.1 */
+    const val LOCAL_DEVICE = "http://172.20.10.12:8000/"
     const val STAGING = "http://staging-api.yourapp.com/"
     const val PRODUCTION = "http://api.yourapp.com/"
 
