@@ -17,6 +17,7 @@ data class SocialUiData(
     val postStates: Map<String, PostStateResponse> = emptyMap(),
     val comments: List<Comment> = emptyList(),
     val commentHasMore: Map<String, Boolean> = emptyMap(),
+    val commentLoading: Map<String, Boolean> = emptyMap(),
     val currentUser: User? = null,
     val friends: List<FollowUserResponse> = emptyList(),
     val followers: Set<String> = emptySet(),
@@ -28,6 +29,8 @@ data class SocialUiData(
     val selectedPostId: String? = null,
 ) {
     fun commentsOf(postId: String): List<Comment> = comments.filter { it.postId == postId }
+
+    fun isCommentLoading(postId: String): Boolean = commentLoading[postId] == true
 
     fun canLoadMoreComments(postId: String): Boolean =
         (commentHasMore[postId] ?: true) && uploadState !is UploadState.Loading

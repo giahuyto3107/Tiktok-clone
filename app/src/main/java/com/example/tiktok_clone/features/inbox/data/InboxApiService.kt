@@ -13,39 +13,20 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-/**
- * Retrofit service cho Inbox – map theo spec backend.
- * Base: /api/v1/inbox
- * Auth: Authorization: Bearer <Firebase_ID_Token>
- */
 interface InboxApiService {
 
-    /**
-     * GET /api/v1/inbox/contacts
-     * Query: limit (default 50), offset (default 0)
-     *
-     * Trả về danh sách user đã từng nhắn tin với user hiện tại.
-     */
     @GET("api/v1/inbox/contacts")
     suspend fun getContacts(
         @Query("limit") limit: Int? = null,
         @Query("offset") offset: Int? = null,
     ): ContactsResponse
 
-    /**
-     * GET /api/v1/inbox/chats
-     * Query: limit (default 20), offset (default 0)
-     */
     @GET("api/v1/inbox/chats")
     suspend fun getChats(
         @Query("limit") limit: Int? = null,
         @Query("offset") offset: Int? = null,
     ): ChatsResponse
 
-    /**
-     * GET /api/v1/inbox/chats/{chatId}/messages
-     * Path: chatId (int). Query: limit, offset
-     */
     @GET("api/v1/inbox/chats/{chatId}/messages")
     suspend fun getMessages(
         @Path("chatId") chatId: Int,
@@ -53,20 +34,12 @@ interface InboxApiService {
         @Query("offset") offset: Int? = null,
     ): MessagesResponse
 
-    /**
-     * POST /api/v1/inbox/chats/{otherUid}/messages
-     * Gửi tin nhắn TEXT (không upload file).
-     */
     @POST("api/v1/inbox/chats/{otherUid}/messages")
     suspend fun sendMessage(
         @Path("otherUid") otherUid: String,
         @Body body: SendMessageRequest,
     ): MessageDto
 
-    /**
-     * POST /api/v1/inbox/chats/{otherUid}/messages/upload
-     * Gửi tin nhắn có file (IMAGE / VIDEO) – multipart/form-data.
-     */
     @Multipart
     @POST("api/v1/inbox/chats/{otherUid}/messages/upload")
     suspend fun uploadMessage(

@@ -1,20 +1,35 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
+import android.util.Log
+
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,8 +37,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,8 +53,9 @@ import com.example.tiktok_clone.features.post.ui.UploadState
 import com.example.tiktok_clone.features.social.data.model.Comment
 import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.data.model.User
-import com.example.tiktok_clone.features.social.ui.SocialUiState
+import com.example.tiktok_clone.features.social.ui.components.SetKeyboardOverlayMode
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,33 +66,30 @@ fun CommentSheetContent(
     socialViewModel: SocialViewModel = koinViewModel(),
     onDismiss: () -> Unit,
 ) {
+    SetKeyboardOverlayMode()
+
     var isCommenting by remember { mutableStateOf(false) }
     var commentRoot by remember { mutableStateOf<Comment?>(null) }
-    val uiState by socialViewModel.uiState.collectAsState()
-    val allComments = (uiState as? SocialUiState.Success)?.data?.comments ?: emptyList()
+    var isSort by remember { mutableStateOf(false) }
+    var isTimeSort by remember { mutableStateOf(false) }
+
     val postId = currentPost.id.toString()
-    val comments = remember(allComments, postId) {
-        allComments.filter { it.postId == postId }
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    val commentUiState = socialUiState.toCommentUiState(postId)
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    LaunchedEffect(postId) {
+        socialViewModel.onAction(SocialAction.LoadComment(postId))
     }
-    val uploadState =
-        (uiState as? SocialUiState.Success)?.data?.uploadState ?: UploadState.Idle
-    val commentHasMore =
-        (uiState as? SocialUiState.Success)?.data?.commentHasMore ?: emptyMap()
-    val hasMoreForPost = commentHasMore[currentPost.id.toString()] ?: true
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-    )
-    LaunchedEffect(uploadState) {
-        if (uploadState is UploadState.Success)
-            socialViewModel.onAction(SocialAction.LoadComment(currentPost.id.toString()))
-    }
+    val listState = remember(postId, isTimeSort) { LazyListState() }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = Color.White,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         dragHandle = null,
-        modifier = Modifier
+        contentWindowInsets = { WindowInsets(0.dp, 0.dp, 0.dp, 0.dp) },
     ) {
         Box(
             modifier = Modifier
@@ -88,48 +103,96 @@ fun CommentSheetContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CommentHeader(
-                    commentCount = comments.size.toLong(),
-//                    search = "Search",
-                    onClose = onDismiss,
+                    commentCount = (commentUiState as? CommentUiState.Success)?.comments
+                        ?.size
+                        ?.toLong() ?: 0L,
+                    onClose = {
+                        onDismiss()
+                        isSort = false
+                        isTimeSort = false
+                    },
+                    onSort = { isSort = !isSort }
                 )
-                if (comments.isEmpty() && currentUser?.id != currentPost.userId) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.no_comment),
-                            contentDescription = "No comment",
+
+                when (commentUiState) {
+                    CommentUiState.Loading -> {
+                        Box(
                             modifier = Modifier
-                                .size(180.dp),
-                        )
-                        Text(
-                            text = "Bạn thấy bài đăng này hay chứ? Hãy là người đầu tiên bình luận",
-                            color = Color.Gray,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 24.dp)
-                        )
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
-                } else {
-                    CommentList(
-                        modifier = Modifier
-                            .weight(1f)
-                            .nestedScroll(rememberNestedScrollInteropConnection()),
-                        comments = comments,
-                        hasMore = hasMoreForPost,
-                        onLoadMore = {
-                            socialViewModel.onAction(
-                                SocialAction.LoadMoreComment(currentPost.id.toString())
+
+                    is CommentUiState.Error -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = commentUiState.message,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center,
                             )
-                        },
-                        onReply = { value -> isCommenting = value },
-                        parent = { value -> commentRoot = value }
-                    )
+                        }
+                    }
+
+                    is CommentUiState.Success -> {
+                        LaunchedEffect(commentUiState.uploadState) {
+                            if (commentUiState.uploadState is UploadState.Success) {
+                                socialViewModel.onAction(SocialAction.LoadComment(postId))
+                            }
+                        }
+                        val comments = remember(commentUiState.comments, isTimeSort) {
+                            if (isTimeSort)
+                                commentUiState.comments.sortedByDescending { it.createdAt }
+                            else
+                                commentUiState.comments.sortedByDescending { it.likeCount }
+                        }
+                        if (comments.isEmpty() && currentUser?.id != currentPost.userId) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.no_comment),
+                                    contentDescription = "No comment",
+                                    modifier = Modifier.size(180.dp),
+                                )
+                                Text(
+                                    text = "Bạn thấy bài đăng này hay chứ? Hãy là người đầu tiên bình luận",
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 24.dp)
+                                )
+                            }
+                        } else {
+                            CommentList(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .nestedScroll(rememberNestedScrollInteropConnection()),
+                                comments = comments,
+                                hasMore = commentUiState.hasMore,
+                                onLoadMore = {
+                                    socialViewModel.onAction(
+                                        SocialAction.LoadMoreComment(postId)
+                                    )
+                                },
+                                onReply = { value -> isCommenting = value },
+                                parent = { value -> commentRoot = value },
+                                listState = listState,
+                            )
+                        }
+                    }
                 }
                 CommentBottomBar(
                     post = currentPost,
@@ -137,18 +200,76 @@ fun CommentSheetContent(
                     onReply = isCommenting,
                     commentRoot = commentRoot
                 )
-
+            }
+            if (isSort) {
+                SortCard(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd),
+                    isTimeSort = isTimeSort,
+                    onSelect = {
+                        if (it != isTimeSort) {
+                            isTimeSort = it
+                            socialViewModel.onAction(SocialAction.LoadComment(postId))
+                        }
+                        isSort = false
+                    }
+                )
             }
         }
     }
 }
 
+@Composable
+private fun SortCard(
+    isTimeSort: Boolean,
+    onSelect: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val options = listOf("Hàng đầu" to false, "Mới nhất" to true)
 
-
-
-
-
-
-
-
-
+    Card(
+        modifier = Modifier
+            .offset(x = (-16).dp, y = 40.dp)
+            .wrapContentSize()
+            .shadow(
+                elevation = (20).dp,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .then(modifier)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.4f)
+                .background(Color.White)
+        ) {
+            options.forEach { (label, value) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onSelect(
+                                value
+                            )
+                        }
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        label,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    if (isTimeSort == value)
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = null,
+                            tint = Color.Black,
+                            modifier = Modifier.size(20.dp)
+                        )
+                }
+            }
+        }
+    }
+}

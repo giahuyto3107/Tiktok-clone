@@ -20,7 +20,8 @@ object ApiConfig {
     // Auto-detect environment (optional)
     fun getBaseUrl(): String {
         return when {
-            BuildConfig.DEBUG -> BASE_URL
+//            BuildConfig.DEBUG -> BASE_URL
+            BuildConfig.DEBUG -> LOCAL_EMULATOR
             else -> PRODUCTION
         }
     }
