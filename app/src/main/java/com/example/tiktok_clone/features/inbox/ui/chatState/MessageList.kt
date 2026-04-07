@@ -34,8 +34,6 @@ fun MessageList(
     val listState = rememberLazyListState()
     var hasInitialScrollDone by remember { mutableStateOf(false) }
 
-    // Chỉ scroll xuống đáy khi tin nhắn CUỐI cùng thay đổi (tin mới gửi/nhận).
-    // Khi prepend tin cũ (load more), lastMessageId không đổi → không scroll.
     val newestMessage = messages.firstOrNull()
     val newestMessageId = newestMessage?.id
     LaunchedEffect(newestMessageId, currentUser) {

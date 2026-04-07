@@ -70,12 +70,22 @@ fun AdminSidebar(
     ) {
         // Logo
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(40.dp).background(Color.Black, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.Black, RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(Icons.Default.Home, null, tint = Color.White)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text("TikTok Admin", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextBlack)
+                Text(
+                    "TikTok Admin",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = TextBlack
+                )
                 Text("Management Panel", fontSize = 12.sp, color = TextGray)
             }
         }
@@ -83,7 +93,13 @@ fun AdminSidebar(
         Spacer(modifier = Modifier.height(60.dp))
 
         // MENU ITEMS
-        Text("MAIN MENU", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextGray, modifier = Modifier.padding(bottom = 16.dp))
+        Text(
+            "MAIN MENU",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextGray,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
         // Item 1: Users
         SidebarMenuItem(
@@ -102,7 +118,13 @@ fun AdminSidebar(
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text("SETTINGS", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextGray, modifier = Modifier.padding(bottom = 16.dp))
+        Text(
+            "SETTINGS",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextGray,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
         SidebarMenuItem("Logout", Icons.Default.ExitToApp, isSelected = false, onClick = {})
     }
 }
@@ -153,7 +175,9 @@ fun TopBarSection(title: String) {
             value = "", onValueChange = {},
             placeholder = { Text("Search anything...", fontSize = 14.sp, color = TextGray) },
             leadingIcon = { Icon(Icons.Default.Search, null, tint = TextGray) },
-            modifier = Modifier.width(350.dp).height(50.dp),
+            modifier = Modifier
+                .width(350.dp)
+                .height(50.dp),
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = Color.White, focusedContainerColor = Color.White,

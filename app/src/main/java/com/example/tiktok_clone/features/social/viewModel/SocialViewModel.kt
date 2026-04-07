@@ -79,6 +79,8 @@ class SocialViewModel(
 
     private val _commentHasMore = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     val commentHasMore = _commentHasMore.asStateFlow()
+    private val _commentLoading = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val commentLoading = _commentLoading.asStateFlow()
 
     private val _selectedPostId = MutableStateFlow<String?>(null)
     val selectedPostId = _selectedPostId.asStateFlow()
@@ -89,6 +91,7 @@ class SocialViewModel(
         postStates,
         comments,
         commentHasMore,
+        commentLoading,
         currentUser,
         friends,
         followers,
@@ -100,7 +103,7 @@ class SocialViewModel(
         selectedPostId,
         _error,
     ) { values ->
-        val errorMsg = values[12] as? String
+        val errorMsg = values[13] as? String
         if (errorMsg != null) {
             SocialUiState.Error(errorMsg)
         } else {
@@ -109,15 +112,16 @@ class SocialViewModel(
                     postStates = values[0] as Map<String, PostStateResponse>,
                     comments = values[1] as List<Comment>,
                     commentHasMore = values[2] as Map<String, Boolean>,
-                    currentUser = values[3] as User?,
-                    friends = values[4] as List<FollowUserResponse>,
-                    followers = values[5] as Set<String>,
-                    following = values[6] as Set<String>,
-                    followCounts = values[7] as FollowCountResponse?,
-                    selectedFriendShare = values[8] as Set<String>,
-                    uploadState = values[9] as UploadState,
-                    showReportSheet = values[10] as Boolean,
-                    selectedPostId = values[11] as String?,
+                    commentLoading = values[3] as Map<String, Boolean>,
+                    currentUser = values[4] as User?,
+                    friends = values[5] as List<FollowUserResponse>,
+                    followers = values[6] as Set<String>,
+                    following = values[7] as Set<String>,
+                    followCounts = values[8] as FollowCountResponse?,
+                    selectedFriendShare = values[9] as Set<String>,
+                    uploadState = values[10] as UploadState,
+                    showReportSheet = values[11] as Boolean,
+                    selectedPostId = values[12] as String?,
                 )
             )
         }
@@ -193,6 +197,7 @@ class SocialViewModel(
     fun loadComments(postId: String, force: Boolean = false) {
         if (!force && _comments.value.any { it.postId == postId }) return
         viewModelScope.launch {
+            _commentLoading.update { it + (postId to true) }
             try {
                 val remote = socialRepository.getComments(
                     postId = postId,
@@ -206,6 +211,8 @@ class SocialViewModel(
                     current + (postId to (remote.size == commentPageSize))
                 }
             } catch (_: Exception) {
+            } finally {
+                _commentLoading.update { it + (postId to false) }
             }
         }
     }
@@ -338,7 +345,6 @@ class SocialViewModel(
             try {
                 val state = socialRepository.getPostState(postId)
                 setPostState(postId, state)
-                loadComments(postId, force = true)
             } catch (_: Exception) {
             }
         }
@@ -482,12 +488,6 @@ class SocialViewModel(
         userIds.map { id -> userRepository.getCachedUser(id) ?: User(id = id, userName = id) }
 
     // region Realtime WebSocket
-
-
-    /**
-     * Gọi khi post hiện tại trên feed thay đổi (pager scroll).
-     * Đóng WS post cũ, mở WS mới cho [postId].
-     */
     fun connectPostRealtime(postId: String) {
         viewModelScope.launch {
             postWsClient.disconnect()
@@ -496,7 +496,11 @@ class SocialViewModel(
                     when (event) {
                         "post_state_changed" -> loadPostState(postId, force = true)
                         "comments_changed" -> {
-                            loadComments(postId, force = true)
+                            val alreadyOpenedComment =
+                                _comments.value.any { it.postId == postId }
+                            if (alreadyOpenedComment) {
+                                loadComments(postId, force = true)
+                            }
                             loadPostState(postId, force = true)
                         }
                     }
@@ -505,7 +509,6 @@ class SocialViewModel(
         }
     }
 
-    /** Gọi khi rời khỏi feed hoặc đổi post focus. */
     fun disconnectPostRealtime() {
         postWsClient.disconnect()
     }

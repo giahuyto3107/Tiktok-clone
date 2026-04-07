@@ -117,12 +117,9 @@ class InboxViewModel(
         }
     }
 
-    //Chat list 
-
-    /**
-     * @param silent = true: reload không show loading indicator (dùng cho WS refresh).
-     * @param silent = false: show Loading state bình thường (dùng khi mở màn hình).
-     */
+    //Chat list
+     // @param silent = true: reload không show loading indicator (dùng cho WS refresh).
+     // @param silent = false: show Loading state bình thường (dùng khi mở màn hình).
     private fun loadChats(silent: Boolean = false) {
         viewModelScope.launch {
             if (!silent) _chatsUiState.value = InboxUiState.Loading
@@ -223,7 +220,7 @@ class InboxViewModel(
         }
     }
 
-    /** Lấy 1 tin mới nhất từ API rồi upsert vào list hiện tại (tránh duplicate). */
+    // Lấy 1 tin mới nhất từ API rồi upsert vào list hiện tại (tránh duplicate)
     private suspend fun syncLatestMessage(chatWithId: String, chatId: Int) {
         try {
             val latest = repo.getMessagesPage(chatId = chatId, limit = 1, offset = 0)
@@ -293,14 +290,14 @@ class InboxViewModel(
 
     //Helpers 
 
-    /** Chèn tin vừa gửi vào đầu list ngay lập tức (không chờ reload). */
+    // Chèn tin vừa gửi vào đầu list ngay lập tức không chờ reload
     private fun appendSentMessage(message: Message, otherUid: String) {
         _messages.value = listOf(message) + _messages.value
         publishMessages()
         upsertChatSummary(message, otherUid, incrementUnread = false)
     }
 
-    /** Ép unread = 0 cho chat đang mở trong local state (trước khi API trả về). */
+    //Ép unread = 0 cho chat đang mở trong local state trước khi API trả về
     private fun zeroPendingUnreadFor(chatWithId: String) {
         _chats.value = _chats.value.map { chat ->
             if (chat.otherUserId == chatWithId) chat.copy(unreadCount = 0) else chat
@@ -311,16 +308,12 @@ class InboxViewModel(
         )
     }
 
-    /**
-     * Sau khi reload chats từ API, ép lại unread = 0 cho chat đang mở
-     * (phòng server chưa kịp cập nhật).
-     */
     private fun List<ChatResponse>.zeroPendingUnread(): List<ChatResponse> {
         val openId = openChatWithId ?: return this
         return map { if (it.otherUserId == openId) it.copy(unreadCount = 0) else it }
     }
 
-    /** Cập nhật hoặc tạo mới ChatResponse summary trong list. */
+    //Cập nhật hoặc tạo mới ChatResponse summary trong lis
     private fun upsertChatSummary(message: Message, otherUid: String, incrementUnread: Boolean) {
         val shouldAdd = incrementUnread
                 && message.senderId != currentUserId()
@@ -347,14 +340,14 @@ class InboxViewModel(
         )
     }
 
-    /** Resolve chatId từ otherUserId (hoặc trả thẳng nếu input đã là số). */
+    // Resolve chatId từ otherUserId (hoặc trả thẳng nếu input đã là só
     private suspend fun resolveChatId(chatWithId: String): Int? {
         chatWithId.toIntOrNull()?.let { return it }
         return repo.getChats(limit = 100, offset = 0).chats
             .find { it.otherUserId == chatWithId }?.chatId
     }
 
-    /** Publish _messages hiện tại lên messagesUiState. */
+    // đẩy tin nhắn lên7
     private fun publishMessages() {
         _messagesUiState.value = InboxUiState.Success(
             items = _messages.value,
@@ -374,7 +367,7 @@ class InboxViewModel(
         publishMessages()
     }
 
-    /** Dùng bởi InboxChatList để convert MessageDto → Message cho lastMessage preview. */
+    // InboxChatList convert MessageDto → Message cho lastMessage preview.
     fun getLastMessage(dto: MessageDto?): Message? = dto?.let { repo.mapToMessage(it) }
 
     private fun currentUserId(): String =

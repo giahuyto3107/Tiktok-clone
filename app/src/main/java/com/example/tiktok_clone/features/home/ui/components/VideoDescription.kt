@@ -21,6 +21,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.features.social.ui.components.SetKeyboardOverlayMode
 
 @Composable
 fun VideoDescriptionSection(
@@ -46,11 +47,11 @@ fun VideoDescriptionSection(
         )
     }
 }
-
 @Composable
 fun InlineShowMore(text: String) {
     var isExpanded by remember { mutableStateOf(false) }
     var hasOverflow by remember { mutableStateOf(false) }
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
