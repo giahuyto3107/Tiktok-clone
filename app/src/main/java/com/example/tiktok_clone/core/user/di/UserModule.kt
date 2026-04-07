@@ -18,4 +18,7 @@ val userModule = module {
 
     // Provide ProfileViewModel
     viewModel { ProfileViewModel(get()) }
+
+    // Provide OtherUserProfileViewModel
+    viewModel { com.example.tiktok_clone.features.profile.viewmodel.OtherUserProfileViewModel(get(), get()) }
 }

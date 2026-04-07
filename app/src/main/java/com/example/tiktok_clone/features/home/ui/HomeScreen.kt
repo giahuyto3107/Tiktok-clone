@@ -57,7 +57,8 @@ fun HomeScreen(
     profileViewModel: ProfileViewModel = koinViewModel(),
     socialViewModel: SocialViewModel = koinViewModel(),
     notificationViewModel: NotificationViewModel = koinViewModel(),
-    onSearchTap: () -> Unit = {}
+    onSearchTap: () -> Unit = {},
+    onAvatarClick: (String) -> Unit = {}
 ) {
 
     val posts by homeViewModel.posts.collectAsState()
@@ -190,6 +191,7 @@ fun HomeScreen(
                                     currentUser = currentUser,
                                     following = following,
                                     postState = postStates[currentPost.id.toString()],
+                                    onAvatarClick = { onAvatarClick(user.id) },
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)
                                         .padding(

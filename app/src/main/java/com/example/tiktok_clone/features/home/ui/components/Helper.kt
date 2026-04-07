@@ -64,6 +64,7 @@ fun MiddleSection(
     following: Set<String>,
     postState: PostStateResponse?,
     socialViewModel: SocialViewModel = koinViewModel(),
+    onAvatarClick: () -> Unit = {},
 ) {
     val thisPostState = postState?.takeIf { it.postId == currentPost.id.toString() }
 
@@ -95,7 +96,8 @@ fun MiddleSection(
                     SocialAction
                         .Follow(currentUser?.id.toString(), author.id)
                 )
-            }
+            },
+            onAvatarClick = onAvatarClick
         )
         // Like
         MainInteractiveItem(
@@ -272,10 +274,16 @@ fun AuthorSection(
     isFollowing: Boolean,
     isCanFollow: Boolean = true,
     onClick: () -> Unit,
+    onAvatarClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
-            .then(modifier),
+            .then(modifier)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = onAvatarClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Avatar(
