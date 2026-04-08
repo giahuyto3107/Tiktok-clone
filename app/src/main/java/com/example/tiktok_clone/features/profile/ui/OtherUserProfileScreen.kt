@@ -13,6 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.auth.ui.ProfileStat
 import com.example.tiktok_clone.features.profile.viewmodel.OtherUserProfileViewModel
+import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
+import com.example.tiktok_clone.features.social.data.model.SocialAction
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
@@ -24,18 +27,40 @@ fun OtherUserProfileScreen(
     onBack: () -> Unit,
     otherUserProfileViewModel: OtherUserProfileViewModel = koinViewModel(),
     socialViewModel: SocialViewModel = koinViewModel(),
+    profileViewModel: ProfileViewModel = koinViewModel(),
+    onChatClick: (userId: String) -> Unit = {}
 ) {
     val targetUser by otherUserProfileViewModel.targetUser.collectAsState()
     val followCounts by otherUserProfileViewModel.followCounts.collectAsState()
+    val guestFollowers by otherUserProfileViewModel.guestFollowers.collectAsState()
+    val guestFollowing by otherUserProfileViewModel.guestFollowing.collectAsState()
     val isLoading by otherUserProfileViewModel.isLoading.collectAsState()
+    val currentUserId: String = profileViewModel.getProfileData()?.id.toString()
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    val socialData = (socialUiState as? SocialUiState.Success)?.data
+    val following = socialData?.following ?: emptySet()
+    val isFollowing = following.contains(userId)
+    val sourceFollowersCount =
+        if (guestFollowers.isNotEmpty()) guestFollowers.size
+        else followCounts?.followerCount ?: 0
+    val sourceFollowingCount =
+        if (guestFollowing.isNotEmpty()) guestFollowing.size
+        else followCounts?.followingCount ?: 0
+    var localIsFollowing by remember(userId) { mutableStateOf(isFollowing) }
+    var localFollowersCount by remember(userId) { mutableIntStateOf(sourceFollowersCount) }
 
-    val isFollowing = socialViewModel.isFollowing(userId)
+    LaunchedEffect(isFollowing, sourceFollowersCount) {
+        localIsFollowing = isFollowing
+        localFollowersCount = sourceFollowersCount
+    }
+
 
     LaunchedEffect(userId) {
         otherUserProfileViewModel.loadUserProfile(userId)
-        // Also ensure current user follow lists are loaded in SocialViewModel
+        if (currentUserId.isNotBlank() && currentUserId != "null") {
+            socialViewModel.loadFollowing(currentUserId)
+        }
     }
-
     Scaffold(
         topBar = {
             OtherProfileHeader(
@@ -71,8 +96,8 @@ fun OtherUserProfileScreen(
                     color = Color.Black
                 )
                 Text(
-                    text = targetUser?.email ?: "", 
-                    fontSize = 14.sp, 
+                    text = targetUser?.email ?: "",
+                    fontSize = 14.sp,
                     color = Color.Gray
                 )
 
@@ -83,9 +108,9 @@ fun OtherUserProfileScreen(
                         .padding(vertical = 20.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val followersCountStr = followCounts?.followerCount?.toLong()?.let { formatCount(it) } ?: "0"
-                    val followingCountStr = followCounts?.followingCount?.toLong()?.let { formatCount(it) } ?: "0"
-                    
+                    val followersCountStr = formatCount(localFollowersCount.toLong())
+                    val followingCountStr = formatCount(sourceFollowingCount.toLong())
+
                     ProfileStat(followingCountStr, "Following")
                     ProfileStat(followersCountStr, "Followers")
                     ProfileStat("0", "Likes") // API currently doesn't provide total likes
@@ -94,20 +119,30 @@ fun OtherUserProfileScreen(
                 // 4. Action Buttons (Follow/Unfollow & Message)
                 Row(modifier = Modifier.padding(horizontal = 20.dp)) {
                     Button(
-                        onClick = { socialViewModel.follow(userId) },
+                        onClick = {
+                            val nextFollowing = !localIsFollowing
+                            localIsFollowing = nextFollowing
+                            localFollowersCount = if (nextFollowing) {
+                                localFollowersCount + 1
+                            } else {
+                                (localFollowersCount - 1).coerceAtLeast(0)
+                            }
+                            socialViewModel.onAction(SocialAction.Follow(userId))
+                            otherUserProfileViewModel.refreshGuestFollow(userId)
+                        },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isFollowing) Color(0xFFE9E9E9) else Color(0xFFFE2C55)
+                            containerColor = if (localIsFollowing) Color(0xFFE9E9E9) else Color(0xFFFE2C55)
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = if (isFollowing) "Unfollow" else "Follow",
-                            color = if (isFollowing) Color.Black else Color.White
+                            text = if (localIsFollowing) "Unfollow" else "Follow",
+                            color = if (localIsFollowing) Color.Black else Color.White
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = { /* TODO: Implement Message Action */ },
+                        onClick = { onChatClick(userId) },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE9E9E9)),
                         modifier = Modifier.weight(1f)
                     ) {

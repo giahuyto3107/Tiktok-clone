@@ -32,7 +32,7 @@ fun InboxScreen(
     onChatClick: (userId: String) -> Unit = {},
     onUserNotificationClick: () -> Unit = {},
     onSocialNotificationClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {},
+    onAvatarClick: () -> Unit = {},
 ) {
     val inboxViewModel: InboxViewModel = koinViewModel()
     val socialViewModel: SocialViewModel = koinViewModel()

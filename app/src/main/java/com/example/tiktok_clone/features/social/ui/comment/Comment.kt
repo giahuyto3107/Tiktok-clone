@@ -53,7 +53,6 @@ import com.example.tiktok_clone.features.post.ui.UploadState
 import com.example.tiktok_clone.features.social.data.model.Comment
 import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.data.model.User
-import com.example.tiktok_clone.features.social.ui.components.SetKeyboardOverlayMode
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 
 import org.koin.androidx.compose.koinViewModel
@@ -66,7 +65,6 @@ fun CommentSheetContent(
     socialViewModel: SocialViewModel = koinViewModel(),
     onDismiss: () -> Unit,
 ) {
-    SetKeyboardOverlayMode()
 
     var isCommenting by remember { mutableStateOf(false) }
     var commentRoot by remember { mutableStateOf<Comment?>(null) }

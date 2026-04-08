@@ -32,6 +32,7 @@ import com.example.tiktok_clone.features.search.ui.SearchResultScreen
 import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
 import com.example.tiktok_clone.features.notification.ui.Notification
+import com.example.tiktok_clone.features.profile.ui.OtherUserProfileScreen
 
 import com.google.firebase.auth.FirebaseAuth
 
@@ -67,6 +68,7 @@ fun AppNavigation() {
                         onsearchTap = { navController.navigate(NavigationRoutes.searchRoute) },
                         onAvatarClick = { userId -> navController.navigate("user_profile/$userId") }
                     )
+
                     1 -> ShopScreenContent()
                     3 -> InboxScreenContent(
                         onChatClick = { userId ->
@@ -78,7 +80,9 @@ fun AppNavigation() {
                         onSocialNotificationClick = {
                             navController.navigate(NavigationRoutes.notificationSocialRoute)
                         },
-                    )
+
+                        )
+
                     4 -> ProfileScreenContent(
                         onLoginClick = {
                             navController.navigate(NavigationRoutes.loginSelectionRoute)
@@ -222,7 +226,7 @@ fun AppNavigation() {
                 }
             )
         }
-        composable (route = NavigationRoutes.inboxRoute){
+        composable(route = NavigationRoutes.inboxRoute) {
             InboxScreen(
                 onChatClick = { userId ->
                     navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
@@ -235,19 +239,20 @@ fun AppNavigation() {
                 },
             )
         }
-        composable (route = "${NavigationRoutes.inboxRoute}/{userId}"){
+        composable(route = "${NavigationRoutes.inboxRoute}/{userId}") {
             MessageScreen(
                 chatWithId = it.arguments?.getString("userId") ?: "",
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onAvatarClick = { userId -> navController.navigate("user_profile/$userId") }
             )
         }
-        composable(route = NavigationRoutes.notificationSocialRoute){
+        composable(route = NavigationRoutes.notificationSocialRoute) {
             Notification(
                 notificationType = "social",
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(route = NavigationRoutes.notificationUserRoute){
+        composable(route = NavigationRoutes.notificationUserRoute) {
             Notification(
                 notificationType = "user",
                 onBack = { navController.popBackStack() }
@@ -259,9 +264,14 @@ fun AppNavigation() {
             arguments = listOf(navArgument("userId") { type = NavType.StringType })
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
-            com.example.tiktok_clone.features.profile.ui.OtherUserProfileScreen(
+            OtherUserProfileScreen(
                 userId = userId,
-                onBack = { navController.popBackStack() }
+                onBack = {
+                    navController.popBackStack()
+                },
+                onChatClick = { userId ->
+                    navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
+                }
             )
         }
 
@@ -298,7 +308,9 @@ private fun InboxScreenContent(
 }
 
 @Composable
-private fun ProfileScreenContent(onLoginClick: () -> Unit) {
+private fun ProfileScreenContent(
+    onLoginClick: () -> Unit,
+) {
     // Kiểm tra trạng thái đăng nhập từ Firebase (reactive)
     var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
     DisposableEffect(Unit) {

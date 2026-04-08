@@ -8,7 +8,7 @@ sealed interface SocialAction{
     data class LoadComment(val postId: String): SocialAction
     data class SharePost(val postId: String): SocialAction
     data class SavePost(val postId: String): SocialAction
-    data class Follow(val userId: String, val authorId: String): SocialAction
+    data class Follow(val authorId: String): SocialAction
 
     data class SelectedFriendShare(val friendId: String): SocialAction
 

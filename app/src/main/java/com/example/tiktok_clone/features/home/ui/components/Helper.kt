@@ -44,7 +44,6 @@ import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
 import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.features.social.ui.components.SetKeyboardOverlayMode
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.TikTokRed
@@ -96,7 +95,7 @@ fun MiddleSection(
             onClick = {
                 socialViewModel.onAction(
                     SocialAction
-                        .Follow(currentUser?.id.toString(), author.id)
+                        .Follow( author.id)
                 )
             },
             onAvatarClick = onAvatarClick

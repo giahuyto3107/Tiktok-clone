@@ -428,10 +428,35 @@ class SocialViewModel(
     }
 
     // region Follow / friends
+//    fun follow(authorId: String) {
+//        val stateBefore = _following.value
+//        val wasFollowing = isFollowing(authorId)
+//        _following.update { current ->
+//            if (wasFollowing) current - authorId else current + authorId
+//        }
+//        viewModelScope.launch {
+//            try {
+//                if (wasFollowing) socialRepository.unfollowUser(authorId)
+//                else socialRepository.followUser(authorId)
+//            } catch (_: Exception) {
+//                _following.update { current ->
+//                    if (wasFollowing) current + authorId else current - authorId
+//                }
+//            }
+//        }
+//    }
     fun follow(authorId: String) {
         val wasFollowing = isFollowing(authorId)
         _following.update { current ->
             if (wasFollowing) current - authorId else current + authorId
+        }
+        _followCounts.update { current ->
+            current?.copy(
+                followerCount = if (wasFollowing)
+                    (current.followerCount - 1).coerceAtLeast(0)
+                else
+                    current.followerCount + 1
+            )
         }
         viewModelScope.launch {
             try {
@@ -440,6 +465,14 @@ class SocialViewModel(
             } catch (_: Exception) {
                 _following.update { current ->
                     if (wasFollowing) current + authorId else current - authorId
+                }
+                _followCounts.update { current ->
+                    current?.copy(
+                        followerCount = if (wasFollowing)
+                            current.followerCount + 1
+                        else
+                            (current.followerCount - 1).coerceAtLeast(0)
+                    )
                 }
             }
         }

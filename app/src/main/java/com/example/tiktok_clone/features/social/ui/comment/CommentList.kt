@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.social.data.model.Comment
-import com.example.tiktok_clone.features.social.ui.components.SetKeyboardOverlayMode
 
 @Composable
 fun CommentList(

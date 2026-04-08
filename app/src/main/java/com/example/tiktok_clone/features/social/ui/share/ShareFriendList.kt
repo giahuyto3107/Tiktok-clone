@@ -25,7 +25,6 @@ fun ShareFriendList(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(friend.size) { index ->
-            Log.d("ShareFriendList", "ShareFriendList: ${friend[index].id}")
             ShareFriendItem(
                 friend = friend[index],
                 onShare = {

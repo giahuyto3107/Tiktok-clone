@@ -34,6 +34,7 @@ fun MessageScreen(
     modifier: Modifier = Modifier,
     chatWithId: String,
     onBack: () -> Unit = {},
+    onAvatarClick: (String) -> Unit = {}
 ) {
     val inboxViewModel: InboxViewModel = koinViewModel()
     val socialViewModel: SocialViewModel = koinViewModel()
@@ -60,7 +61,11 @@ fun MessageScreen(
             chatWithUser = chatWithUser,
             onBack = {
                 onBack()
-            })
+            },
+            onAvatarClick = {
+                onAvatarClick(chatWithId)
+            }
+        )
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()

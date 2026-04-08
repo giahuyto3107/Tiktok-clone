@@ -41,6 +41,7 @@ fun InboxChatList(
     onChatClick: (userId: String) -> Unit = {},
     onUserNotificationClick: () -> Unit = {},
     onSocialNotificationClick: () -> Unit = {},
+    onAvatarClick: () -> Unit = {},
 ) {
     val homeViewModel: HomeViewModel = koinViewModel()
     val posts by homeViewModel.posts.collectAsState()
@@ -60,15 +61,16 @@ fun InboxChatList(
         item {
             InboxFriendList(currentUser, onChatClick = onChatClick)
         }
-
         item {
-            LaunchedEffect(Unit) { followNotiVM.onAction(FollowNotificationAction.LoadNotifications) }
+            LaunchedEffect(Unit) {
+                followNotiVM.onAction(FollowNotificationAction.LoadNotifications)
+            }
 
             InboxNotiItem(
                 icon = Icons.Filled.Group,
                 iconSize = 36.dp,
                 bgColor = TikTokCyanDark,
-                notiType = "Nhung Follower moi",
+                notiType = "Những Follower mới",
                 notiContent = buildFollowNotificationText(follower, latestFollowNoti),
                 isNew = latestFollowNoti?.receiptStatus == FollowNotificationReceiptStatus.DELIVERED,
                 onNotiClick = onUserNotificationClick,
@@ -84,7 +86,7 @@ fun InboxChatList(
                 icon = FontAwesomeIcons.Solid.Heart,
                 iconSize = 28.dp,
                 bgColor = TikTokRed,
-                notiType = "Hoat dong",
+                notiType = "Hoạt động",
                 notiContent = buildSocialNotificationText(
                     actor = socialActor,
                     latestNotification = latestSocialNoti,
