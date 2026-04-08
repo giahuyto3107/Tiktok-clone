@@ -113,25 +113,23 @@ fun CommentLine(
                         modifier = Modifier
                             .wrapContentWidth()
                     )
-//                    if (isRoot) {
-                        Text(
-                            text = if (isRoot) "Trả lời" else "",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = Color.Gray,
-                            modifier = Modifier
-                                .clickable(
-                                    indication = null,
-                                    enabled = isRoot,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    onClick = {
-                                        onReply(true)
-                                        parent(commentRoot)
-                                        isReply = true
-                                    },
-                                ),
-                        )
-//                    } else Box(modifier = Modifier.weight(1f))
+                    Text(
+                        text = if (isRoot) "Trả lời" else "",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .clickable(
+                                indication = null,
+                                enabled = isRoot,
+                                interactionSource = remember { MutableInteractionSource() },
+                                onClick = {
+                                    onReply(true)
+                                    parent(commentRoot)
+                                    isReply = true
+                                },
+                            ),
+                    )
 
                     Spacer(modifier = Modifier.weight(1f))
                     CommentReact(
@@ -167,7 +165,7 @@ fun CommentChild(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 35.dp),
+            .padding(start = 50.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

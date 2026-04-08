@@ -38,10 +38,11 @@ class NotificationViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    // Tránh reload list liên tục khi WS gửi dồn event.
+    // Tranh reload list lien tuc khi WS gui don event
     private var wsReloadInFlight: Boolean = false
     private var hasLoadedOnce: Boolean = false
 
+    // preload thong bao lan dau neu chua co du lieu
     fun preloadNotificationsIfNeeded() {
         if (hasLoadedOnce || _isLoading.value) return
         loadNotifications()
@@ -55,6 +56,8 @@ class NotificationViewModel(
                 if (!uid.isNullOrBlank()) ensureWsConnected(uid)
                 val items = repository.getNotifications()
                 val unread = repository.getUnreadCount()
+                _notifications.value = items
+                _unreadCount.value = unread
                 _uiState.value = NotificationUiState.Success(
                     items = items,
                     unreadCount = unread,
@@ -86,8 +89,7 @@ class NotificationViewModel(
         wsReloadInFlight = true
         viewModelScope.launch {
             try {
-                _notifications.value = repository.getNotifications()
-                _unreadCount.value = repository.getUnreadCount()
+                refreshListAndBadge()
             } catch (_: Exception) {
                 // im lặng
             } finally {
@@ -122,11 +124,15 @@ class NotificationViewModel(
             // im lặng
         }
         try {
-            _notifications.value = repository.getNotifications()
-            _unreadCount.value = repository.getUnreadCount()
+            refreshListAndBadge()
         } catch (_: Exception) {
             // im lặng
         }
+    }
+
+    private suspend fun refreshListAndBadge() {
+        _notifications.value = repository.getNotifications()
+        _unreadCount.value = repository.getUnreadCount()
     }
 
     override fun onCleared() {

@@ -95,6 +95,48 @@ fun CommentInput(
         selectedImageFile = pickedImage.file
         onCommenting()
     }
+    val launchImagePicker = {
+        launcher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
+    // Dua input ve trang thai ban dau sau khi gui
+    fun resetInputState() {
+        commentText = ""
+        selectedImageUri = null
+        selectedImageFile = null
+        isReply = false
+    }
+
+    fun submitComment() {
+        if (commentText.isBlank() && selectedImageFile == null) return
+        val text = commentText.trim()
+        val selectedFile = selectedImageFile
+        if (selectedFile != null) {
+            socialViewModel.onAction(
+                SocialAction.AddCommentWithImage(
+                    postId = postId,
+                    commentText = text,
+                    parentId = if (isReply) commentRoot?.id else null,
+                    file = selectedFile,
+                )
+            )
+        } else {
+            socialViewModel.onAction(
+                SocialAction.AddComment(
+                    postId = postId,
+                    commentText = text,
+                    userId = currentUser?.id.toString(),
+                    parentId = if (isReply) commentRoot?.id else null,
+                )
+            )
+        }
+        resetInputState()
+        focusManager.clearFocus(force = true)
+        onDismiss()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -110,33 +152,14 @@ fun CommentInput(
             )
         }
         if (isReply) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(modifier = Modifier.width(50.dp))
-                Text(
-                    text = "Trả lời ${userRoot.userName} ",
-                    color = Color.Gray,
-                    fontSize = 12.sp,
-                    lineHeight = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = ".Hủy",
-                    color = Color.Gray,
-                    fontSize = 12.sp,
-                    lineHeight = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.clickable {
-                        isReply = false
-                        focusManager.clearFocus(force = true)
-                        onDismiss()
-                    }
-                )
-            }
+            ReplyInfoRow(
+                userName = userRoot.userName,
+                onCancel = {
+                    isReply = false
+                    focusManager.clearFocus(force = true)
+                    onDismiss()
+                }
+            )
         }
         Row(
             modifier = Modifier
@@ -147,153 +170,180 @@ fun CommentInput(
         ) {
             Avatar(avatarUrl = currentUser?.avatarUrl, avatarSize = 40)
 
-            Box(
+            CommentTextEditor(
                 modifier = Modifier
                     .weight(1f)
                     .heightIn(min = 40.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                BasicTextField(
-                    value = commentText,
-                    onValueChange = {
-                        commentText = it
-                        onCommenting()
-                    },
-                    textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
-                    decorationBox = { innerTextField ->
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            if (selectedImageUri != null) {
-                                Box(modifier = Modifier.size(50.dp)) {
-                                    AsyncImage(
-                                        model = selectedImageUri,
-                                        contentDescription = "Selected image",
-                                        modifier = Modifier
-                                            .matchParentSize()
-                                            .clip(RoundedCornerShape(10.dp))
-                                    )
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .size(18.dp)
-                                            .clip(RoundedCornerShape(9.dp))
-                                            .background(Color.Black.copy(alpha = 0.6f))
-                                            .clickable {
-                                                selectedImageUri = null
-                                                selectedImageFile = null
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Close,
-                                            contentDescription = "Remove",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(12.dp)
-                                        )
-                                    }
-                                }
-                            }
-                            Box(contentAlignment = Alignment.CenterStart) {
-                                if (commentText.isEmpty()) {
-                                    Text(
-                                        text = "Thêm bình luận...",
-                                        color = Color.Gray,
-                                        fontSize = 12.sp,
-                                        lineHeight = 14.sp
-                                    )
-                                }
-                                innerTextField()
-                            }
-                        }
-                    },
-                    minLines = 1,
-                    maxLines = 5,
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                        .fillMaxWidth()
-                        .heightIn(if (isCommenting || selectedImageFile != null) 90.dp else 45.dp)
-                        .clip(RoundedCornerShape(25.dp))
-                        .background(Color.LightGray.copy(0.5f))
-                        .padding(horizontal = 12.dp, vertical = 10.dp)
-                )
-
-                if (!isCommenting) {
-                    CommentInputItem(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp),
-                        onGalleryClick = {
-                            launcher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
-                        }
-                    )
-                }
-            }
+                commentText = commentText,
+                selectedImageUri = selectedImageUri,
+                isCommenting = isCommenting,
+                hasSelectedFile = selectedImageFile != null,
+                focusRequester = focusRequester,
+                onValueChange = {
+                    commentText = it
+                    onCommenting()
+                },
+                onRemoveImage = {
+                    selectedImageUri = null
+                    selectedImageFile = null
+                },
+                onGalleryClick = launchImagePicker
+            )
         }
 
         if (commentText.isNotEmpty() || isCommenting || selectedImageFile != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                CommentInputItem(
-                    onGalleryClick = {
-                        launcher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    }
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Button(
-                    onClick = {
-                        if (commentText.isBlank() && selectedImageFile == null) return@Button
-                        val text = commentText.trim()
-                        val selectedFile = selectedImageFile
-                        if (selectedFile != null) {
-                            socialViewModel.onAction(
-                                SocialAction.AddCommentWithImage(
-                                    postId = postId,
-                                    commentText = text,
-                                    parentId = if(isReply) commentRoot?.id else null,
-                                    file = selectedFile,
-                                )
+            SubmitCommentRow(
+                canSubmit = commentText.isNotEmpty() || selectedImageFile != null,
+                onGalleryClick = launchImagePicker,
+                onSubmit = { submitComment() }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ReplyInfoRow(
+    userName: String,
+    onCancel: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(modifier = Modifier.width(50.dp))
+        Text(
+            text = "Trả lời $userName ",
+            color = Color.Gray,
+            fontSize = 12.sp,
+            lineHeight = 12.sp,
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = ".Hủy",
+            color = Color.Gray,
+            fontSize = 12.sp,
+            lineHeight = 12.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.clickable(onClick = onCancel)
+        )
+    }
+}
+
+@Composable
+private fun CommentTextEditor(
+    modifier: Modifier,
+    commentText: String,
+    selectedImageUri: Uri?,
+    isCommenting: Boolean,
+    hasSelectedFile: Boolean,
+    focusRequester: FocusRequester,
+    onValueChange: (String) -> Unit,
+    onRemoveImage: () -> Unit,
+    onGalleryClick: () -> Unit,
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.CenterStart
+    ) {
+        BasicTextField(
+            value = commentText,
+            onValueChange = onValueChange,
+            textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+            decorationBox = { innerTextField ->
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (selectedImageUri != null) {
+                        Box(modifier = Modifier.size(50.dp)) {
+                            AsyncImage(
+                                model = selectedImageUri,
+                                contentDescription = "Selected image",
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .clip(RoundedCornerShape(10.dp))
                             )
-                        } else {
-                            socialViewModel.onAction(
-                                SocialAction.AddComment(
-                                    postId = postId,
-                                    commentText = text,
-                                    userId = currentUser?.id.toString(),
-                                    parentId = if(isReply) commentRoot?.id else null,
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .size(18.dp)
+                                    .clip(RoundedCornerShape(9.dp))
+                                    .background(Color.Black.copy(alpha = 0.6f))
+                                    .clickable(onClick = onRemoveImage),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Remove",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(12.dp)
                                 )
+                            }
+                        }
+                    }
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        if (commentText.isEmpty()) {
+                            Text(
+                                text = "Thêm bình luận...",
+                                color = Color.Gray,
+                                fontSize = 12.sp,
+                                lineHeight = 14.sp
                             )
                         }
-                        commentText = ""
-                        selectedImageUri = null
-                        selectedImageFile = null
-                        isReply = false
-                        onDismiss()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (commentText.isEmpty() && selectedImageFile == null)
-                            TikTokRed.copy(alpha = 0.6f) else TikTokRed,
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier
-                        .height(34.dp)
-                        .width(52.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
-                ) {
-                    Icon(
-                        imageVector = FontAwesomeIcons.Solid.ArrowUp,
-                        contentDescription = "Đăng",
-                        tint = Color.White,
-                        modifier = Modifier.size(14.dp)
-                    )
+                        innerTextField()
+                    }
                 }
-            }
+            },
+            minLines = 1,
+            maxLines = 5,
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .fillMaxWidth()
+                .heightIn(if (isCommenting || hasSelectedFile) 90.dp else 45.dp)
+                .clip(RoundedCornerShape(25.dp))
+                .background(Color.LightGray.copy(0.5f))
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        )
+
+        if (!isCommenting) {
+            CommentInputItem(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 8.dp),
+                onGalleryClick = onGalleryClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun SubmitCommentRow(
+    canSubmit: Boolean,
+    onGalleryClick: () -> Unit,
+    onSubmit: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        CommentInputItem(onGalleryClick = onGalleryClick)
+        Spacer(modifier = Modifier.weight(1f))
+        Button(
+            onClick = onSubmit,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (canSubmit) TikTokRed else TikTokRed.copy(alpha = 0.6f),
+                contentColor = Color.White
+            ),
+            modifier = Modifier
+                .height(34.dp)
+                .width(52.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+        ) {
+            Icon(
+                imageVector = FontAwesomeIcons.Solid.ArrowUp,
+                contentDescription = "Đăng",
+                tint = Color.White,
+                modifier = Modifier.size(14.dp)
+            )
         }
     }
 }

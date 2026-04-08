@@ -18,11 +18,12 @@ fun SocialUiState.toCommentUiState(postId: String): CommentUiState = when (this)
     is SocialUiState.Loading -> CommentUiState.Loading
     is SocialUiState.Error -> CommentUiState.Error(message)
     is SocialUiState.Success -> {
-        if (data.isCommentLoading(postId)) {
+        val currentComments = data.commentsOf(postId)
+        if (data.isCommentLoading(postId) && currentComments.isEmpty()) {
             CommentUiState.Loading
         } else {
             CommentUiState.Success(
-                comments = data.commentsOf(postId),
+                comments = currentComments,
                 hasMore = data.canLoadMoreComments(postId),
                 uploadState = data.uploadState,
             )
