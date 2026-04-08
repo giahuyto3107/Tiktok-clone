@@ -33,27 +33,19 @@ class SocialViewModel(
     okHttpClient: OkHttpClient,
 ) : ViewModel() {
 
-    // WS cho post feed (like/save/share/comment)
     private val postWsClient = RealtimeWebSocketClient(okHttpClient)
-
-    // WS cho follow (tách riêng để có thể mở đồng thời với post WS)
     private val userWsClient = RealtimeWebSocketClient(okHttpClient)
 
     private val commentPageSize = 20
 
-    // region Upload / API state
     private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
     val uploadState = _uploadState.asStateFlow()
 
-    // region Post state
     private val _postStates = MutableStateFlow<Map<String, PostStateResponse>>(emptyMap())
-    val postStates = _postStates.asStateFlow()
 
-    // region Current user
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    // region Friends / follow
     private val _friends = MutableStateFlow<List<FollowUserResponse>>(emptyList())
     val friends = _friends.asStateFlow()
 
@@ -66,14 +58,15 @@ class SocialViewModel(
     private val _followCounts = MutableStateFlow<FollowCountResponse?>(null)
     val followCounts = _followCounts.asStateFlow()
 
-    // region Share / report UI
+    private val _followCountsMap = MutableStateFlow<Map<String, FollowCountResponse>>(emptyMap())
+    val followCountsMap: StateFlow<Map<String, FollowCountResponse>> = _followCountsMap.asStateFlow()
+
     private val _selectedFriendShare = MutableStateFlow<Set<String>>(emptySet())
     val selectedFriendShare: StateFlow<Set<String>> = _selectedFriendShare.asStateFlow()
 
     private val _showReportSheet = MutableStateFlow(false)
     val showReportSheet = _showReportSheet.asStateFlow()
 
-    // region Comments
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
     val comments = _comments.asStateFlow()
 
@@ -87,8 +80,9 @@ class SocialViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
+
     val uiState: StateFlow<SocialUiState> = combine(
-        postStates,
+        _postStates,
         comments,
         commentHasMore,
         commentLoading,
@@ -147,7 +141,17 @@ class SocialViewModel(
         }
     }
 
-    // region Action
+    // Lấy follow counts cho một user (có cache)
+    fun getFollowCounts(userId: String, force: Boolean = false) {
+        if (!force && _followCountsMap.value.containsKey(userId)) return
+        viewModelScope.launch {
+            try {
+                val counts = socialRepository.getFollowCounts(userId)
+                _followCountsMap.update { it + (userId to counts) }
+            } catch (_: Exception) { }
+        }
+    }
+
     fun onAction(action: SocialAction) {
         when (action) {
             is SocialAction.LikeComment -> likeComment(action.commentId)
@@ -157,14 +161,12 @@ class SocialViewModel(
                 userId = action.userId,
                 parentId = action.parentId,
             )
-
             is SocialAction.AddCommentWithImage -> addCommentWithImage(
                 postId = action.postId,
                 commentText = action.commentText,
                 parentId = action.parentId,
                 file = action.file,
             )
-
             is SocialAction.ClearSelectedFriendShare -> clearSelectedFriendShare()
             is SocialAction.OpenReportOption -> openReportSheet()
             is SocialAction.Follow -> follow(action.authorId)
@@ -178,7 +180,6 @@ class SocialViewModel(
         }
     }
 
-    // region Share / report
     fun openReportSheet() {
         _showReportSheet.value = true
     }
@@ -193,7 +194,6 @@ class SocialViewModel(
         }
     }
 
-    // region Comments
     fun loadComments(postId: String, force: Boolean = false) {
         if (!force && _comments.value.any { it.postId == postId }) return
         viewModelScope.launch {
@@ -338,7 +338,6 @@ class SocialViewModel(
         }
     }
 
-    // region Post state
     fun loadPostState(postId: String, force: Boolean = false) {
         if (!force && _postStates.value.containsKey(postId)) return
         viewModelScope.launch {
@@ -427,52 +426,45 @@ class SocialViewModel(
         }
     }
 
-    // region Follow / friends
-//    fun follow(authorId: String) {
-//        val stateBefore = _following.value
-//        val wasFollowing = isFollowing(authorId)
-//        _following.update { current ->
-//            if (wasFollowing) current - authorId else current + authorId
-//        }
-//        viewModelScope.launch {
-//            try {
-//                if (wasFollowing) socialRepository.unfollowUser(authorId)
-//                else socialRepository.followUser(authorId)
-//            } catch (_: Exception) {
-//                _following.update { current ->
-//                    if (wasFollowing) current + authorId else current - authorId
-//                }
-//            }
-//        }
-//    }
     fun follow(authorId: String) {
         val wasFollowing = isFollowing(authorId)
+
         _following.update { current ->
             if (wasFollowing) current - authorId else current + authorId
         }
-        _followCounts.update { current ->
-            current?.copy(
-                followerCount = if (wasFollowing)
-                    (current.followerCount - 1).coerceAtLeast(0)
-                else
-                    current.followerCount + 1
-            )
+
+        //Cập nhật follower count trong map (optimistic)
+        _followCountsMap.update { map ->
+            // Lấy counts hiện tại của user, nếu chưa có thì tạo mới với 0,0
+            val currentCounts = map[authorId] ?: FollowCountResponse(0, 0)
+            val newFollowerCount = if (wasFollowing)
+                (currentCounts.followerCount - 1).coerceAtLeast(0)
+            else
+                currentCounts.followerCount + 1
+            // Tạo bản copy mới với followerCount đã thay đổi, giữ nguyên followingCount
+            val updatedCounts = currentCounts.copy(followerCount = newFollowerCount)
+            map + (authorId to updatedCounts)
         }
+
         viewModelScope.launch {
             try {
                 if (wasFollowing) socialRepository.unfollowUser(authorId)
                 else socialRepository.followUser(authorId)
+                // Sau thành công, refresh lại để đồng bộ (tuỳ chọn)
+                getFollowCounts(authorId, force = true)
             } catch (_: Exception) {
+                // Rollback nếu lỗi
                 _following.update { current ->
                     if (wasFollowing) current + authorId else current - authorId
                 }
-                _followCounts.update { current ->
-                    current?.copy(
-                        followerCount = if (wasFollowing)
-                            current.followerCount + 1
-                        else
-                            (current.followerCount - 1).coerceAtLeast(0)
-                    )
+                _followCountsMap.update { map ->
+                    val currentCounts = map[authorId] ?: return@update map
+                    val rolledBackCount = if (wasFollowing)
+                        currentCounts.followerCount + 1
+                    else
+                        (currentCounts.followerCount - 1).coerceAtLeast(0)
+                    val rolledBackCounts = currentCounts.copy(followerCount = rolledBackCount)
+                    map + (authorId to rolledBackCounts)
                 }
             }
         }
@@ -513,14 +505,12 @@ class SocialViewModel(
         }
     }
 
-    // region User helpers
     fun getUser(userId: String): User =
         userRepository.getCachedUser(userId) ?: User(id = userId, userName = userId)
 
     fun getUserList(userIds: List<String>): List<User> =
         userIds.map { id -> userRepository.getCachedUser(id) ?: User(id = id, userName = id) }
 
-    // region Realtime WebSocket
     fun connectPostRealtime(postId: String) {
         viewModelScope.launch {
             postWsClient.disconnect()
@@ -545,32 +535,6 @@ class SocialViewModel(
     fun disconnectPostRealtime() {
         postWsClient.disconnect()
     }
-
-    //    fun connectUserRealtime(uid: String) {
-//        viewModelScope.launch {
-//            userWsClient.disconnect()
-//            userWsClient.connect("api/v1/ws/social/users/$uid") { event, _ ->
-//                viewModelScope.launch {
-//                    if (event == "follow_changed") {
-//                        loadFollowCounts(uid)
-//                        loadFollowers(uid)
-//                        loadFollowing(uid)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    fun disconnectUserRealtime() {
-//        userWsClient.disconnect()
-//    }
-//    fun loadFollowCounts(uid: String) {
-//        viewModelScope.launch {
-//            try {
-//                _followCounts.value = socialRepository.getFollowCounts(uid)
-//            } catch (_: Exception) {
-//            }
-//        }
-//    }
 
     override fun onCleared() {
         super.onCleared()

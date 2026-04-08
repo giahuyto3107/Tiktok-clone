@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,10 +62,10 @@ fun MiddleSection(
     author: User,
     currentPost: Post,
     currentUser: User?,
-    following: Set<String>,
     postState: PostStateResponse?,
     socialViewModel: SocialViewModel = koinViewModel(),
     onAvatarClick: () -> Unit = {},
+    onCommentClick: (postId: String) -> Unit = {},
 ) {
 
     val thisPostState = postState?.takeIf { it.postId == currentPost.id.toString() }
@@ -77,10 +78,11 @@ fun MiddleSection(
     val shareCount = thisPostState?.shareCount?.toLong() ?: 0L
     val isShared = thisPostState?.isShared == true
 
-    val isFollowing = following.contains(author.id)
+    val currentFollowing by socialViewModel.following.collectAsState()
+    val isFollowing = currentFollowing.contains(author.id)
+
     var isOpenCommentSheet by remember { mutableStateOf(false) }
     var isOpenShareSheet by remember { mutableStateOf(false) }
-
     Column(
         modifier = Modifier
             .then(modifier),
@@ -119,7 +121,7 @@ fun MiddleSection(
             commentCount = commentCount,
             onComment = {
                 isOpenCommentSheet = it
-            }
+            },
         )
         if (isOpenCommentSheet) {
             CommentSheetContent(
@@ -127,7 +129,8 @@ fun MiddleSection(
                 currentUser = currentUser,
                 onDismiss = {
                     isOpenCommentSheet = false
-                }
+                },
+                onCommentClick = onCommentClick
             )
         }
         // Save
@@ -171,7 +174,8 @@ fun MiddleSection(
 @Composable
 fun OpenComment(
     commentCount: Long,
-    onComment: (isOpenCommentSheet: Boolean) -> Unit = {}
+    onComment: (isOpenCommentSheet: Boolean) -> Unit = {},
+    onClick: () -> Unit = {},
 ) {
     // Comment
     Column(
@@ -180,6 +184,7 @@ fun OpenComment(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
                 onClick = {
+                    onClick()
                     onComment(true)
                 }
             ),

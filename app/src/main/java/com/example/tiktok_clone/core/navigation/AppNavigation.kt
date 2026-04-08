@@ -1,7 +1,6 @@
 package com.example.tiktok_clone.core.navigation
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -66,7 +65,8 @@ fun AppNavigation() {
                 when (selectedTabIndex) {
                     0 -> HomeScreenContent(
                         onsearchTap = { navController.navigate(NavigationRoutes.searchRoute) },
-                        onAvatarClick = { userId -> navController.navigate("user_profile/$userId") }
+                        onAvatarClick = { userId -> navController.navigate("user_profile/$userId") },
+                        onCommentClick = { userId -> navController.navigate("user_profile/$userId") }
                     )
 
                     1 -> ShopScreenContent()
@@ -271,7 +271,14 @@ fun AppNavigation() {
                 },
                 onChatClick = { userId ->
                     navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
-                }
+                },
+                onNavigateToSelfProfile = {
+                    selectedTabIndex = 4 // chuyển về tab Profile
+                    navController.navigate(NavigationRoutes.mainWrapper) {
+                        popUpTo(NavigationRoutes.mainWrapper) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
             )
         }
 
@@ -281,11 +288,13 @@ fun AppNavigation() {
 @Composable
 private fun HomeScreenContent(
     onsearchTap: () -> Unit = {},
-    onAvatarClick: (String) -> Unit = {}
+    onAvatarClick: (String) -> Unit = {},
+    onCommentClick: (String) -> Unit = {}
 ) {
     HomeScreen(
         onSearchTap = onsearchTap,
-        onAvatarClick = onAvatarClick
+        onAvatarClick = onAvatarClick,
+        onCommentClick = onCommentClick
     )
 }
 

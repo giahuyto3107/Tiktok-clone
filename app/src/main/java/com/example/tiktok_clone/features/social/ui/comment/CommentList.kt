@@ -28,6 +28,7 @@ fun CommentList(
     onLoadMore: () -> Unit,
     parent: (Comment) -> Unit = {},
     onReply: (Boolean) -> Unit = {},
+    onCommentClick: (String) -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
 ) {
     val commentRoots = remember(comments) {
@@ -52,6 +53,7 @@ fun CommentList(
                 commentRoot = root,
                 onReply = onReply,
                 parent = parent,
+                onCommentClick = onCommentClick
             )
         }
         if (hasMore) {
