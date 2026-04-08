@@ -40,11 +40,13 @@ class FollowNotificationViewModel(
     private var wsReloadInFlight: Boolean = false
     private var hasLoadedOnce: Boolean = false
 
+    // preload danh sach thong bao lan dau
     fun preloadNotificationsIfNeeded() {
         if (hasLoadedOnce || _isLoading.value) return
         loadNotifications()
     }
 
+    // ket noi websocket social notification theo user
     private fun ensureWsConnected(uid: String) {
         if (connectedUid == uid) return
         connectedUid = uid
@@ -57,14 +59,14 @@ class FollowNotificationViewModel(
         }
     }
 
+    // xu ly event websocket va reload danh sach
     private fun handleWsEvent(event: String) {
         if (event != "follow_notification_created" && event != "follow_notification_updated") return
         if (wsReloadInFlight) return
         wsReloadInFlight = true
         viewModelScope.launch {
             try {
-                _notifications.value = repository.getNotifications(limit = 20, offset = 0)
-                _unreadCount.value = repository.getUnreadCount()
+                refreshListAndBadge()
             } catch (_: Exception) {
                 // im lang
             } finally {
@@ -124,14 +126,9 @@ class FollowNotificationViewModel(
         }
 
         try {
-            _notifications.value = repository.getNotifications(limit = 20, offset = 0)
-            _unreadCount.value = repository.getUnreadCount()
+            refreshListAndBadge()
         } catch (_: Exception) {
         }
-    }
-
-    private suspend fun refreshUnreadOnly() {
-        _unreadCount.value = repository.getUnreadCount()
     }
 
     private suspend fun refreshListAndBadge() {

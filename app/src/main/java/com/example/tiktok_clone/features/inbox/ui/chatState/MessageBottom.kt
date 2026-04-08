@@ -40,7 +40,6 @@ import com.example.tiktok_clone.features.inbox.data.model.InboxAction
 import com.example.tiktok_clone.features.inbox.ui.components.resolvePickedMedia
 import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
 import com.example.tiktok_clone.features.social.ui.components.EmotionRow
-import com.example.tiktok_clone.ui.theme.GrayBackground
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 
@@ -68,6 +67,36 @@ fun MessageBottom(
             selectedMimeType = pickedMedia.mimeType
         }
     }
+
+    // Xoa media da chon de quay ve input text
+    fun clearSelectedMedia() {
+        selectedMediaUri = null
+        selectedFile = null
+        selectedType = null
+        selectedMimeType = null
+    }
+
+    // Gui tin nhan theo loai text hoac media
+    fun sendMessage() {
+        val text = messageText.trim()
+        val file = selectedFile
+        if (file != null && otherUid.isNotEmpty()) {
+            inboxViewModel.onAction(
+                InboxAction.SendMessageWithFile(
+                    otherUid = otherUid,
+                    file = file,
+                    type = selectedType ?: "IMAGE",
+                    content = text.ifBlank { null },
+                    mimeType = selectedMimeType,
+                ),
+            )
+            messageText = ""
+            clearSelectedMedia()
+        } else if (text.isNotEmpty() && otherUid.isNotEmpty()) {
+            onSend(text)
+            messageText = ""
+        }
+    }
     Column(
         modifier = Modifier
             .navigationBarsPadding()
@@ -93,42 +122,10 @@ fun MessageBottom(
                 ),
                 decorationBox = { innerTextField ->
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        if (selectedMediaUri != null) {
-                            Box(
-                                modifier = Modifier
-                                    .size(50.dp)
-                            ) {
-                                AsyncImage(
-                                    model = selectedMediaUri,
-                                    contentDescription = "Selected media",
-                                    modifier = Modifier
-                                        .matchParentSize()
-                                        .clip(RoundedCornerShape(10.dp))
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .offset(y = (-8).dp)
-                                        .size(18.dp)
-                                        .clip(RoundedCornerShape(9.dp))
-                                        .background(Color.Black.copy(alpha = 0.6f))
-                                        .clickable {
-                                            selectedMediaUri = null
-                                            selectedFile = null
-                                            selectedType = null
-                                            selectedMimeType = null
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = "Remove selected media",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                }
-                            }
-                        }
+                        MessageMediaPreview(
+                            selectedMediaUri = selectedMediaUri,
+                            onRemove = { clearSelectedMedia() }
+                        )
                         Row {
                             Box(contentAlignment = Alignment.CenterStart) {
                                 if (messageText.isEmpty()) {
@@ -161,29 +158,41 @@ fun MessageBottom(
                         )
                     )
                 },
-                onSendClick = {
-                    val text = messageText.trim()
-                    val file = selectedFile
-                    if (file != null && otherUid.isNotEmpty()) {
-                        inboxViewModel.onAction(
-                            InboxAction.SendMessageWithFile(
-                                otherUid = otherUid,
-                                file = file,
-                                type = selectedType ?: "IMAGE",
-                                content = text.ifBlank { null },
-                                mimeType = selectedMimeType,
-                            ),
-                        )
-                        messageText = ""
-                        selectedMediaUri = null
-                        selectedFile = null
-                        selectedType = null
-                        selectedMimeType = null
-                    } else if (text.isNotEmpty() && otherUid.isNotEmpty()) {
-                        onSend(text)
-                        messageText = ""
-                    }
-                },
+                onSendClick = { sendMessage() },
+            )
+        }
+    }
+}
+
+@Composable
+private fun MessageMediaPreview(
+    selectedMediaUri: Uri?,
+    onRemove: () -> Unit,
+) {
+    if (selectedMediaUri == null) return
+    Box(modifier = Modifier.size(50.dp)) {
+        AsyncImage(
+            model = selectedMediaUri,
+            contentDescription = "Selected media",
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(10.dp))
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(y = (-8).dp)
+                .size(18.dp)
+                .clip(RoundedCornerShape(9.dp))
+                .background(Color.Black.copy(alpha = 0.6f))
+                .clickable(onClick = onRemove),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = "Remove selected media",
+                tint = Color.White,
+                modifier = Modifier.size(12.dp)
             )
         }
     }
