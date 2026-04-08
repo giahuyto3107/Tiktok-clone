@@ -2,13 +2,17 @@ package com.example.tiktok_clone.features.social.data
 
 import com.example.tiktok_clone.features.social.data.model.Comment
 import com.google.gson.annotations.SerializedName
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * Retrofit service mapping cho tất cả social endpoints.
@@ -76,12 +80,12 @@ interface SocialApiService {
     ): PostStateResponse
     // endregion
     // region Share
-    @POST("api/v1/social/posts/{postId}/share")
+    @POST("api/v1/social/posts/{postId}/repost")
     suspend fun sharePost(
         @Path("postId") postId: String,
     ): Response<Unit>
 
-    @DELETE("api/v1/social/posts/{postId}/share")
+    @DELETE("api/v1/social/posts/{postId}/repost")
     suspend fun unSharePost(
         @Path("postId") postId: String,
     ): Response<Unit>
@@ -92,12 +96,23 @@ interface SocialApiService {
     @GET("api/v1/social/posts/{postId}/comments")
     suspend fun getComments(
         @Path("postId") postId: String,
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null,
     ): List<Comment>
 
     @POST("api/v1/social/posts/{postId}/comments")
     suspend fun createComment(
         @Path("postId") postId: String,
         @Body body: CreateCommentRequest,
+    ): Comment
+
+    @Multipart
+    @POST("api/v1/social/posts/{postId}/comments/upload")
+    suspend fun uploadComment(
+        @Path("postId") postId: String,
+        @Part file: MultipartBody.Part,
+        @Part("content") content: RequestBody?,
+        @Part("parentId") parentId: RequestBody?,
     ): Comment
 
     @POST("api/v1/social/comments/{commentId}/like")
@@ -118,8 +133,8 @@ interface SocialApiService {
 // region DTOs
 
 data class FollowCountResponse(
-    @SerializedName("follower_count") val followerCount: Int,
-    @SerializedName("following_count") val followingCount: Int,
+    @SerializedName("followerCount") val followerCount: Int,
+    @SerializedName("followingCount") val followingCount: Int,
 )
 
 
@@ -137,8 +152,8 @@ data class SocialUser(
 
 data class FollowUserResponse(
     @SerializedName("uid") val uid: String,
-    @SerializedName("display_name") val username: String? = null,
-    @SerializedName("avatar_url") val avatarUrl: String? = null,
+    @SerializedName("displayName") val username: String? = null,
+    @SerializedName("avatarUrl") val avatarUrl: String? = null,
 )
 
 
@@ -155,12 +170,14 @@ data class PostStateResponse(
 )
 
 data class ShareResponse(
-    @SerializedName("share_count") val shareCount: Int,
+    @SerializedName("shareCount") val shareCount: Int,
+    @SerializedName("isShared") val isShared: Boolean,
 )
 
 data class CreateCommentRequest(
     @SerializedName("content") val content: String,
-    @SerializedName("parent_id") val parentId: String? = null,
+    @SerializedName("parentId") val parentId: String? = null,
+    @SerializedName("imageUri") val imageUri: String? = null,
 )
 
 // endregion

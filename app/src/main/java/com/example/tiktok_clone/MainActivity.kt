@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,7 +29,8 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .safeDrawingPadding(),
+//                        .safeDrawingPadding()
+                    ,
                     color = MaterialTheme.colorScheme.background
                 ) {
                     AppNavigation()

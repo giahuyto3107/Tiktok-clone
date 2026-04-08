@@ -3,6 +3,7 @@ package com.example.tiktok_clone.features.inbox.data
 import com.example.tiktok_clone.features.inbox.data.model.Message
 import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
 import com.example.tiktok_clone.features.inbox.data.model.MessageType
+import com.example.tiktok_clone.features.social.data.FollowUserResponse
 import java.io.File
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -12,19 +13,59 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class InboxRepository(
     private val api: InboxApiService,
 ) {
+    data class CachedMessages(
+        val chatId: Int,
+
+        val rawMessages: List<Message>,
+    )
+
+    private val cacheLock = Any()
+    private val chatIdByOtherUid: MutableMap<String, Int> = mutableMapOf()
+    private val messagesCacheByChatId: MutableMap<Int, List<Message>> = mutableMapOf()
+
+
+    suspend fun getContacts(
+        limit: Int? = 50,
+        offset: Int? = 0,
+    ): List<FollowUserResponse> {
+        val res = api.getContacts(limit = limit, offset = offset)
+        return res.users.map { u ->
+            FollowUserResponse(
+                uid = u.uid,
+                username = u.username,
+                avatarUrl = u.avatarUrl,
+            )
+        }
+    }
 
     suspend fun getChats(limit: Int? = null, offset: Int? = null): ChatsResponse {
-        return api.getChats(limit = limit, offset = offset)
+        val res = api.getChats(limit = limit, offset = offset)
+        synchronized(cacheLock) {
+            res.chats.forEach { chat ->
+                chatIdByOtherUid[chat.otherUserId] = chat.chatId
+            }
+        }
+        return res
     }
 
-    suspend fun getMessages(chatId: Int, limit: Int? = null, offset: Int? = null): List<Message> {
+    data class MessagesPage(
+        val messages: List<Message>,
+        val total: Int,
+    )
+
+    suspend fun getMessagesPage(
+        chatId: Int,
+        limit: Int? = null,
+        offset: Int? = null,
+    ): MessagesPage {
         val res = api.getMessages(chatId = chatId, limit = limit, offset = offset)
-        return res.messages.map { it.toMessage() }
+        val mapped = res.messages.map { it.toMessage() }
+        synchronized(cacheLock) {
+            messagesCacheByChatId[chatId] = mapped
+        }
+        return MessagesPage(messages = mapped, total = res.total)
     }
 
-    /**
-     * Gửi tin nhắn TEXT (không upload file).
-     */
     suspend fun sendMessage(
         otherUid: String,
         content: String? = null,
@@ -37,20 +78,35 @@ class InboxRepository(
         return api.sendMessage(otherUid, body).toMessage()
     }
 
-    /**
-     * Gửi tin nhắn kèm file (IMAGE / VIDEO) bằng endpoint multipart.
-     * File: ảnh hoặc video đã có sẵn dưới dạng File.
-     */
+    suspend fun sendMediaMessage(
+        otherUid: String,
+        imageUri: String,
+        type: String,
+        content: String? = null,
+    ): Message {
+        val body = SendMessageRequest(
+            content = content,
+            imageUri = imageUri,
+            type = type.uppercase(),
+        )
+        return api.sendMessage(otherUid, body).toMessage()
+    }
+
     suspend fun sendMessageWithFile(
         otherUid: String,
         file: File,
         type: String,
         content: String? = null,
+        mimeType: String? = null,
     ): Message {
-        val mediaType = when (type.uppercase()) {
-            "VIDEO" -> "video/*"
-            else -> "image/*"
-        }.toMediaType()
+        val normalizedType = type.uppercase()
+
+        val mediaTypeString = mimeType
+            ?: when (normalizedType) {
+                "VIDEO" -> "video/mp4"
+                else -> "image/jpeg"
+            }
+        val mediaType = mediaTypeString.toMediaType()
 
         val requestBody = file.asRequestBody(mediaType)
         val filePart = MultipartBody.Part.createFormData(
@@ -59,7 +115,7 @@ class InboxRepository(
             body = requestBody,
         )
 
-        val typeBody = type.toRequestBody("text/plain".toMediaType())
+        val typeBody = normalizedType.toRequestBody("text/plain".toMediaType())
         val contentBody = content?.toRequestBody("text/plain".toMediaType())
 
         val dto = api.uploadMessage(
@@ -71,7 +127,7 @@ class InboxRepository(
         return dto.toMessage()
     }
 
-    /** Dùng khi cần hiển thị lastMessage từ ChatResponse (MessageDto → Message). */
+    // Dùng khi cần hiển thị lastMessage từ ChatResponse (MessageDto → Message).
     fun mapToMessage(dto: MessageDto): Message = dto.toMessage()
 }
 
@@ -80,9 +136,10 @@ private fun MessageDto.toMessage(): Message = Message(
     content = content ?: "",
     senderId = senderId,
     timestamp = timestamp,
-    type = type.toMessageType(),
-    status = status.toMessageStatus(),
+    type = type?.toMessageType() ?: MessageType.TEXT,
+    status = status?.toMessageStatus() ?: MessageStatus.SENT,
     imageUri = imageUri,
+    receiptStatus = receiptStatus?.toMessageStatus(),
 )
 
 private fun String.toMessageType(): MessageType = when (uppercase()) {
@@ -98,3 +155,4 @@ private fun String.toMessageStatus(): MessageStatus = when (uppercase()) {
     "SEEN" -> MessageStatus.SEEN
     else -> MessageStatus.SENT
 }
+

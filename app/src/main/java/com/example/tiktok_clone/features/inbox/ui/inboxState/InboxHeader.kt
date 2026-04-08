@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.outlined.GroupAdd
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,15 +32,14 @@ fun InboxHeader(
             .fillMaxWidth()
             .padding(start = 16.dp, end = 14.dp, top = 12.dp)
             .then(modifier),
-        horizontalArrangement = Arrangement.SpaceBetween
-    )
-    {
-        Icon(
-            imageVector = Icons.Outlined.GroupAdd,
-            contentDescription = "Add friend",
-            modifier = Modifier
-                .size(28.dp)
-        )
+        horizontalArrangement = Arrangement.Center,
+    ) {
+//        Icon(
+//            imageVector = Icons.Outlined.GroupAdd,
+//            contentDescription = "Add friend",
+//            modifier = Modifier
+//                .size(28.dp)
+//        )
         Row(
             modifier = Modifier,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -67,15 +64,15 @@ fun InboxHeader(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Circle,
-                    contentDescription = "State",
-                    tint = Color.Gray,
+                    contentDescription = "Status",
+                    tint = Color.Green,
                     modifier = Modifier
                         .padding(start = 4.dp)
                         .size(10.dp)
                 )
                 Icon(
                     imageVector = Icons.Filled.ArrowDropDown,
-                    contentDescription = "State",
+                    contentDescription = "Status",
                     tint = Color.Gray,
                     modifier = Modifier
                         .size(20.dp)
@@ -83,12 +80,12 @@ fun InboxHeader(
                 )
             }
         }
-        Icon(
-            imageVector = Icons.Outlined.Search,
-            contentDescription = "Search",
-            modifier = Modifier
-                .size(28.dp)
-                .offset(x = 6.dp)
-        )
+//        Icon(
+//            imageVector = Icons.Outlined.Search,
+//            contentDescription = "Friends Search",
+//            modifier = Modifier
+//                .size(28.dp)
+//                .offset(x = 6.dp)
+//        )
     }
 }

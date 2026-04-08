@@ -2,6 +2,7 @@ package com.example.tiktok_clone.features.inbox.ui.inboxState
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,13 +33,17 @@ fun InboxNotiItem(
     iconSize: Dp,
     bgColor: Color,
     notiType: String,
-    notiContent: String = ""
-
+    notiContent: String = "",
+    isNew: Boolean = false,
+    onNotiClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp)
+            .clickable {
+                onNotiClick()
+            }
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -74,7 +79,7 @@ fun InboxNotiItem(
                 maxLines = 1,
                 fontSize = 14.sp,
                 lineHeight = 16.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = if (isNew) FontWeight.Bold else FontWeight.Normal,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
 
@@ -84,10 +89,10 @@ fun InboxNotiItem(
                 maxLines = 1,
                 fontSize = 12.sp,
                 lineHeight = 14.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = if (isNew) FontWeight.Bold else FontWeight.Normal,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
-                color = Color.Gray
+                color =if (isNew) Color.Black else Color.Gray,
             )
         }
     }

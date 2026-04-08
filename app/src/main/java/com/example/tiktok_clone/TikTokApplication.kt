@@ -5,6 +5,7 @@ import com.example.tiktok_clone.di.appModule
 import com.example.tiktok_clone.di.homeModule
 import com.example.tiktok_clone.di.cameraModule
 import com.example.tiktok_clone.di.socialModule
+import com.example.tiktok_clone.di.notificationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -37,6 +38,7 @@ class TikTokApplication : Application() {
                 homeModule,     // Home feature ViewModels
                 cameraModule,   // Camera feature ViewModels  
                 socialModule,     // Social feature ViewModels
+                notificationModule, // Notification feature ViewModels
                 userModule,
             )
         }

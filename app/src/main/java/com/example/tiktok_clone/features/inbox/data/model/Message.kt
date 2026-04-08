@@ -9,6 +9,7 @@ data class Message(
     val type: MessageType,
     val status: MessageStatus = MessageStatus.SENT,
     val imageUri: String? = null,
+    val receiptStatus: MessageStatus? = null,
 )
 
 enum class MessageType { TEXT, IMAGE, VIDEO }

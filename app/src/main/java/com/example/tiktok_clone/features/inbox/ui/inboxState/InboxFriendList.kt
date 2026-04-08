@@ -3,7 +3,6 @@ package com.example.tiktok_clone.features.inbox.ui.inboxState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,17 +18,15 @@ import org.koin.androidx.compose.koinViewModel
 fun InboxFriendList(
     currentUser: User,
     onChatClick: (userId: String) -> Unit = {},
-    viewModel: SocialViewModel = koinViewModel()
+    viewModel: SocialViewModel = koinViewModel(),
 ) {
     val friendState by viewModel.friends.collectAsState()
     val friend = viewModel.getUserList(friendState.map { it.uid })
     val chatWiths = friend.filter { it.id != currentUser.id }
     LazyRow(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp,Alignment.Start),
-        contentPadding = PaddingValues(start = 8.dp, top = 16.dp)
-
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
+        contentPadding = PaddingValues(start = 8.dp, top = 16.dp),
     ) {
         item {
             InboxFriendItem(

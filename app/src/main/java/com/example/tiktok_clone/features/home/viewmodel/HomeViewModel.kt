@@ -51,6 +51,10 @@ class HomeViewModel(
                     .filter { it.mediaUrl.isNotBlank() }  // Skip posts still processing
                 _posts.value = loadedPosts.sortedBy { it.id }
 
+//                // Load postState ngay khi load được 2 post đầu tiên
+//                loadedPosts.take(1).forEach { post ->
+//                    socialViewModel.loadPostState(post.id.toString())
+//                }
                 // Fetch users for all unique userIds in the posts
                 val userIds = loadedPosts.map { it.userId }.distinct()
                 if (userIds.isNotEmpty()) {

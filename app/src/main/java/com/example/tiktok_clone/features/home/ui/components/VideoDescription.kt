@@ -46,11 +46,11 @@ fun VideoDescriptionSection(
         )
     }
 }
-
 @Composable
 fun InlineShowMore(text: String) {
     var isExpanded by remember { mutableStateOf(false) }
     var hasOverflow by remember { mutableStateOf(false) }
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

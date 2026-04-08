@@ -1,5 +1,8 @@
 package com.example.tiktok_clone.features.inbox.data
 
+import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
+import com.example.tiktok_clone.features.inbox.data.model.MessageType
+import com.example.tiktok_clone.features.social.data.FollowUserResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -10,27 +13,20 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-/**
- * Retrofit service cho Inbox – map theo spec backend.
- * Base: /api/v1/inbox
- * Auth: Authorization: Bearer <Firebase_ID_Token>
- */
 interface InboxApiService {
 
-    /**
-     * GET /api/v1/inbox/chats
-     * Query: limit (default 20), offset (default 0)
-     */
+    @GET("api/v1/inbox/contacts")
+    suspend fun getContacts(
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null,
+    ): ContactsResponse
+
     @GET("api/v1/inbox/chats")
     suspend fun getChats(
         @Query("limit") limit: Int? = null,
         @Query("offset") offset: Int? = null,
     ): ChatsResponse
 
-    /**
-     * GET /api/v1/inbox/chats/{chatId}/messages
-     * Path: chatId (int). Query: limit, offset
-     */
     @GET("api/v1/inbox/chats/{chatId}/messages")
     suspend fun getMessages(
         @Path("chatId") chatId: Int,
@@ -38,26 +34,18 @@ interface InboxApiService {
         @Query("offset") offset: Int? = null,
     ): MessagesResponse
 
-    /**
-     * POST /api/v1/inbox/chats/{otherUid}/messages
-     * Gửi tin nhắn TEXT (không upload file).
-     */
     @POST("api/v1/inbox/chats/{otherUid}/messages")
     suspend fun sendMessage(
         @Path("otherUid") otherUid: String,
         @Body body: SendMessageRequest,
     ): MessageDto
 
-    /**
-     * POST /api/v1/inbox/chats/{otherUid}/messages/upload
-     * Gửi tin nhắn có file (IMAGE / VIDEO) – multipart/form-data.
-     */
     @Multipart
     @POST("api/v1/inbox/chats/{otherUid}/messages/upload")
     suspend fun uploadMessage(
         @Path("otherUid") otherUid: String,
         @Part file: MultipartBody.Part,
-        @Part("type") type: RequestBody,
+        @Part("type") type: RequestBody?,
         @Part("content") content: RequestBody?,
     ): MessageDto
 }
@@ -66,6 +54,11 @@ interface InboxApiService {
 
 data class ChatsResponse(
     val chats: List<ChatResponse>,
+    val total: Int,
+)
+
+data class ContactsResponse(
+    val users: List<FollowUserResponse>,
     val total: Int,
 )
 
@@ -82,9 +75,10 @@ data class MessageDto(
     val content: String?,
     val senderId: String,
     val timestamp: Long,
-    val type: String = "TEXT",
-    val status: String = "SENT",
+    val type: String?= MessageType.TEXT.toString(),
+    val status: String? = MessageStatus.SENT.toString(),
     val imageUri: String? = null,
+    val receiptStatus: String? = null,
 )
 
 data class MessagesResponse(

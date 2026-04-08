@@ -1,7 +1,6 @@
 package com.example.tiktok_clone.features.profile.ui
 
 
-
 import androidx.compose.foundation.layout.Arrangement
 
 import androidx.compose.foundation.layout.Box
@@ -33,19 +32,16 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-val TiktokRed = Color(0xFFEA4359)
+import com.example.tiktok_clone.ui.theme.TikTokRed
 
 @Composable
 
 fun ProfileScreen(
-    modifier: Modifier = Modifier,
-    onLoginClick: () -> Unit
+    modifier: Modifier = Modifier, onLoginClick: () -> Unit
 
 ) {
     Surface(
-        modifier = modifier.fillMaxSize(),
-        color = Color.White // Đặt nền trắng giống ảnh
+        modifier = modifier.fillMaxSize(), color = Color.White // Đặt nền trắng giống ảnh
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileHeader()
@@ -58,7 +54,6 @@ fun ProfileScreen(
     }
 
 }
-
 
 
 @Composable
@@ -74,8 +69,7 @@ fun ProfileHeader(modifier: Modifier = Modifier) {
             text = "Profile",
             modifier = Modifier.align(Alignment.Center),
             style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+                fontWeight = FontWeight.Bold, fontSize = 18.sp
             ),
             color = Color.Black
         )
@@ -94,27 +88,22 @@ fun ProfileHeader(modifier: Modifier = Modifier) {
 }
 
 
-
 @Composable
 fun ProfileBody(
-    modifier: Modifier = Modifier,
-    onLoginClick: () -> Unit
+    modifier: Modifier = Modifier, onLoginClick: () -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp), // Padding tổng thể
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
     ) {
         // Icon User lớn
         Icon(
             imageVector = Icons.Default.Person, // Hoặc dùng Icons.Rounded.AccountCircle sẽ tròn hơn
-            contentDescription = "User",
-            modifier = Modifier
+            contentDescription = "User", modifier = Modifier
                 .size(60.dp) // Tăng kích thước icon
-                .padding(bottom = 16.dp),
-            tint = Color.DarkGray
+                .padding(bottom = 16.dp), tint = Color.DarkGray
         )
 
         Text(
@@ -131,16 +120,13 @@ fun ProfileBody(
                 .fillMaxWidth()
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = TiktokRed,
-                contentColor = Color.White
+                containerColor = TikTokRed, contentColor = Color.White
             ),
             shape = RoundedCornerShape(4.dp)
         ) {
 
             Text(
-                text = "Login",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
+                text = "Login", fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             )
 
         }

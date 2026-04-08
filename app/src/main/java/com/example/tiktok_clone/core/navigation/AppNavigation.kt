@@ -34,6 +34,8 @@ import com.example.tiktok_clone.features.search.SearchViewModel
 import com.example.tiktok_clone.features.search.ui.SearchResultScreen
 import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
+import com.example.tiktok_clone.features.notification.ui.Notification
+import com.example.tiktok_clone.features.profile.ui.OtherUserProfileScreen
 
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
@@ -69,12 +71,21 @@ fun AppNavigation() {
                     0 -> HomeScreenContent(
                         onsearchTap = { navController.navigate(NavigationRoutes.searchGraphRoute) }
                     )
+
                     1 -> ShopScreenContent()
                     3 -> InboxScreenContent(
                         onChatClick = { userId ->
                             navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
-                        }
-                    )
+                        },
+                        onUserNotificationClick = {
+                            navController.navigate(NavigationRoutes.notificationUserRoute)
+                        },
+                        onSocialNotificationClick = {
+                            navController.navigate(NavigationRoutes.notificationSocialRoute)
+                        },
+
+                        )
+
                     4 -> ProfileScreenContent(
                         onLoginClick = {
                             navController.navigate(NavigationRoutes.loginSelectionRoute)
@@ -229,30 +240,75 @@ fun AppNavigation() {
                 }
             )
         }
-        composable (route = NavigationRoutes.inboxRoute){
-            val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        composable(route = NavigationRoutes.inboxRoute) {
             InboxScreen(
-                currentUserId = currentUserUid,
                 onChatClick = { userId ->
                     navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
-                }
+                },
+                onUserNotificationClick = {
+                    navController.navigate(NavigationRoutes.notificationUserRoute)
+                },
+                onSocialNotificationClick = {
+                    navController.navigate(NavigationRoutes.notificationSocialRoute)
+                },
             )
         }
-        composable (route = "${NavigationRoutes.inboxRoute}/{userId}"){
+        composable(route = "${NavigationRoutes.inboxRoute}/{userId}") {
             MessageScreen(
                 chatWithId = it.arguments?.getString("userId") ?: "",
+                onBack = { navController.popBackStack() },
+                onAvatarClick = { userId -> navController.navigate("user_profile/$userId") }
+            )
+        }
+        composable(route = NavigationRoutes.notificationSocialRoute) {
+            Notification(
+                notificationType = "social",
                 onBack = { navController.popBackStack() }
             )
         }
+        composable(route = NavigationRoutes.notificationUserRoute) {
+            Notification(
+                notificationType = "user",
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = "user_profile/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            OtherUserProfileScreen(
+                userId = userId,
+                onBack = {
+                    navController.popBackStack()
+                },
+                onChatClick = { userId ->
+                    navController.navigate("${NavigationRoutes.inboxRoute}/$userId")
+                },
+                onNavigateToSelfProfile = {
+                    selectedTabIndex = 4 // chuyển về tab Profile
+                    navController.navigate(NavigationRoutes.mainWrapper) {
+                        popUpTo(NavigationRoutes.mainWrapper) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+
     }
 }
 
 @Composable
 private fun HomeScreenContent(
     onsearchTap: () -> Unit = {},
+    onAvatarClick: (String) -> Unit = {},
+    onCommentClick: (String) -> Unit = {}
 ) {
     HomeScreen(
-        onSearchTap = onsearchTap
+        onSearchTap = onsearchTap,
+        onAvatarClick = onAvatarClick,
+        onCommentClick = onCommentClick
     )
 }
 
@@ -263,17 +319,21 @@ private fun ShopScreenContent() {
 
 @Composable
 private fun InboxScreenContent(
-    onChatClick: (userId: String) -> Unit = {}
+    onChatClick: (userId: String) -> Unit = {},
+    onUserNotificationClick: () -> Unit = {},
+    onSocialNotificationClick: () -> Unit = {},
 ) {
-    val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     InboxScreen(
-        currentUserId = currentUserUid,
-        onChatClick = onChatClick
+        onChatClick = onChatClick,
+        onUserNotificationClick = onUserNotificationClick,
+        onSocialNotificationClick = onSocialNotificationClick,
     )
 }
 
 @Composable
-private fun ProfileScreenContent(onLoginClick: () -> Unit) {
+private fun ProfileScreenContent(
+    onLoginClick: () -> Unit,
+) {
     // Kiểm tra trạng thái đăng nhập từ Firebase (reactive)
     var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
     DisposableEffect(Unit) {

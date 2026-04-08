@@ -1,6 +1,5 @@
 package com.example.tiktok_clone.features.home.ui
 
-import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,12 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.Player
-import androidx.media3.common.util.Log
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
 import org.koin.androidx.compose.koinViewModel
@@ -50,30 +50,46 @@ import com.example.tiktok_clone.features.home.ui.components.VideoPlayer
 import com.example.tiktok_clone.features.home.viewmodel.HomeViewModel
 import com.example.tiktok_clone.features.post.data.model.PostType
 import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
-import com.example.tiktok_clone.features.social.data.PostStateResponse
+import com.example.tiktok_clone.features.notification.data.model.SocialNotificationAction
+import com.example.tiktok_clone.features.notification.viewModel.NotificationViewModel
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.google.firebase.auth.FirebaseAuth
+import com.example.tiktok_clone.features.social.ui.SocialUiState
 
-@OptIn(UnstableApi::class)
+
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = koinViewModel(),
     profileViewModel: ProfileViewModel = koinViewModel(),
     socialViewModel: SocialViewModel = koinViewModel(),
-    onSearchTap: () -> Unit = {}
+    notificationViewModel: NotificationViewModel = koinViewModel(),
+    onSearchTap: () -> Unit = {},
+    onAvatarClick: (String) -> Unit = {},
+    onCommentClick: (userId: String) -> Unit = {}
 ) {
     val posts by homeViewModel.posts.collectAsState()
     val users by homeViewModel.users.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
     val error by homeViewModel.error.collectAsState()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isResumeLoading by remember { mutableStateOf(false) }
 
     val currentUserId: String = profileViewModel.getProfileData()?.id.toString()
-    socialViewModel.getCurrentUser(currentUserId)
-    socialViewModel.getFriends(currentUserId)
-    val currentUser by socialViewModel.currentUser.collectAsState()
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    val socialData = (socialUiState as? SocialUiState.Success)?.data
+    val currentUser = socialData?.currentUser
 
-    val postStates by socialViewModel.postStates.collectAsState()
+
+    LaunchedEffect(currentUserId) {
+        if (currentUserId.isBlank() || currentUserId == "null") return@LaunchedEffect
+        socialViewModel.getCurrentUser(currentUserId)
+        socialViewModel.getFriends(currentUserId)
+        socialViewModel.loadFollowers(currentUserId)
+        socialViewModel.loadFollowing(currentUserId)
+    }
+    LaunchedEffect(Unit) {
+        notificationViewModel.onAction(SocialNotificationAction.LoadNotifications)
+    }
 
     // Single shared ExoPlayer instance
     val exoPlayer = remember {
@@ -82,27 +98,43 @@ fun HomeScreen(
             volume = 1f
         }
     }
+
     // Release player on dispose
     DisposableEffect(Unit) {
-        onDispose { exoPlayer.release() }
+        onDispose {
+            exoPlayer.release()
+            socialViewModel.disconnectPostRealtime()     // Khi post focus thay đổi
+        }
+    }
+
+    // load nhẹ khi quay về màn hình home
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                isResumeLoading = true
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(isResumeLoading) {
+        if (isResumeLoading) {
+            kotlinx.coroutines.delay(300)
+            isResumeLoading = false
+        }
     }
     val pagerState = rememberPagerState(pageCount = { posts.size })
 
-    // Load state + comment cho post hiện tại và prefetch cho post tiếp theo
-    LaunchedEffect(pagerState.currentPage, posts) {
-        val currentPost = posts.getOrNull(pagerState.currentPage)
-        if (currentPost != null) {
-            val currentId = currentPost.id.toString()
-            socialViewModel.loadPostState(currentId)
-            socialViewModel.loadComments(currentId)
+    val currentPost = posts.getOrNull(pagerState.currentPage)
+    val currentPostId = currentPost?.id?.toString()
 
-            val nextPost = posts.getOrNull(pagerState.currentPage + 1)
-            if (nextPost != null) {
-                val nextId = nextPost.id.toString()
-                socialViewModel.loadPostState(nextId)
-                socialViewModel.loadComments(nextId)
-            }
-        }
+    // Ưu tiên load dữ liệu cho post hiện tại trước.
+    LaunchedEffect(currentPostId) {
+        if (currentPostId.isNullOrBlank()) return@LaunchedEffect
+
+        socialViewModel.loadPostState(currentPostId)
+        socialViewModel.connectPostRealtime(currentPostId)
     }
     // Infinite scroll: load more when near end
     LaunchedEffect(pagerState) {
@@ -117,7 +149,10 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        if (isLoading && posts.isEmpty()) {
+        val isSocialLoading = socialUiState is SocialUiState.Loading
+        val socialErrorMessage = (socialUiState as? SocialUiState.Error)?.message
+
+        if ((isLoading || isSocialLoading) && posts.isEmpty()) {
             // Loading state — show spinner instead of black screen
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -132,7 +167,7 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = error ?: "No posts yet",
+                    text = error ?: socialErrorMessage ?: "No posts yet",
                     color = Color.White
                 )
             }
@@ -145,6 +180,13 @@ fun HomeScreen(
                 Column {
                     Box(modifier = Modifier.fillMaxHeight()) {
                         val currentPost = posts.getOrNull(page)
+                        val author = users[currentPost?.userId]
+                        val postState = (socialUiState as? SocialUiState.Success)
+                            ?.data
+                            ?.postStates
+                            ?.get(
+                                currentPost?.id?.toString().orEmpty()
+                            )
                         // Show image or video based on post type
                         if (currentPost?.type == PostType.IMAGE) {
                             AsyncImage(
@@ -163,16 +205,16 @@ fun HomeScreen(
                                 isCurrentPage = pagerState.currentPage == page
                             )
                         }
-
                         posts.getOrNull(page)?.let { currentPost ->
-                            val author = users[currentPost.userId]
                             // Social actions sidebar (like, comment, share, save)
                             author?.let { user ->
                                 MiddleSection(
                                     author = user,
                                     currentPost = currentPost,
                                     currentUser = currentUser,
-                                    postState = postStates[currentPost.id.toString()],
+                                    postState = postState,
+                                    onAvatarClick = { onAvatarClick(user.id) },
+                                    onCommentClick = { userId -> onCommentClick(userId) },
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)
                                         .padding(
@@ -181,7 +223,6 @@ fun HomeScreen(
                                         )
                                 )
                             }
-
                             // Caption and username overlay
                             VideoDescriptionSection(
                                 userName = author?.userName ?: currentPost.userId,
@@ -198,6 +239,17 @@ fun HomeScreen(
                 }
             }
         } // else (posts not empty)
+
+        if (isResumeLoading && posts.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.25f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        }
 
         TopHeading(
             onSearchTap = onSearchTap,

@@ -31,4 +31,15 @@ interface UserApiService {
 
     @GET("api/v1/users/{uid}")
     suspend fun getUser(@Path("uid") uid: String): FirebaseUserResponse
+
+    @retrofit2.http.Multipart
+    @retrofit2.http.POST("api/v1/users/upload_avatar")
+    suspend fun uploadAvatar(
+        @retrofit2.http.Part file: okhttp3.MultipartBody.Part
+    ): UploadAvatarResponse
 }
+
+data class UploadAvatarResponse(
+    val status: String,
+    val avatarUrl: String
+)
