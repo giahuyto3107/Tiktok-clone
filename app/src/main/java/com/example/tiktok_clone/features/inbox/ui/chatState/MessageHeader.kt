@@ -32,7 +32,6 @@ fun MessageHead(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(GrayBackground)
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

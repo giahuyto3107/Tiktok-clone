@@ -77,8 +77,7 @@ fun MessageList(
         reverseLayout = true,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
-            .fillMaxWidth()
-            .background(GrayBackground),
+            .fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
     ) {
         itemsIndexed(

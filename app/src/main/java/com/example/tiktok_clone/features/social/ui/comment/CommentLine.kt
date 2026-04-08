@@ -113,22 +113,26 @@ fun CommentLine(
                         modifier = Modifier
                             .wrapContentWidth()
                     )
-                    Text(
-                        text = if (isRoot) "Trả lời" else "",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = {
-                                    onReply(true)
-                                    parent(commentRoot)
-                                    isReply = true
-                                },
-                            ),
-                    )
+//                    if (isRoot) {
+                        Text(
+                            text = if (isRoot) "Trả lời" else "",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            modifier = Modifier
+                                .clickable(
+                                    indication = null,
+                                    enabled = isRoot,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    onClick = {
+                                        onReply(true)
+                                        parent(commentRoot)
+                                        isReply = true
+                                    },
+                                ),
+                        )
+//                    } else Box(modifier = Modifier.weight(1f))
+
                     Spacer(modifier = Modifier.weight(1f))
                     CommentReact(
                         viewModel = viewModel, commentRoot = commentRoot
