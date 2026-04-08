@@ -7,20 +7,15 @@ import com.example.tiktok_clone.BuildConfig
  * Change BASE_URL here to update all API endpoints
  */
 object ApiConfig {
-    // 🔥 CHANGE THIS LINE TO UPDATE YOUR SERVER URL 🔥
-    // Retrofit requires baseUrl to end with "/"
-    // Keep this as server root; endpoints include `/api/v1/...` to avoid URL-join issues.
+        // 🔥 LOADED FROM .ENV VIA BUILDCONFIG 🔥
+        // Sync project with Gradle files if BuildConfig is not updated
+        val BASE_URL = BuildConfig.API_BASE_URL
 
-    // Emulator: 10.0.2.2 = máy dev (localhost trên PC). KHÔNG dùng 127.0.0.1 — đó là chính điện thoại.
-    const val BASE_URL = "http://10.0.2.2:8000/"
-    // Máy thật: IP Wi‑Fi của PC, ví dụ "http://192.168.1.50:8000/" + chạy uvicorn --host 0.0.0.0
-
-    // Environment-specific URLs
-    const val LOCAL_EMULATOR = "http://10.0.2.2:8000/"
-    /** Điện thoại thật: thay bằng IP LAN thật của PC (ipconfig), không dùng 127.0.0.1 */
-    const val LOCAL_DEVICE = "http://172.20.10.12:8000/"
-    const val STAGING = "http://staging-api.yourapp.com/"
-    const val PRODUCTION = "http://api.yourapp.com/"
+        // Environment-specific URLs
+        val LOCAL_EMULATOR = BuildConfig.API_URL_EMULATOR
+        val LOCAL_DEVICE = BuildConfig.API_URL_DEVICE
+        val STAGING = BuildConfig.API_URL_STAGING
+        val PRODUCTION = BuildConfig.API_URL_PRODUCTION
 
     // Auto-detect environment (optional)
     fun getBaseUrl(): String {
