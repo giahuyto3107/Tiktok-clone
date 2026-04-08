@@ -45,37 +45,37 @@ class UploadRepository(
         }
     }
 
-    private suspend fun uploadImage(
+    suspend fun uploadImage(
         uri: Uri,
         caption: String,
         userId: String
     ): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            try {
-                Log.d(TAG, "uploadImage starting for URI: $uri")
+            kotlin.runCatching {
+                Log.d(TAG, "Bắt đầu upload cho URI: $uri")
+
+                // 1. Xử lý File (I/O task)
                 val filePart = createFilePartFromUri(uri, "image.jpg")
-                    ?: return@withContext Result.failure(IllegalArgumentException("Could not read image from URI"))
-                Log.d(TAG, "filePart created successfully")
+                    ?: throw IllegalArgumentException("Không thể đọc dữ liệu từ URI")
+
+                // 2. Chuẩn bị dữ liệu Multipart
                 val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
                 val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
 
+                // 3. Gọi API (Network task)
                 val response = apiService.uploadImage(filePart, captionPart, userIdPart)
-                Log.d(
-                    TAG,
-                    "uploadImage response: code=${response.code()}, successful=${response.isSuccessful}"
-                )
-                if (response.isSuccessful) Result.success(true)
-                else {
-                    val request = response.raw().request
-                    Log.e(
-                        TAG,
-                        "Image upload failed: code=${response.code()} method=${request.method} url=${request.url}"
-                    )
-                    Result.failure(Exception("Upload failed: ${response.code()}"))
+
+                // 4. Kiểm tra phản hồi
+                if (response.isSuccessful) {
+                    true
+                } else {
+                    val errorMsg = "Upload thất bại: ${response.code()}"
+                    Log.e(TAG, errorMsg)
+                    throw Exception(errorMsg)
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "uploadImage exception", e)
-                Result.failure(e)
+            }.onFailure { e ->
+                // Tự động catch mọi Exception (bao gồm cả IOException khi đọc file)
+                Log.e(TAG, "Lỗi trong quá trình upload: ${e.message}", e)
             }
         }
 
