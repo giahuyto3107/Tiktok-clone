@@ -3,20 +3,19 @@ package com.example.tiktok_clone.features.search.model
 data class SearchUiState(
     val query: String = "",
     val suggestions: List<String> = emptyList(),
-    val recentSearches: List<String> = listOf(
-        "swords of justice",
-        "adale maplesory",
-        "nhạc nền - AnBeee 🐝",
-        "失刃 | 花童",
-        "mike who cheese harry",
-        "Cry For Me"
-    ),
-    val youMayLike: List<String> = listOf(
-        "lol esports live",
-        "elden ring",
-        "Nhạc tiktok hay",
-        "Man City Vs Man United",
-        "Huyền cơ pve"
-    ),
+    val recentSearches: List<String> = emptyList(),
+    val discoverItems: List<DiscoverItem> = emptyList(),
+    val isDiscoverLoading: Boolean = false,
+
+    val videos: List<VideoResult> = emptyList(),
+    val users: List<UserItem> = emptyList(),
+    val products: List<ProductItem> = emptyList(),
+    val images: List<String> = emptyList(),
+    val lives: List<String> = emptyList(),
+
+    val isLoading: Boolean = false,
+    /** Đang gọi API /search/suggest sau debounce */
+    val isSuggestLoading: Boolean = false,
+    val error: String? = null,
     val navigateToResult: Boolean = false
 )

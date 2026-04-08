@@ -2,7 +2,8 @@ package com.example.tiktok_clone.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.tiktok_clone.BuildConfig
+import android.util.Log
+import com.abedelazizshe.lightcompressorlibrary.BuildConfig
 import com.example.tiktok_clone.core.config.ApiConfig
 import com.example.tiktok_clone.core.network.RealtimeWebSocketClient
 import com.example.tiktok_clone.features.inbox.data.InboxApiService
@@ -11,6 +12,9 @@ import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
 import com.example.tiktok_clone.features.post.data.repository.PostApiService
 import com.example.tiktok_clone.features.post.data.repository.UploadRepository
 import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
+import com.example.tiktok_clone.features.search.SearchViewModel
+import com.example.tiktok_clone.features.search.api.SearchApiService
+import com.example.tiktok_clone.features.search.data.SearchRepository
 import com.example.tiktok_clone.features.social.data.SocialApiService
 import com.example.tiktok_clone.features.social.data.SocialRepository
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
@@ -83,9 +87,21 @@ val appModule = module {
     single { SocialRepository(get()) }
     viewModel { SocialViewModel(get(), get(), get(), get()) }
 
-    single<InboxApiService> { get<Retrofit>().create(InboxApiService::class.java) }
-    single { InboxRepository(get()) }
-    viewModel { InboxViewModel(get(), get()) }
+    single<SearchApiService> {
+        get<Retrofit>().create(SearchApiService::class.java)
+    }
+
+    single {
+        SearchRepository(get(), get())
+    }
+
+    viewModel {
+        SearchViewModel(get())
+    }
+
+    single {
+        InboxRepository(get())
+    }
 
     single { PostViewModel(get(), get()) }
 }

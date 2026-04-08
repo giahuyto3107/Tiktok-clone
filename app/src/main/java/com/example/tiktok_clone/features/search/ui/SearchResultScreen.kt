@@ -1,77 +1,147 @@
 package com.example.tiktok_clone.features.search.ui
 
-
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.features.search.SearchViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchResultScreen(
-    query: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: SearchViewModel,
 ) {
-    var tabIndex by remember { mutableStateOf(0) }
+    val uiState by viewModel.uiState.collectAsState()
+    var tabIndex by remember { mutableIntStateOf(0) }
 
-    val tabs = listOf(
-        "Top", "Video", "Người dùng", "Cửa hàng", "Ảnh", "LIVE"
-    )
+    val tabs = listOf("Top", "Video", "Người dùng", "Cửa hàng", "Ảnh", "LIVE")
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .statusBarsPadding()
+            .statusBarsPadding(),
     ) {
-
-        // 🔙 HEADER
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = null,
-                modifier = Modifier.clickable { onBack() }
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lại")
+            }
+            OutlinedTextField(
+                value = uiState.query,
+                onValueChange = viewModel::onQueryChange,
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Default.Search, null, tint = Color.Gray)
+                },
+                trailingIcon = {
+                    if (uiState.query.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.onQueryChange("") }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Xóa")
+                        }
+                    }
+                },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        viewModel.onSearchSubmit(uiState.query, skipNavigate = true)
+                    },
+                ),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
+                shape = MaterialTheme.shapes.large,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFF5F5F5),
+                    focusedContainerColor = Color(0xFFF5F5F5),
+                ),
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(text = query, fontSize = 16.sp)
+            IconButton(onClick = { /* menu */ }) {
+                Icon(Icons.Default.MoreVert, contentDescription = null)
+            }
         }
 
-        // 🧭 TAB
-        ScrollableTabRow(
+        PrimaryScrollableTabRow(
             selectedTabIndex = tabIndex,
-            edgePadding = 12.dp
+            edgePadding = 8.dp,
         ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = tabIndex == index,
                     onClick = { tabIndex = index },
-                    text = { Text(title, fontSize = 13.sp) }
+                    text = {
+                        Text(
+                            title,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontWeight = if (tabIndex == index) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    },
                 )
             }
         }
 
-        // 🔥 CONTENT THEO TAB
+        if (uiState.isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return
+        }
+
+        uiState.error?.let { err ->
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(err, color = Color.Red)
+            }
+            return
+        }
+
         when (tabIndex) {
-            0 -> TopResultTab()
-            1 -> VideoResultTab()
-            2 -> UserResultTab()
-            3 -> ShopResultTab()
-            4 -> ImageResultTab()
-            5 -> LiveResultTab()
+            0 -> TopResultTab(
+                videos = uiState.videos.take(12),
+                images = uiState.images.take(12),
+            )
+            1 -> VideoResultTab(uiState.videos)
+            2 -> UserResultTab(uiState.users)
+            3 -> ShopResultTab(uiState.products)
+            4 -> ImageResultTab(uiState.images)
+            5 -> LiveResultTab(uiState.lives)
         }
     }
 }
