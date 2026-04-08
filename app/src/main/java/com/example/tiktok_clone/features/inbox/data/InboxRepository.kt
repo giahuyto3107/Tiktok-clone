@@ -15,10 +15,7 @@ class InboxRepository(
 ) {
     data class CachedMessages(
         val chatId: Int,
-        /**
-         * Dữ liệu raw theo đúng format backend trả về.
-         * UI sẽ tự reverse để hiển thị theo thứ tự mong muốn.
-         */
+
         val rawMessages: List<Message>,
     )
 
@@ -26,28 +23,7 @@ class InboxRepository(
     private val chatIdByOtherUid: MutableMap<String, Int> = mutableMapOf()
     private val messagesCacheByChatId: MutableMap<Int, List<Message>> = mutableMapOf()
 
-    fun putChatIdMapping(chatWithId: String, chatId: Int) {
-        synchronized(cacheLock) {
-            chatIdByOtherUid[chatWithId] = chatId
-        }
-    }
 
-    fun getCachedMessages(chatWithId: String): CachedMessages? {
-        val resolvedChatId = chatWithId.toIntOrNull() ?: synchronized(cacheLock) {
-            chatIdByOtherUid[chatWithId]
-        } ?: return null
-
-        return synchronized(cacheLock) {
-            messagesCacheByChatId[resolvedChatId]?.let { raw ->
-                CachedMessages(chatId = resolvedChatId, rawMessages = raw)
-            }
-        }
-    }
-
-    /**
-     * Trả về danh sách contact theo "shape" giống getFollowers/getFollowing (Social).
-     * Dễ reuse UI hiện có đang consume List<FollowUserResponse>.
-     */
     suspend fun getContacts(
         limit: Int? = 50,
         offset: Int? = 0,
@@ -72,15 +48,6 @@ class InboxRepository(
         return res
     }
 
-    suspend fun getMessages(chatId: Int, limit: Int? = null, offset: Int? = null): List<Message> {
-        val res = api.getMessages(chatId = chatId, limit = limit, offset = offset)
-        val mapped = res.messages.map { it.toMessage() }
-        synchronized(cacheLock) {
-            messagesCacheByChatId[chatId] = mapped
-        }
-        return mapped
-    }
-
     data class MessagesPage(
         val messages: List<Message>,
         val total: Int,
@@ -99,9 +66,6 @@ class InboxRepository(
         return MessagesPage(messages = mapped, total = res.total)
     }
 
-    /**
-     * Gửi tin nhắn TEXT (không upload file).
-     */
     suspend fun sendMessage(
         otherUid: String,
         content: String? = null,
@@ -128,10 +92,6 @@ class InboxRepository(
         return api.sendMessage(otherUid, body).toMessage()
     }
 
-    /**
-     * Gửi tin nhắn kèm file (IMAGE / VIDEO) bằng endpoint multipart.
-     * File: ảnh hoặc video đã có sẵn dưới dạng File.
-     */
     suspend fun sendMessageWithFile(
         otherUid: String,
         file: File,
@@ -167,7 +127,7 @@ class InboxRepository(
         return dto.toMessage()
     }
 
-    /** Dùng khi cần hiển thị lastMessage từ ChatResponse (MessageDto → Message). */
+    // Dùng khi cần hiển thị lastMessage từ ChatResponse (MessageDto → Message).
     fun mapToMessage(dto: MessageDto): Message = dto.toMessage()
 }
 

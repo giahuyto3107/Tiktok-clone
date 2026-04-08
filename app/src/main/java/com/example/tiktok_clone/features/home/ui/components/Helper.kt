@@ -44,6 +44,7 @@ import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
 import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 import com.example.tiktok_clone.features.social.ui.components.Avatar
+import com.example.tiktok_clone.features.social.ui.components.SetKeyboardOverlayMode
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.TikTokRed
@@ -64,7 +65,9 @@ fun MiddleSection(
     following: Set<String>,
     postState: PostStateResponse?,
     socialViewModel: SocialViewModel = koinViewModel(),
+    onAvatarClick: () -> Unit = {},
 ) {
+
     val thisPostState = postState?.takeIf { it.postId == currentPost.id.toString() }
 
     val isLiked = thisPostState?.isLiked == true
@@ -95,7 +98,8 @@ fun MiddleSection(
                     SocialAction
                         .Follow(currentUser?.id.toString(), author.id)
                 )
-            }
+            },
+            onAvatarClick = onAvatarClick
         )
         // Like
         MainInteractiveItem(
@@ -113,9 +117,7 @@ fun MiddleSection(
         )
         // Comment
         OpenComment(
-            socialViewModel = socialViewModel,
             commentCount = commentCount,
-            currentPost = currentPost,
             onComment = {
                 isOpenCommentSheet = it
             }
@@ -169,9 +171,7 @@ fun MiddleSection(
 
 @Composable
 fun OpenComment(
-    socialViewModel: SocialViewModel = koinViewModel(),
     commentCount: Long,
-    currentPost: Post,
     onComment: (isOpenCommentSheet: Boolean) -> Unit = {}
 ) {
     // Comment
@@ -182,9 +182,6 @@ fun OpenComment(
                 interactionSource = remember { MutableInteractionSource() },
                 onClick = {
                     onComment(true)
-                    socialViewModel.onAction(
-                        SocialAction.LoadComment(currentPost.id.toString()) //load comment
-                    )
                 }
             ),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -272,10 +269,16 @@ fun AuthorSection(
     isFollowing: Boolean,
     isCanFollow: Boolean = true,
     onClick: () -> Unit,
+    onAvatarClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
-            .then(modifier),
+            .then(modifier)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = onAvatarClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Avatar(

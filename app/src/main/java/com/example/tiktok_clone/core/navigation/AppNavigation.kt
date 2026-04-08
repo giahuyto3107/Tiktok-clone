@@ -64,7 +64,8 @@ fun AppNavigation() {
                 // Content based on selected tab
                 when (selectedTabIndex) {
                     0 -> HomeScreenContent(
-                        onsearchTap = { navController.navigate(NavigationRoutes.searchRoute) }
+                        onsearchTap = { navController.navigate(NavigationRoutes.searchRoute) },
+                        onAvatarClick = { userId -> navController.navigate("user_profile/$userId") }
                     )
                     1 -> ShopScreenContent()
                     3 -> InboxScreenContent(
@@ -253,15 +254,28 @@ fun AppNavigation() {
             )
         }
 
+        composable(
+            route = "user_profile/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            com.example.tiktok_clone.features.profile.ui.OtherUserProfileScreen(
+                userId = userId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
     }
 }
 
 @Composable
 private fun HomeScreenContent(
     onsearchTap: () -> Unit = {},
+    onAvatarClick: (String) -> Unit = {}
 ) {
     HomeScreen(
-        onSearchTap = onsearchTap
+        onSearchTap = onsearchTap,
+        onAvatarClick = onAvatarClick
     )
 }
 

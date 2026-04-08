@@ -71,7 +71,6 @@ fun CommentInput(
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
     val context = LocalContext.current
-
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -82,11 +81,9 @@ fun CommentInput(
         selectedImageFile = pickedImage.file
         onCommenting()
     }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
             .navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -101,7 +98,6 @@ fun CommentInput(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
                 .padding(top = 8.dp),
             verticalAlignment = if (isCommenting) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -122,7 +118,9 @@ fun CommentInput(
                     },
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                     decorationBox = { innerTextField ->
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
                             if (selectedImageUri != null) {
                                 Box(modifier = Modifier.size(50.dp)) {
                                     AsyncImage(
@@ -240,7 +238,9 @@ fun CommentInput(
                             TikTokRed.copy(alpha = 0.6f) else TikTokRed,
                         contentColor = Color.White
                     ),
-                    modifier = Modifier.height(34.dp).width(52.dp),
+                    modifier = Modifier
+                        .height(34.dp)
+                        .width(52.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                 ) {
                     Icon(
