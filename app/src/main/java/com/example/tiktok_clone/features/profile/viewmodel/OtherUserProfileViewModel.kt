@@ -37,7 +37,7 @@ class OtherUserProfileViewModel(
                 val counts = socialRepository.getFollowCounts(userId)
                 val followers = socialRepository.getFollowers(userId).map { it.uid }.toSet()
                 val following = socialRepository.getFollowing(userId).map { it.uid }.toSet()
-                
+
                 _targetUser.value = user
                 _followCounts.value = counts
                 _guestFollowers.value = followers
@@ -46,16 +46,6 @@ class OtherUserProfileViewModel(
                 e.printStackTrace()
             } finally {
                 _isLoading.value = false
-            }
-        }
-    }
-
-    fun refreshGuestFollow(userId: String) {
-        viewModelScope.launch {
-            try {
-                _guestFollowers.value = socialRepository.getFollowers(userId).map { it.uid }.toSet()
-                _guestFollowing.value = socialRepository.getFollowing(userId).map { it.uid }.toSet()
-            } catch (_: Exception) {
             }
         }
     }

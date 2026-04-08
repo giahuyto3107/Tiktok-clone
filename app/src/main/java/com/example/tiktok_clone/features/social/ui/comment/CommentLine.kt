@@ -68,6 +68,7 @@ fun CommentLine(
     isRoot: Boolean = true,
     parent: (Comment) -> Unit = {},
     onReply: (Boolean) -> Unit = {},
+    onCommentClick: (String) -> Unit = {},
 ) {
     var isReply by remember { mutableStateOf(false) }
     val user = viewModel.getUser(commentRoot.userId)
@@ -81,14 +82,23 @@ fun CommentLine(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Avatar(avatarUrl = user.avatarUrl, avatarSize = if (isRoot) 40 else 30)
+            Avatar(
+                avatarUrl = user.avatarUrl,
+                avatarSize = if (isRoot) 40 else 30,
+                modifier = Modifier.clickable {
+                    onCommentClick(commentRoot.userId)
+                })
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
 
-                CommentContent(user = user, comment = commentRoot)
+                CommentContent(
+                    user = user,
+                    comment = commentRoot,
+                    onCommentClick = onCommentClick
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -133,6 +143,7 @@ fun CommentLine(
             isReply = isReply,
             parent = parent,
             onReply = onReply,
+            onCommentClick = onCommentClick
         )
     }
 }
@@ -145,6 +156,7 @@ fun CommentChild(
     isReply: Boolean = false,
     parent: (Comment) -> Unit = {},
     onReply: (Boolean) -> Unit = {},
+    onCommentClick: (String) -> Unit = {}
 ) {
     var isExpanded by remember(isReply) { mutableStateOf(isReply) }
     if (replyCount <= 0) return
@@ -163,6 +175,7 @@ fun CommentChild(
                     isRoot = false,
                     parent = parent,
                     onReply = onReply,
+                    onCommentClick = onCommentClick
                 )
             }
         }
@@ -253,7 +266,11 @@ fun CommentReact(
 }
 
 @Composable
-fun CommentContent(user: User, comment: Comment) {
+fun CommentContent(
+    user: User,
+    comment: Comment,
+    onCommentClick: (String) -> Unit = {}
+) {
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -269,7 +286,11 @@ fun CommentContent(user: User, comment: Comment) {
                     includeFontPadding = false // bỏ khoảng trắng padding mặc định
                 )
             ),
-            modifier = Modifier.offset(y = (-3).dp)
+            modifier = Modifier
+                .offset(y = (-3).dp)
+                .clickable {
+                    onCommentClick(user.id)
+                }
         )
         if (comment.content.isNotEmpty()) {
             Text(

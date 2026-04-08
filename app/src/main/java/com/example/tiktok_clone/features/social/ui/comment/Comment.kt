@@ -64,6 +64,7 @@ fun CommentSheetContent(
     currentUser: User?,
     socialViewModel: SocialViewModel = koinViewModel(),
     onDismiss: () -> Unit,
+    onCommentClick: (String) -> Unit = {},
 ) {
 
     var isCommenting by remember { mutableStateOf(false) }
@@ -188,6 +189,8 @@ fun CommentSheetContent(
                                 onReply = { value -> isCommenting = value },
                                 parent = { value -> commentRoot = value },
                                 listState = listState,
+                                onCommentClick = onCommentClick,
+
                             )
                         }
                     }
