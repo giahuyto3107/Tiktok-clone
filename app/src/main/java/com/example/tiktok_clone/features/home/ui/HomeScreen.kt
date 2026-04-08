@@ -1,6 +1,7 @@
 package com.example.tiktok_clone.features.home.ui
 
 import android.app.Activity
+import android.util.Log
 import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,7 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.R
 import com.example.tiktok_clone.core.navigation.AppNavigation
@@ -80,8 +80,8 @@ fun HomeScreen(
 
     LaunchedEffect(currentUserId) {
         if (currentUserId.isBlank() || currentUserId == "null") return@LaunchedEffect
-        socialViewModel.getCurrentUser(currentUserId)
-        socialViewModel.getFriends(currentUserId)
+        socialViewModel.loadFollowers(currentUserId)
+        socialViewModel.loadFollowing(currentUserId)
         socialViewModel.loadFollowers(currentUserId)
         socialViewModel.loadFollowing(currentUserId)
     }

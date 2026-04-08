@@ -27,6 +27,7 @@ import com.example.tiktok_clone.ui.theme.GrayBackground
 fun MessageHead(
     chatWithUser: User,
     onBack: () -> Unit = {},
+    onAvatarClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -36,7 +37,8 @@ fun MessageHead(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
-            modifier = Modifier,
+            modifier = Modifier
+                .clickable { onAvatarClick() },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
