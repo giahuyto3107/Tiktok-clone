@@ -53,9 +53,8 @@ fun MessageScreen(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
             .statusBarsPadding()
-            .imePadding(),
+            .fillMaxSize()
     ) {
         MessageHead(
             chatWithUser = chatWithUser,
@@ -73,39 +72,46 @@ fun MessageScreen(
                 .size(0.5.dp)
         )
 
-        when (val state = messagesUiState) {
-            InboxUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.padding(12.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .imePadding()
+        ) {
+            when (val state = messagesUiState) {
+                InboxUiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.padding(12.dp))
+                    }
                 }
+
+                is InboxUiState.Error -> {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = state.message,
+                            modifier = Modifier.padding(12.dp),
+                        )
+                    }
+                }
+                is InboxUiState.Success -> Unit
             }
 
-            is InboxUiState.Error -> {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = state.message,
-                        modifier = Modifier.padding(12.dp),
-                    )
-                }
-            }
-            is InboxUiState.Success -> Unit
+            MessageList(
+                modifier = Modifier.weight(1f),
+                messages = messages,
+                chatWithUser = chatWithUser,
+                currentUser = currentUserId,
+                onLoadMore = { inboxViewModel.onAction(InboxAction.LoadMoreMessages(chatWithId)) },
+            )
+            MessageBottom(
+                otherUid = chatWithId,
+                onSend = { text ->
+                    inboxViewModel.onAction(InboxAction.SendTextMessage(chatWithId, text))
+                },
+            )
         }
-
-        MessageList(
-            modifier = Modifier.weight(1f),
-            messages = messages,
-            chatWithUser = chatWithUser,
-            currentUser = currentUserId,
-            onLoadMore = { inboxViewModel.onAction(InboxAction.LoadMoreMessages(chatWithId)) },
-        )
-        MessageBottom(
-            otherUid = chatWithId,
-            onSend = { text ->
-                inboxViewModel.onAction(InboxAction.SendTextMessage(chatWithId, text))
-            },
-        )
     }
 }

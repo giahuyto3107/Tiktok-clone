@@ -20,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
@@ -50,6 +52,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.font.FontWeight
 import com.example.tiktok_clone.ui.theme.TikTokRed
 import java.io.File
 import coil.compose.AsyncImage
@@ -63,14 +68,23 @@ fun CommentInput(
     commentRoot: Comment?,
     isCommenting: Boolean,
     onCommenting: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     val userRoot = socialViewModel.getUser(commentRoot?.userId.toString())
     var commentText by remember { mutableStateOf("") }
     var isReply by remember(commentRoot) { mutableStateOf(commentRoot != null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
     val context = LocalContext.current
+    LaunchedEffect(isCommenting, isReply) {
+        if (isCommenting || isReply) {
+            focusRequester.requestFocus()
+        } else {
+            focusManager.clearFocus(force = true)
+        }
+    }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -94,6 +108,35 @@ fun CommentInput(
                     onCommenting()
                 }
             )
+        }
+        if (isReply) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(modifier = Modifier.width(50.dp))
+                Text(
+                    text = "Trả lời ${userRoot.userName} ",
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = ".Hủy",
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable {
+                        isReply = false
+                        focusManager.clearFocus(force = true)
+                        onDismiss()
+                    }
+                )
+            }
         }
         Row(
             modifier = Modifier
@@ -154,8 +197,7 @@ fun CommentInput(
                             Box(contentAlignment = Alignment.CenterStart) {
                                 if (commentText.isEmpty()) {
                                     Text(
-                                        text = if (isReply) "Trả lời ${userRoot.userName}"
-                                        else "Thêm bình luận...",
+                                        text = "Thêm bình luận...",
                                         color = Color.Gray,
                                         fontSize = 12.sp,
                                         lineHeight = 14.sp
@@ -168,6 +210,7 @@ fun CommentInput(
                     minLines = 1,
                     maxLines = 5,
                     modifier = Modifier
+                        .focusRequester(focusRequester)
                         .fillMaxWidth()
                         .heightIn(if (isCommenting || selectedImageFile != null) 90.dp else 45.dp)
                         .clip(RoundedCornerShape(25.dp))
@@ -213,7 +256,7 @@ fun CommentInput(
                                 SocialAction.AddCommentWithImage(
                                     postId = postId,
                                     commentText = text,
-                                    parentId = commentRoot?.id,
+                                    parentId = if(isReply) commentRoot?.id else null,
                                     file = selectedFile,
                                 )
                             )
@@ -223,7 +266,7 @@ fun CommentInput(
                                     postId = postId,
                                     commentText = text,
                                     userId = currentUser?.id.toString(),
-                                    parentId = commentRoot?.id,
+                                    parentId = if(isReply) commentRoot?.id else null,
                                 )
                             )
                         }

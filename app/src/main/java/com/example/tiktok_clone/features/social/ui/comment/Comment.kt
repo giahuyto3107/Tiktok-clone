@@ -141,11 +141,6 @@ fun CommentSheetContent(
                     }
 
                     is CommentUiState.Success -> {
-                        LaunchedEffect(commentUiState.uploadState) {
-                            if (commentUiState.uploadState is UploadState.Success) {
-                                socialViewModel.onAction(SocialAction.LoadComment(postId))
-                            }
-                        }
                         val comments = remember(commentUiState.comments, isTimeSort) {
                             if (isTimeSort)
                                 commentUiState.comments.sortedByDescending { it.createdAt }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,14 +41,16 @@ fun MessageBottomInput(
     onSendClick: () -> Unit = {},
 ) {
     Row(
-        modifier = Modifier.padding(start = 4.dp),
+        modifier = Modifier
+            .padding(start = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(if (isMessage) Color.Gray else TikTokCyanDark),
+                .background(if (isMessage) Color.Gray else TikTokCyanDark)
+                ,
             contentAlignment = Alignment.Center
         ) {
             Icon(

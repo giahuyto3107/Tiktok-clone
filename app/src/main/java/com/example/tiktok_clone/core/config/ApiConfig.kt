@@ -21,6 +21,7 @@ object ApiConfig {
     fun getBaseUrl(): String {
         return when {
             BuildConfig.DEBUG -> BASE_URL
+//            BuildConfig.DEBUG -> LOCAL_EMULATOR
             else -> PRODUCTION
         }
     }

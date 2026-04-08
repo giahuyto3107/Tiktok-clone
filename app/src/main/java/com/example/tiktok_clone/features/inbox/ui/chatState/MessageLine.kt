@@ -140,7 +140,7 @@ private fun TextContent(message: Message, isCurrentUser: Boolean, isLastMessage:
                     RoundedCornerShape(15.dp)
                 }
             )
-            .background(if (isCurrentUser) TikTokCyanDark else Color.White)
+            .background(if (isCurrentUser) TikTokCyanDark else Color.LightGray.copy(alpha = 0.2f))
             .padding(horizontal = 10.dp, vertical = 8.dp)
     ) {
         Text(

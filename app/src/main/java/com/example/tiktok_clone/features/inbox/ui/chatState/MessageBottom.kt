@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -68,8 +70,9 @@ fun MessageBottom(
     }
     Column(
         modifier = Modifier
-            .background(GrayBackground),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .navigationBarsPadding()
+            .padding(bottom = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         EmotionRow(onSelect = { messageText += it })
         Box(
@@ -91,7 +94,10 @@ fun MessageBottom(
                 decorationBox = { innerTextField ->
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (selectedMediaUri != null) {
-                            Box(modifier = Modifier.size(50.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(50.dp)
+                            ) {
                                 AsyncImage(
                                     model = selectedMediaUri,
                                     contentDescription = "Selected media",
@@ -102,6 +108,7 @@ fun MessageBottom(
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
+                                        .offset(y = (-8).dp)
                                         .size(18.dp)
                                         .clip(RoundedCornerShape(9.dp))
                                         .background(Color.Black.copy(alpha = 0.6f))
@@ -142,7 +149,7 @@ fun MessageBottom(
                     .fillMaxWidth()
                     .heightIn(min = 50.dp)
                     .clip(RoundedCornerShape(30.dp))
-                    .background(Color.White)
+                    .background(Color.LightGray.copy(0.2f))
                     .padding(horizontal = 50.dp, vertical = 10.dp)
             )
             MessageBottomInput(
