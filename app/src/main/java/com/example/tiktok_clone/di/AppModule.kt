@@ -90,6 +90,9 @@ val appModule = module {
     single<SearchApiService> {
         get<Retrofit>().create(SearchApiService::class.java)
     }
+    single<InboxApiService> { get<Retrofit>().create(InboxApiService::class.java) }
+    single { InboxRepository(get()) }
+    viewModel { InboxViewModel(get(), get()) }
 
     single {
         SearchRepository(get(), get())
@@ -98,10 +101,7 @@ val appModule = module {
     viewModel {
         SearchViewModel(get())
     }
-
-    single {
-        InboxRepository(get())
-    }
+    
 
     single { PostViewModel(get(), get()) }
 }

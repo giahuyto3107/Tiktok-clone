@@ -88,7 +88,6 @@ fun CommentSheetContent(
         containerColor = Color.White,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         dragHandle = null,
-        contentWindowInsets = { WindowInsets(0.dp, 0.dp, 0.dp, 0.dp) },
     ) {
         Box(
             modifier = Modifier

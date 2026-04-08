@@ -69,7 +69,9 @@ fun AppNavigation() {
                 // Content based on selected tab
                 when (selectedTabIndex) {
                     0 -> HomeScreenContent(
-                        onsearchTap = { navController.navigate(NavigationRoutes.searchGraphRoute) }
+                        onsearchTap = { navController.navigate(NavigationRoutes.searchGraphRoute) },
+                        onAvatarClick = { userId -> navController.navigate("user_profile/$userId") },
+                        onCommentClick = { userId -> navController.navigate("user_profile/$userId") }
                     )
 
                     1 -> ShopScreenContent()

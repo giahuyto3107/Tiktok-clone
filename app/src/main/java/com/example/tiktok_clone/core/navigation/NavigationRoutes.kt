@@ -9,7 +9,6 @@ object NavigationRoutes {
     const val searchHomeRoute = "search_flow/home"
     const val searchResultRoute = "search_flow/result"
 
-
     const val selectSignUpRoute = "select_signup"
     const val loginSelectionRoute = "login_selection"
     const val loginFormRoute = "login_form"
