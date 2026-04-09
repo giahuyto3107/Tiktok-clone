@@ -4,6 +4,8 @@ import com.google.gson.annotations.SerializedName
 
 data class UserItem(
     val id: Int = 0,
+    @SerializedName("uid")
+    val uid: String = "",
     @SerializedName("displayName")
     val displayName: String = "",
     val handle: String = "",
