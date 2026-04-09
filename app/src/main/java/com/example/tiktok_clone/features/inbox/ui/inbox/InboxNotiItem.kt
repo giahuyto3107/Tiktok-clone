@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui.inboxState
+package com.example.tiktok_clone.features.inbox.ui.inbox
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+// Render 1 noti item trong inbox
 fun InboxNotiItem(
     modifier: Modifier = Modifier,
     icon: ImageVector,

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
+// Render 1 action item trong share sheet
 fun ShareActionItem(
     modifier: Modifier = Modifier,
     icon: ImageVector = Icons.Filled.MoreHoriz,

@@ -25,8 +25,8 @@ import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
 import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
 import com.example.tiktok_clone.features.camera.ui.CameraAccessScreen
 import com.example.tiktok_clone.features.home.ui.HomeScreen
-import com.example.tiktok_clone.features.inbox.ui.chatState.MessageScreen
-import com.example.tiktok_clone.features.inbox.ui.inboxState.InboxScreen
+import com.example.tiktok_clone.features.inbox.ui.message.MessageScreen
+import com.example.tiktok_clone.features.inbox.ui.inbox.InboxScreen
 import com.example.tiktok_clone.features.post.ui.PrePostScreen
 import com.example.tiktok_clone.features.post.ui.PreviewScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
@@ -52,16 +52,7 @@ fun AppNavigation() {
         composable(route = NavigationRoutes.mainWrapper) {
             MainWrapper(
                 selectedIndex = selectedTabIndex,
-                onTabSelected = { index ->
-                    selectedTabIndex = index
-                    // Navigate to the appropriate screen based on index
-                    when (index) {
-                        0 -> {} // Home - already here
-                        1 -> {} // Shop - handled by content
-                        3 -> {} // Inbox - handled by content
-                        4 -> {} // Profile - handled by content
-                    }
-                },
+                onTabSelected = { index -> selectedTabIndex = index },
                 onCameraClick = {
                     navController.navigate(NavigationRoutes.cameraAccessRoute)
                 }
@@ -258,7 +249,13 @@ fun AppNavigation() {
         composable(route = "${NavigationRoutes.inboxRoute}/{userId}") {
             MessageScreen(
                 chatWithId = it.arguments?.getString("userId") ?: "",
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    selectedTabIndex = 3
+                    navController.navigate(NavigationRoutes.mainWrapper) {
+                        popUpTo("${NavigationRoutes.inboxRoute}/{userId}") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 onAvatarClick = { userId -> navController.navigate("user_profile/$userId") }
             )
         }

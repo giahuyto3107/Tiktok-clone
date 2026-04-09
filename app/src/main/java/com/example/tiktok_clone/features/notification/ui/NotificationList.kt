@@ -18,6 +18,7 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Render danh sach notification theo loai
 fun NotificationList(
     notificationType: String = "social",
     socialNotifications: List<Notification> = emptyList(),

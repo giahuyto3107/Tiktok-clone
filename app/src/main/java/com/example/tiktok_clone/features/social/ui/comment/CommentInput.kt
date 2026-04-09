@@ -1,8 +1,5 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
@@ -37,30 +33,25 @@ import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.social.data.model.Comment
 import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.data.model.User
-import com.example.tiktok_clone.features.social.ui.components.resolvePickedCommentImage
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import org.koin.androidx.compose.koinViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.ArrowUp
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import com.example.tiktok_clone.ui.theme.TikTokRed
-import java.io.File
-import coil.compose.AsyncImage
 import com.example.tiktok_clone.features.social.ui.components.EmotionRow
 
 @Composable
+// Input comment + submit
 fun CommentInput(
     socialViewModel: SocialViewModel = koinViewModel(),
     postId: String,
@@ -69,15 +60,13 @@ fun CommentInput(
     isCommenting: Boolean,
     onCommenting: () -> Unit,
     onDismiss: () -> Unit,
+    onSubmitted: () -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val userRoot = socialViewModel.getUser(commentRoot?.userId.toString())
     var commentText by remember { mutableStateOf("") }
     var isReply by remember(commentRoot) { mutableStateOf(commentRoot != null) }
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var selectedImageFile by remember { mutableStateOf<File?>(null) }
-    val context = LocalContext.current
     LaunchedEffect(isCommenting, isReply) {
         if (isCommenting || isReply) {
             focusRequester.requestFocus()
@@ -85,56 +74,28 @@ fun CommentInput(
             focusManager.clearFocus(force = true)
         }
     }
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        val pickedImage =
-            resolvePickedCommentImage(context, uri) ?: return@rememberLauncherForActivityResult
-        selectedImageUri = pickedImage.uri
-        selectedImageFile = pickedImage.file
-        onCommenting()
-    }
-    val launchImagePicker = {
-        launcher.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
-    }
-
     // Dua input ve trang thai ban dau sau khi gui
     fun resetInputState() {
         commentText = ""
-        selectedImageUri = null
-        selectedImageFile = null
         isReply = false
     }
 
+    // Submit comment va reset input
     fun submitComment() {
-        if (commentText.isBlank() && selectedImageFile == null) return
+        if (commentText.isBlank()) return
         val text = commentText.trim()
-        val selectedFile = selectedImageFile
-        if (selectedFile != null) {
-            socialViewModel.onAction(
-                SocialAction.AddCommentWithImage(
-                    postId = postId,
-                    commentText = text,
-                    parentId = if (isReply) commentRoot?.id else null,
-                    file = selectedFile,
-                )
+        socialViewModel.onAction(
+            SocialAction.AddComment(
+                postId = postId,
+                commentText = text,
+                userId = currentUser?.id.toString(),
+                parentId = if (isReply) commentRoot?.id else null,
             )
-        } else {
-            socialViewModel.onAction(
-                SocialAction.AddComment(
-                    postId = postId,
-                    commentText = text,
-                    userId = currentUser?.id.toString(),
-                    parentId = if (isReply) commentRoot?.id else null,
-                )
-            )
-        }
+        )
         resetInputState()
         focusManager.clearFocus(force = true)
         onDismiss()
+        onSubmitted()
     }
 
     Column(
@@ -175,26 +136,18 @@ fun CommentInput(
                     .weight(1f)
                     .heightIn(min = 40.dp),
                 commentText = commentText,
-                selectedImageUri = selectedImageUri,
                 isCommenting = isCommenting,
-                hasSelectedFile = selectedImageFile != null,
                 focusRequester = focusRequester,
                 onValueChange = {
                     commentText = it
                     onCommenting()
                 },
-                onRemoveImage = {
-                    selectedImageUri = null
-                    selectedImageFile = null
-                },
-                onGalleryClick = launchImagePicker
             )
         }
 
-        if (commentText.isNotEmpty() || isCommenting || selectedImageFile != null) {
+        if (commentText.isNotEmpty() || isCommenting) {
             SubmitCommentRow(
-                canSubmit = commentText.isNotEmpty() || selectedImageFile != null,
-                onGalleryClick = launchImagePicker,
+                canSubmit = commentText.isNotEmpty(),
                 onSubmit = { submitComment() }
             )
         }
@@ -235,13 +188,9 @@ private fun ReplyInfoRow(
 private fun CommentTextEditor(
     modifier: Modifier,
     commentText: String,
-    selectedImageUri: Uri?,
     isCommenting: Boolean,
-    hasSelectedFile: Boolean,
     focusRequester: FocusRequester,
     onValueChange: (String) -> Unit,
-    onRemoveImage: () -> Unit,
-    onGalleryClick: () -> Unit,
 ) {
     Box(
         modifier = modifier,
@@ -253,33 +202,6 @@ private fun CommentTextEditor(
             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
             decorationBox = { innerTextField ->
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (selectedImageUri != null) {
-                        Box(modifier = Modifier.size(50.dp)) {
-                            AsyncImage(
-                                model = selectedImageUri,
-                                contentDescription = "Selected image",
-                                modifier = Modifier
-                                    .matchParentSize()
-                                    .clip(RoundedCornerShape(10.dp))
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .size(18.dp)
-                                    .clip(RoundedCornerShape(9.dp))
-                                    .background(Color.Black.copy(alpha = 0.6f))
-                                    .clickable(onClick = onRemoveImage),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Close,
-                                    contentDescription = "Remove",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(12.dp)
-                                )
-                            }
-                        }
-                    }
                     Box(contentAlignment = Alignment.CenterStart) {
                         if (commentText.isEmpty()) {
                             Text(
@@ -298,34 +220,23 @@ private fun CommentTextEditor(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .fillMaxWidth()
-                .heightIn(if (isCommenting || hasSelectedFile) 90.dp else 45.dp)
+                .heightIn(if (isCommenting) 90.dp else 45.dp)
                 .clip(RoundedCornerShape(25.dp))
                 .background(Color.LightGray.copy(0.5f))
                 .padding(horizontal = 12.dp, vertical = 10.dp)
         )
-
-        if (!isCommenting) {
-            CommentInputItem(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 8.dp),
-                onGalleryClick = onGalleryClick
-            )
-        }
     }
 }
 
 @Composable
 private fun SubmitCommentRow(
     canSubmit: Boolean,
-    onGalleryClick: () -> Unit,
     onSubmit: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Bottom
     ) {
-        CommentInputItem(onGalleryClick = onGalleryClick)
         Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = onSubmit,

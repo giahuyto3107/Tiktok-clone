@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.social.ui.components.CommentItem
 
 @Composable
+// Header sheet share
 fun ShareHeader(
     modifier: Modifier = Modifier,
     onClose: () -> Unit
@@ -31,15 +32,6 @@ fun ShareHeader(
         horizontalArrangement = Arrangement.SpaceBetween
 
     ) {
-//        CommentItem(
-//            icon = Icons.Outlined.Search,
-//            onClick = {},
-//            text = "Tìm kiếm",
-//            showText = false,
-//            modifier = Modifier
-//                .padding(4.dp)
-//                .size(30.dp)
-//        )
         Box(Modifier.size(30.dp))
         Text(
             text = "Gửi đến",

@@ -40,6 +40,7 @@ class HomeViewModel(
         loadFeed()
     }
 
+    // Tai feed lan dau (co pagination state)
     private fun loadFeed() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -72,6 +73,7 @@ class HomeViewModel(
     }
 
     /** Load the next page and append to the current list. */
+    // Load them page tiep theo va append vao list
     fun loadMore() {
         if (isLoadingMore || !hasMore) return
         isLoadingMore = true
@@ -104,19 +106,23 @@ class HomeViewModel(
         }
     }
 
+    // Reload feed tu dau
     fun refreshPosts() {
         loadFeed()
     }
 
+    // Forward social action (hien dang khong dung)
     fun onSocialAction(action: SocialAction) {
 //        socialViewModel.onAction(action)
     }
 
+    // Check follow status (hien dang chua implement)
     fun isFollowing(currentUserId: String, authorId: String): Boolean {
 //        return socialViewModel.isFollowing(currentUserId, authorId)
         return TODO("Provide the return value")
     }
 
+    // Load danh sach friend (hien dang khong dung)
     fun loadFriends(userId: String) {
 //        socialViewModel.loadFriends(userId)
     }

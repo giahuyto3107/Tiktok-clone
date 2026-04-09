@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import com.example.tiktok_clone.features.notification.data.model.FollowNotificationAction
 import com.example.tiktok_clone.features.notification.data.model.SocialNotificationAction
 import com.example.tiktok_clone.features.notification.viewModel.FollowNotificationViewModel
@@ -22,6 +24,7 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.graphics.Color
 
 @Composable
+// Man thong bao (social hoac follower)
 fun Notification(
     notificationType: String,
     onBack: () -> Unit,
@@ -30,6 +33,7 @@ fun Notification(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 4.dp, vertical = 8.dp)
+            .statusBarsPadding()
     ) {
         NotificationHeader(
             notificationType = notificationType,
@@ -48,7 +52,7 @@ fun Notification(
             }
 
             when (val state = uiState) {
-                is NotificationUiState.Loading -> NotificationSkeleton()
+                is NotificationUiState.Loading -> CircularProgressIndicator()
                 is NotificationUiState.Error -> ErrorBanner(message = state.message)
                 is NotificationUiState.Success -> NotificationList(
                     notificationType = notificationType,
@@ -71,7 +75,7 @@ fun Notification(
                 }
             }
             when (val state = uiState) {
-                is NotificationUiState.Loading -> NotificationSkeleton()
+                is NotificationUiState.Loading -> CircularProgressIndicator()
                 is NotificationUiState.Error -> ErrorBanner(message = state.message)
                 is NotificationUiState.Success -> NotificationList(
                     notificationType = notificationType,
@@ -84,18 +88,7 @@ fun Notification(
 }
 
 @Composable
-private fun NotificationSkeleton() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Transparent)
-            .padding(vertical = 16.dp),
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
+// Hien thi loi dang banner
 private fun ErrorBanner(message: String) {
     Column(
         modifier = Modifier

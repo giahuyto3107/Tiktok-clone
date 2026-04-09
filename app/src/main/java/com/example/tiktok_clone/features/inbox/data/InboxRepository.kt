@@ -4,26 +4,12 @@ import com.example.tiktok_clone.features.inbox.data.model.Message
 import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
 import com.example.tiktok_clone.features.inbox.data.model.MessageType
 import com.example.tiktok_clone.features.social.data.FollowUserResponse
-import java.io.File
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 
 class InboxRepository(
     private val api: InboxApiService,
 ) {
-    data class CachedMessages(
-        val chatId: Int,
 
-        val rawMessages: List<Message>,
-    )
-
-    private val cacheLock = Any()
-    private val chatIdByOtherUid: MutableMap<String, Int> = mutableMapOf()
-    private val messagesCacheByChatId: MutableMap<Int, List<Message>> = mutableMapOf()
-
-
+    // Lay danh sach contact (friends/chat)
     suspend fun getContacts(
         limit: Int? = 50,
         offset: Int? = 0,
@@ -38,34 +24,20 @@ class InboxRepository(
         }
     }
 
-    suspend fun getChats(limit: Int? = null, offset: Int? = null): ChatsResponse {
-        val res = api.getChats(limit = limit, offset = offset)
-        synchronized(cacheLock) {
-            res.chats.forEach { chat ->
-                chatIdByOtherUid[chat.otherUserId] = chat.chatId
-            }
-        }
-        return res
-    }
+    // Lay danh sach chat cua user
+    suspend fun getChats(limit: Int? = null, offset: Int? = null): ChatsResponse =
+        api.getChats(limit = limit, offset = offset)
 
-    data class MessagesPage(
-        val messages: List<Message>,
-        val total: Int,
-    )
-
-    suspend fun getMessagesPage(
+    // Lay danh sach tin nhan theo chatId
+    suspend fun getMessages(
         chatId: Int,
         limit: Int? = null,
-        offset: Int? = null,
-    ): MessagesPage {
-        val res = api.getMessages(chatId = chatId, limit = limit, offset = offset)
-        val mapped = res.messages.map { it.toMessage() }
-        synchronized(cacheLock) {
-            messagesCacheByChatId[chatId] = mapped
-        }
-        return MessagesPage(messages = mapped, total = res.total)
+    ): List<Message> {
+        val res = api.getMessages(chatId = chatId, limit = limit, offset = 0)
+        return res.messages.map { it.toMessage() }
     }
 
+    // Gui tin nhan text cho user khac
     suspend fun sendMessage(
         otherUid: String,
         content: String? = null,
@@ -78,59 +50,11 @@ class InboxRepository(
         return api.sendMessage(otherUid, body).toMessage()
     }
 
-    suspend fun sendMediaMessage(
-        otherUid: String,
-        imageUri: String,
-        type: String,
-        content: String? = null,
-    ): Message {
-        val body = SendMessageRequest(
-            content = content,
-            imageUri = imageUri,
-            type = type.uppercase(),
-        )
-        return api.sendMessage(otherUid, body).toMessage()
-    }
-
-    suspend fun sendMessageWithFile(
-        otherUid: String,
-        file: File,
-        type: String,
-        content: String? = null,
-        mimeType: String? = null,
-    ): Message {
-        val normalizedType = type.uppercase()
-
-        val mediaTypeString = mimeType
-            ?: when (normalizedType) {
-                "VIDEO" -> "video/mp4"
-                else -> "image/jpeg"
-            }
-        val mediaType = mediaTypeString.toMediaType()
-
-        val requestBody = file.asRequestBody(mediaType)
-        val filePart = MultipartBody.Part.createFormData(
-            name = "file",
-            filename = file.name,
-            body = requestBody,
-        )
-
-        val typeBody = normalizedType.toRequestBody("text/plain".toMediaType())
-        val contentBody = content?.toRequestBody("text/plain".toMediaType())
-
-        val dto = api.uploadMessage(
-            otherUid = otherUid,
-            file = filePart,
-            type = typeBody,
-            content = contentBody,
-        )
-        return dto.toMessage()
-    }
-
-    // Dùng khi cần hiển thị lastMessage từ ChatResponse (MessageDto → Message).
+    // Map dto sang model Message
     fun mapToMessage(dto: MessageDto): Message = dto.toMessage()
 }
 
+// Convert MessageDto sang Message
 private fun MessageDto.toMessage(): Message = Message(
     id = id.toString(),
     content = content ?: "",
@@ -142,12 +66,14 @@ private fun MessageDto.toMessage(): Message = Message(
     receiptStatus = receiptStatus?.toMessageStatus(),
 )
 
+// Convert string type sang enum MessageType
 private fun String.toMessageType(): MessageType = when (uppercase()) {
     "IMAGE" -> MessageType.IMAGE
     "VIDEO" -> MessageType.VIDEO
     else -> MessageType.TEXT
 }
 
+// Convert string status sang enum MessageStatus
 private fun String.toMessageStatus(): MessageStatus = when (uppercase()) {
     "NEW" -> MessageStatus.NEW
     "SENT" -> MessageStatus.SENT
@@ -155,4 +81,3 @@ private fun String.toMessageStatus(): MessageStatus = when (uppercase()) {
     "SEEN" -> MessageStatus.SEEN
     else -> MessageStatus.SENT
 }
-

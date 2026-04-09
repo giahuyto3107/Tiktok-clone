@@ -6,8 +6,6 @@ sealed interface InboxUiState<out T> {
     data class Success<T>(
         val items: List<T> = emptyList(),
         val unreadCount: Int = 0,
-        val isLoadingMore: Boolean = false,
-        val hasMore: Boolean = false,
     ) : InboxUiState<T>
 
     data class Error(

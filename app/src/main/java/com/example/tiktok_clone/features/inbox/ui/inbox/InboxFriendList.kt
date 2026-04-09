@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui.inboxState
+package com.example.tiktok_clone.features.inbox.ui.inbox
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Render hang friend o header inbox
 fun InboxFriendList(
     currentUser: User,
+    viewModel: SocialViewModel,
     onChatClick: (userId: String) -> Unit = {},
-    viewModel: SocialViewModel = koinViewModel(),
 ) {
     val friendState by viewModel.friends.collectAsState()
     val friend = viewModel.getUserList(friendState.map { it.uid })
