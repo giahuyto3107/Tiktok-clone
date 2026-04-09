@@ -10,29 +10,26 @@ import retrofit2.http.Query
 
 interface FollowNotificationApiService {
 
-    /** GET /api/v1/social/follow/notifications */
+    // GET follow notifications
     @GET("api/v1/social/follow/notifications")
     suspend fun getFollowNotifications(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
     ): FollowNotificationListResponse
 
-    /** GET /api/v1/social/follow/notifications/unread-count */
+    // GET unread count
     @GET("api/v1/social/follow/notifications/unread-count")
     suspend fun getUnreadCount(): UnreadCountResponse
 
-    /**
-     * GET /api/v1/social/follow/notifications/latest
-     * Response: { "notification": null } | { "notification": { ... } }
-     */
+    // GET latest follow notification
     @GET("api/v1/social/follow/notifications/latest")
     suspend fun getLatestNotification(): FollowLatestNotificationResponse
 
-    /** POST /api/v1/social/follow/notifications/seen-all */
+    // POST seen all follow notifications
     @POST("api/v1/social/follow/notifications/seen-all")
     suspend fun seenAll(): Response<SeenAllResponse>
 
-    /** Alias camelCase (nếu cần) */
+    // POST seen all follow notifications (camelCase)
     @POST("api/v1/social/follow/notifications/seenAll")
     suspend fun seenAllCamel(): Response<SeenAllResponse>
 }
@@ -54,6 +51,7 @@ data class FollowNotificationDto(
     @SerializedName("receiptStatus") val receiptStatus: String,
 )
 
+// Map follow notification dto sang model
 fun FollowNotificationDto.toModel(): FollowNotification {
     return FollowNotification(
         id = id,

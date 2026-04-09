@@ -26,11 +26,6 @@ object ApiConfig {
         }
     }
 
-    // WebSocket base URL: http → ws, https → wss
-    fun getWsBaseUrl(): String =
-        getBaseUrl()
-            .replace("https://", "wss://")
-            .replace("http://", "ws://")
 }
 
 /**

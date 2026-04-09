@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui.inboxState
+package com.example.tiktok_clone.features.inbox.ui.inbox
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,6 +33,7 @@ import compose.icons.fontawesomeicons.solid.Heart
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Render list chat trong inbox (kem friend va noti)
 fun InboxChatList(
     currentUser: User,
     chats: List<ChatResponse>,
@@ -41,7 +42,6 @@ fun InboxChatList(
     onChatClick: (userId: String) -> Unit = {},
     onUserNotificationClick: () -> Unit = {},
     onSocialNotificationClick: () -> Unit = {},
-    onAvatarClick: () -> Unit = {},
 ) {
     val homeViewModel: HomeViewModel = koinViewModel()
     val posts by homeViewModel.posts.collectAsState()
@@ -59,7 +59,11 @@ fun InboxChatList(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            InboxFriendList(currentUser, onChatClick = onChatClick)
+            InboxFriendList(
+                currentUser = currentUser,
+                viewModel = socialViewModel,
+                onChatClick = onChatClick,
+            )
         }
         item {
             LaunchedEffect(Unit) {

@@ -14,7 +14,6 @@ import com.example.tiktok_clone.features.auth.ui.ProfileStat
 import com.example.tiktok_clone.features.profile.viewmodel.OtherUserProfileViewModel
 import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
 import com.example.tiktok_clone.features.social.data.model.SocialAction
-import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
@@ -41,10 +40,8 @@ fun OtherUserProfileScreen(
     val followersCountValue = targetUserFollowCounts?.followerCount ?: 0
     val followingCountValue = targetUserFollowCounts?.followingCount ?: 0
 
-    // Trạng thái follow
-    val socialUiState by socialViewModel.uiState.collectAsState()
-    val socialData = (socialUiState as? SocialUiState.Success)?.data
-    val following = socialData?.following ?: emptySet()
+    val socialGraph by socialViewModel.socialGraphUiState.collectAsState()
+    val following = socialGraph.following
     val isFollowing = following.contains(userId)
 
     if (currentUserId == userId) {

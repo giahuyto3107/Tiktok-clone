@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.tiktok_clone.R
 
-// hàm load avatar
+// Ham load avatar
 @Composable
 fun Avatar(
     modifier: Modifier = Modifier,

@@ -10,6 +10,7 @@ import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.data.model.User
 
 @Composable
+// Gom cac action trong sheet share
 fun ShareActionList(
     currentPost: Post,
     currentUser: User?,
@@ -24,10 +25,6 @@ fun ShareActionList(
             currentPost = currentPost,
             isShared = isShared
         )
-        PostOptions(
-            currentPost = currentPost,
-            currentUser = currentUser,
-            isShared = isShared
-        )
+        PostOptions()
     }
 }

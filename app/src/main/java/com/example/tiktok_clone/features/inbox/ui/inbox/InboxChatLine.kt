@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui.inboxState
+package com.example.tiktok_clone.features.inbox.ui.inbox
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +23,7 @@ import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 
 @Composable
+// Render 1 dong chat trong inbox
 fun InboxChatLine(
     modifier: Modifier = Modifier,
     chatWith: User,

@@ -1,6 +1,5 @@
-package com.example.tiktok_clone.features.inbox.ui.chatState
+package com.example.tiktok_clone.features.inbox.ui.message
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -21,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
-import com.example.tiktok_clone.ui.theme.GrayBackground
 
 @Composable
+// Header man chat
 fun MessageHead(
     chatWithUser: User,
     onBack: () -> Unit = {},
@@ -62,23 +61,5 @@ fun MessageHead(
                 fontWeight = FontWeight.Bold,
             )
         }
-//        Spacer(modifier = Modifier.weight(1f))
-//        Row(
-//            modifier = Modifier,
-//            verticalAlignment = Alignment.CenterVertically,
-//            horizontalArrangement = Arrangement.spacedBy(10.dp)
-//        ) {
-//            Icon(
-//                imageVector = Icons.Outlined.Flag,
-//                contentDescription = "Report",
-//                modifier = Modifier
-//                    .size(32.dp)
-//            )
-//            Icon(
-//                imageVector = Icons.Filled.MoreHoriz,
-//                contentDescription = "See More",
-//                modifier = Modifier.size(32.dp)
-//            )
-//        }
     }
 }

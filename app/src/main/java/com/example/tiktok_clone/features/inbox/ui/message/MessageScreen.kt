@@ -1,5 +1,6 @@
-package com.example.tiktok_clone.features.inbox.ui.chatState
+package com.example.tiktok_clone.features.inbox.ui.message
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Man chat message
 fun MessageScreen(
     modifier: Modifier = Modifier,
     chatWithId: String,
@@ -42,11 +44,14 @@ fun MessageScreen(
     val messages = (messagesUiState as? InboxUiState.Success<Message>)?.items ?: emptyList()
     val chatWithUser = socialViewModel.getUser(chatWithId)
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    BackHandler(onBack = onBack)
+
     LaunchedEffect(chatWithId) {
         inboxViewModel.onAction(InboxAction.LoadMessages(chatWithId))
     }
 
-    // Đóng WebSocket khi rời màn chat
+    // Don dep state khi roi man chat
     DisposableEffect(chatWithId) {
         onDispose { inboxViewModel.onAction(InboxAction.DisconnectChat) }
     }
@@ -104,7 +109,6 @@ fun MessageScreen(
                 messages = messages,
                 chatWithUser = chatWithUser,
                 currentUser = currentUserId,
-                onLoadMore = { inboxViewModel.onAction(InboxAction.LoadMoreMessages(chatWithId)) },
             )
             MessageBottom(
                 otherUid = chatWithId,

@@ -1,6 +1,6 @@
 package com.example.tiktok_clone.features.social.ui.components
 
-// định dạng đếm số
+// Dinh dang so dem (K/M)
 fun formatCount(count: Long): String {
     return when {
         count >= 1_000_000 -> "%.1fTr".format(count / 1_000_000.0)

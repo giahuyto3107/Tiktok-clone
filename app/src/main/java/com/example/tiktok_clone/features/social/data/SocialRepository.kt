@@ -1,11 +1,6 @@
 package com.example.tiktok_clone.features.social.data
 
 import com.example.tiktok_clone.features.social.data.model.Comment
-import java.io.File
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 
 /**
@@ -65,30 +60,6 @@ class SocialRepository(
                 parentId = parentId,
                 imageUri = imageUri,
             ),
-        )
-    }
-
-    suspend fun addCommentWithImage(
-        postId: String,
-        file: File,
-        content: String? = null,
-        parentId: String? = null,
-    ): Comment {
-        val mediaType = "image/*".toMediaType()
-        val requestBody = file.asRequestBody(mediaType)
-        val filePart = MultipartBody.Part.createFormData(
-            name = "file",
-            filename = file.name,
-            body = requestBody,
-        )
-        val contentBody = content?.toRequestBody("text/plain".toMediaType())
-        val parentBody = parentId?.toRequestBody("text/plain".toMediaType())
-
-        return apiService.uploadComment(
-            postId = postId,
-            file = filePart,
-            content = contentBody,
-            parentId = parentBody,
         )
     }
 

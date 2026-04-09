@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -36,9 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import coil.compose.AsyncImage
 import com.example.tiktok_clone.features.social.data.model.Comment
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.formatCount
@@ -59,8 +54,9 @@ import compose.icons.fontawesomeicons.solid.Heart
 import compose.icons.fontawesomeicons.solid.ThumbsDown
 
 
-// hàm load 1 dòng comment
+// ham load 1 dong comment
 @Composable
+// Render 1 dong comment (co replies)
 fun CommentLine(
     viewModel: SocialViewModel = koinViewModel(),
     repliesByParent: Map<String, List<Comment>>,
@@ -151,6 +147,7 @@ fun CommentLine(
 }
 
 @Composable
+// Render comment con (reply)
 fun CommentChild(
     replyCount: Long,
     replies: List<Comment>,
@@ -206,6 +203,7 @@ fun CommentChild(
 }
 
 @Composable
+// Render like/dislike cho comment
 fun CommentReact(
     viewModel: SocialViewModel = koinViewModel(),
     commentRoot: Comment,
@@ -268,6 +266,7 @@ fun CommentReact(
 }
 
 @Composable
+// Render content text cua comment
 fun CommentContent(
     user: User,
     comment: Comment,
@@ -277,7 +276,6 @@ fun CommentContent(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        var isFullScreen by remember { mutableStateOf(false) }
         Text(
             text = user.userName,
             fontWeight = FontWeight.Bold,
@@ -302,43 +300,5 @@ fun CommentContent(
                 color = Color.Black
             )
         }
-        if (!comment.imageUri.isNullOrBlank()) {
-            AsyncImage(
-                model = comment.imageUri,
-                contentDescription = "Comment image",
-                modifier = Modifier
-                    .fillMaxSize(0.3f)
-                    .padding(top = 4.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = { isFullScreen = true }
-                    ),
-            )
-            if (isFullScreen) {
-                Dialog(
-                    onDismissRequest = { isFullScreen = false },
-                    properties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black)
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = { isFullScreen = false })
-                    ) {
-                        AsyncImage(
-                            model = comment.imageUri,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
-            }
-        }
-
     }
 }

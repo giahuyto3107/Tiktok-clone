@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+// Render userName + caption (co show more)
 fun VideoDescriptionSection(
     userName: String,
     caption: String?,
@@ -47,6 +48,7 @@ fun VideoDescriptionSection(
     }
 }
 @Composable
+// Toggle show more/show less cho caption
 fun InlineShowMore(text: String) {
     var isExpanded by remember { mutableStateOf(false) }
     var hasOverflow by remember { mutableStateOf(false) }

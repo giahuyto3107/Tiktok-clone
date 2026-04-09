@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// Convert millis sang text thoi gian tuong doi
 fun Long.toDateString(): String {
     val createdAtMillis = if (this < 1_000_000_000_000L) this * 1000 else this
     val now = System.currentTimeMillis()

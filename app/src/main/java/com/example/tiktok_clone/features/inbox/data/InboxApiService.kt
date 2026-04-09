@@ -3,13 +3,9 @@ package com.example.tiktok_clone.features.inbox.data
 import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
 import com.example.tiktok_clone.features.inbox.data.model.MessageType
 import com.example.tiktok_clone.features.social.data.FollowUserResponse
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Multipart
 import retrofit2.http.POST
-import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -40,14 +36,6 @@ interface InboxApiService {
         @Body body: SendMessageRequest,
     ): MessageDto
 
-    @Multipart
-    @POST("api/v1/inbox/chats/{otherUid}/messages/upload")
-    suspend fun uploadMessage(
-        @Path("otherUid") otherUid: String,
-        @Part file: MultipartBody.Part,
-        @Part("type") type: RequestBody?,
-        @Part("content") content: RequestBody?,
-    ): MessageDto
 }
 
 // region Response DTOs (đúng format JSON backend)

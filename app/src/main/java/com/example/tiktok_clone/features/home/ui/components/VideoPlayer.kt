@@ -45,6 +45,7 @@ import coil.compose.AsyncImage
  */
 @OptIn(UnstableApi::class)
 @Composable
+// Video player cho feed (exoPlayer shared)
 fun VideoPlayer(
     exoPlayer: ExoPlayer,
     mediaUrl: String,

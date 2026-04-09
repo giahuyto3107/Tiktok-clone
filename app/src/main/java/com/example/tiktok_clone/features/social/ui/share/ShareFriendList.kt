@@ -9,15 +9,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.example.tiktok_clone.features.social.ui.SocialUiState
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Render list friend de chon share
 fun ShareFriendList(
     socialViewModel: SocialViewModel = koinViewModel(),
 ) {
-    val uiState by socialViewModel.uiState.collectAsState()
-    val friendState = (uiState as? SocialUiState.Success)?.data?.friends ?: emptyList()
+    val socialGraph by socialViewModel.socialGraphUiState.collectAsState()
+    val friendState = socialGraph.friends
     val friend = socialViewModel.getUserList(friendState.map { it.uid })
 
     LazyRow(

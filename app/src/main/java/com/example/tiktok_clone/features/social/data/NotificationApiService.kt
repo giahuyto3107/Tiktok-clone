@@ -11,32 +11,28 @@ import retrofit2.http.Query
 
 interface NotificationApiService {
 
-    /**
-     * GET /api/v1/social/notifications
-     * Trả về danh sách notifications (unreadCount sẽ lấy qua endpoint riêng).
-     */
+    // GET notifications
     @GET("api/v1/social/notifications")
     suspend fun getNotifications(
         @Query("limit") limit: Int,
         @Query("offset") offset: Int,
     ): NotificationListResponse
 
-    /**
-     * GET /api/v1/social/notifications/latest
-     * Response: { "notification": null } | { "notification": { ... } }
-     */
+    // GET latest notification
     @GET("api/v1/social/notifications/latest")
     suspend fun getLatestNotification(): LatestNotificationResponse
 
-    /** GET /api/v1/social/notifications/unread-count */
+    // GET unread count
     @GET("api/v1/social/notifications/unread-count")
     suspend fun getUnreadCount(): UnreadCountResponse
 
+    // POST mark 1 notification seen
     @POST("api/v1/social/notifications/{notification_id}/seen")
     suspend fun markSeen(
         @Path("notification_id") notificationId: Int,
     ): Response<MarkSeenResponse>
 
+    // POST seen all notifications
     @POST("api/v1/social/notifications/seenAll")
     suspend fun seenAll(): Response<SeenAllResponse>
 
@@ -75,6 +71,7 @@ data class LatestNotificationResponse(
     @SerializedName("notification") val notification: NotificationDto?,
 )
 
+// Map notification dto sang model
 fun NotificationDto.toModel() = com.example.tiktok_clone.features.social.data.model.Notification(
     id = id,
     fromUserId = fromUserId,

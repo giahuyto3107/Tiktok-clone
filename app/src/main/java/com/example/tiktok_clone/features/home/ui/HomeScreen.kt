@@ -53,10 +53,10 @@ import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
 import com.example.tiktok_clone.features.notification.data.model.SocialNotificationAction
 import com.example.tiktok_clone.features.notification.viewModel.NotificationViewModel
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.example.tiktok_clone.features.social.ui.SocialUiState
 
 
 @Composable
+// Man home feed (video pager)
 fun HomeScreen(
     homeViewModel: HomeViewModel = koinViewModel(),
     profileViewModel: ProfileViewModel = koinViewModel(),
@@ -75,9 +75,10 @@ fun HomeScreen(
     var isResumeLoading by remember { mutableStateOf(false) }
 
     val currentUserId: String = profileViewModel.getProfileData()?.id.toString()
-    val socialUiState by socialViewModel.uiState.collectAsState()
-    val socialData = (socialUiState as? SocialUiState.Success)?.data
-    val currentUser = socialData?.currentUser
+    val socialGraph by socialViewModel.socialGraphUiState.collectAsState()
+    val postFeed by socialViewModel.postFeedUiState.collectAsState()
+    val socialErrorMessage by socialViewModel.error.collectAsState()
+    val currentUser = socialGraph.currentUser
 
 
     LaunchedEffect(currentUserId) {
@@ -103,7 +104,6 @@ fun HomeScreen(
     DisposableEffect(Unit) {
         onDispose {
             exoPlayer.release()
-            socialViewModel.disconnectPostRealtime()     // Khi post focus thay đổi
         }
     }
 
@@ -134,7 +134,6 @@ fun HomeScreen(
         if (currentPostId.isNullOrBlank()) return@LaunchedEffect
 
         socialViewModel.loadPostState(currentPostId)
-        socialViewModel.connectPostRealtime(currentPostId)
     }
     // Infinite scroll: load more when near end
     LaunchedEffect(pagerState) {
@@ -149,10 +148,7 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        val isSocialLoading = socialUiState is SocialUiState.Loading
-        val socialErrorMessage = (socialUiState as? SocialUiState.Error)?.message
-
-        if ((isLoading || isSocialLoading) && posts.isEmpty()) {
+        if (isLoading && posts.isEmpty()) {
             // Loading state — show spinner instead of black screen
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -167,7 +163,7 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = error ?: socialErrorMessage ?: "No posts yet",
+                    text = error ?: socialErrorMessage.orEmpty().ifBlank { "No posts yet" },
                     color = Color.White
                 )
             }
@@ -181,12 +177,7 @@ fun HomeScreen(
                     Box(modifier = Modifier.fillMaxHeight()) {
                         val currentPost = posts.getOrNull(page)
                         val author = users[currentPost?.userId]
-                        val postState = (socialUiState as? SocialUiState.Success)
-                            ?.data
-                            ?.postStates
-                            ?.get(
-                                currentPost?.id?.toString().orEmpty()
-                            )
+                        val postState = postFeed.postStates[currentPost?.id?.toString().orEmpty()]
                         // Show image or video based on post type
                         if (currentPost?.type == PostType.IMAGE) {
                             AsyncImage(

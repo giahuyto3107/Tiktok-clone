@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui.inboxState
+package com.example.tiktok_clone.features.inbox.ui.inbox
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 @Composable
+// Header man inbox
 fun InboxHeader(
     modifier: Modifier = Modifier,
 ){
@@ -34,12 +35,6 @@ fun InboxHeader(
             .then(modifier),
         horizontalArrangement = Arrangement.Center,
     ) {
-//        Icon(
-//            imageVector = Icons.Outlined.GroupAdd,
-//            contentDescription = "Add friend",
-//            modifier = Modifier
-//                .size(28.dp)
-//        )
         Row(
             modifier = Modifier,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -80,12 +75,5 @@ fun InboxHeader(
                 )
             }
         }
-//        Icon(
-//            imageVector = Icons.Outlined.Search,
-//            contentDescription = "Friends Search",
-//            modifier = Modifier
-//                .size(28.dp)
-//                .offset(x = 6.dp)
-//        )
     }
 }

@@ -31,15 +31,15 @@ import androidx.media3.common.util.UnstableApi
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import org.koin.androidx.compose.koinViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Check
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
-
 
 @OptIn(UnstableApi::class)
 @Composable
+// Render hang action share (repost/copy link/...)
 fun ShareActions(
     currentPost: Post,
     isShared: Boolean,
@@ -53,7 +53,6 @@ fun ShareActions(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
         contentPadding = PaddingValues(start = 8.dp)
-
     ) {
         item {
             Box(

@@ -27,20 +27,19 @@ import androidx.compose.ui.Alignment
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.data.model.SocialAction
-import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.example.tiktok_clone.ui.theme.TikTokRed
 import org.koin.androidx.compose.koinViewModel
+import com.example.tiktok_clone.ui.theme.TikTokRed
 
 @Composable
+// Render 1 friend item trong share picker
 fun ShareFriendItem(
     onShare: (User) -> Unit,
     friend: User,
     socialViewModel: SocialViewModel = koinViewModel(),
 ) {
-    val uiState by socialViewModel.uiState.collectAsState()
-    val selectedFriendShare =
-        (uiState as? SocialUiState.Success)?.data?.selectedFriendShare ?: emptySet()
+    val sharePicker by socialViewModel.sharePickerUiState.collectAsState()
+    val selectedFriendShare = sharePicker.selectedFriendShare
     val isOnShare = friend.id in selectedFriendShare
 
     Column(

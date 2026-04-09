@@ -22,7 +22,6 @@ import coil.compose.AsyncImage
 import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -60,9 +59,9 @@ fun AuthenticatedProfile(
         }
     }
 
-    val socialUiState by socialViewModel.uiState.collectAsState()
-    val followingCount = (socialUiState as? SocialUiState.Success)?.data?.following?.size ?: 0
-    val followersCount = (socialUiState as? SocialUiState.Success)?.data?.followers?.size ?: 0
+    val socialGraph by socialViewModel.socialGraphUiState.collectAsState()
+    val followingCount = socialGraph.following.size
+    val followersCount = socialGraph.followers.size
 
 
     Column(

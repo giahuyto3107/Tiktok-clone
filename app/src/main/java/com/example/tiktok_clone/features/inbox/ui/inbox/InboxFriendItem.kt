@@ -1,4 +1,4 @@
-package com.example.tiktok_clone.features.inbox.ui.inboxState
+package com.example.tiktok_clone.features.inbox.ui.inbox
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +19,7 @@ import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 
 @Composable
+// Render 1 friend item trong inbox header
 fun InboxFriendItem(
     modifier: Modifier = Modifier,
     friend: User,

@@ -40,13 +40,13 @@ import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.data.PostStateResponse
 import com.example.tiktok_clone.features.social.data.model.SocialAction
-import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.ui.share.ShareSheetContent
 import com.example.tiktok_clone.features.social.ui.comment.CommentSheetContent
 import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.formatCount
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import org.koin.androidx.compose.koinViewModel
 import com.example.tiktok_clone.ui.theme.TikTokRed
 import com.example.tiktok_clone.ui.theme.TikTokYellow
 import compose.icons.FontAwesomeIcons
@@ -57,6 +57,7 @@ import compose.icons.fontawesomeicons.solid.Plus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// Render cụm nut like/save/comment/share ben phai
 fun MiddleSection(
     modifier: Modifier = Modifier,
     author: User,

@@ -1,7 +1,5 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
-import android.util.Log
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,16 +44,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.R
 import com.example.tiktok_clone.features.post.data.model.Post
-import com.example.tiktok_clone.features.post.ui.UploadState
 import com.example.tiktok_clone.features.social.data.model.Comment
 import com.example.tiktok_clone.features.social.data.model.SocialAction
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
-
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// Sheet comment cho 1 post
 fun CommentSheetContent(
     currentPost: Post,
     currentUser: User?,
@@ -69,18 +64,22 @@ fun CommentSheetContent(
     var isCommenting by remember { mutableStateOf(false) }
     var commentRoot by remember { mutableStateOf<Comment?>(null) }
     var isSort by remember { mutableStateOf(false) }
-    var isTimeSort by remember { mutableStateOf(false) }
-
+    var isTimeSort by remember { mutableStateOf(true) }
     val postId = currentPost.id.toString()
-    val socialUiState by socialViewModel.uiState.collectAsState()
-    val commentUiState = socialUiState.toCommentUiState(postId)
+    var submitKey by remember(postId) { mutableStateOf(false) }
+
+    val commentFeed by socialViewModel.commentFeedUiState.collectAsState()
+    val upload by socialViewModel.uploadState.collectAsState()
+    val socialError by socialViewModel.error.collectAsState()
+    val commentUiState = commentFeed.toCommentUiState(postId, upload, socialError)
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(postId) {
         socialViewModel.onAction(SocialAction.LoadComment(postId))
     }
-    val listState = remember(postId, isTimeSort) { LazyListState() }
+    val listState = remember(postId, isTimeSort, submitKey) { LazyListState() }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -106,7 +105,7 @@ fun CommentSheetContent(
                     onClose = {
                         onDismiss()
                         isSort = false
-                        isTimeSort = false
+                        isTimeSort = true
                     },
                     onSort = { isSort = !isSort }
                 )
@@ -146,44 +145,21 @@ fun CommentSheetContent(
                                 commentUiState.comments.sortedByDescending { it.likeCount }
                         }
                         if (comments.isEmpty() && currentUser?.id != currentPost.userId) {
-                            Column(
+                            EmptyComment(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.no_comment),
-                                    contentDescription = "No comment",
-                                    modifier = Modifier.size(180.dp),
-                                )
-                                Text(
-                                    text = "Bạn thấy bài đăng này hay chứ? Hãy là người đầu tiên bình luận",
-                                    color = Color.Gray,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(horizontal = 24.dp)
-                                )
-                            }
+                                    .weight(1f)
+                                    .nestedScroll(rememberNestedScrollInteropConnection())
+                            )
                         } else {
                             CommentList(
                                 modifier = Modifier
                                     .weight(1f)
                                     .nestedScroll(rememberNestedScrollInteropConnection()),
                                 comments = comments,
-                                hasMore = commentUiState.hasMore,
-                                onLoadMore = {
-                                    socialViewModel.onAction(
-                                        SocialAction.LoadMoreComment(postId)
-                                    )
-                                },
                                 onReply = { value -> isCommenting = value },
                                 parent = { value -> commentRoot = value },
                                 listState = listState,
                                 onCommentClick = onCommentClick,
-
                             )
                         }
                     }
@@ -192,7 +168,8 @@ fun CommentSheetContent(
                     post = currentPost,
                     currentUser = currentUser,
                     onReply = isCommenting,
-                    commentRoot = commentRoot
+                    commentRoot = commentRoot,
+                    onSubmitted = { submitKey = !submitKey },
                 )
             }
             if (isSort) {
@@ -210,6 +187,34 @@ fun CommentSheetContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+// UI empty state khi chua co comment
+fun EmptyComment(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.no_comment),
+            contentDescription = "No comment",
+            modifier = Modifier.size(180.dp),
+        )
+        Text(
+            text = "Bạn thấy bài đăng này hay chứ? Hãy là người đầu tiên bình luận",
+            color = Color.Gray,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
     }
 }
 

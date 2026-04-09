@@ -14,12 +14,12 @@ import com.example.tiktok_clone.features.social.data.model.NotificationActionTyp
 import com.example.tiktok_clone.features.social.data.model.User
 import java.io.File
 
-data class PickedMedia(
-    val uri: Uri,
-    val file: File,
-    val type: String,
-    val mimeType: String?,
-)
+//data class PickedMedia(
+//    val uri: Uri,
+//    val file: File,
+//    val type: String,
+//    val mimeType: String?,
+//)
 
 val PlaceholderLastMessage = Message(
     id = "",
@@ -31,6 +31,7 @@ val PlaceholderLastMessage = Message(
     imageUri = null,
 )
 
+// Hien thi label trang thai tin nhan
 fun Message.statusLabel(): String = when (receiptStatus) {
     MessageStatus.SEEN -> "Đã xem"
     MessageStatus.DELIVERED -> "Đã gửi"
@@ -40,6 +41,7 @@ fun Message.statusLabel(): String = when (receiptStatus) {
     }
 }
 
+// Tao text preview tin nhan trong inbox
 fun buildChatPreviewText(
     message: Message,
     chatWith: User,
@@ -60,6 +62,7 @@ fun buildChatPreviewText(
     }
 }
 
+// Tao text thong bao follower moi
 fun buildFollowNotificationText(
     follower: User?,
     latestFollowNotification: FollowNotification?,
@@ -70,6 +73,7 @@ fun buildFollowNotificationText(
     return "${follower.userName} đã theo dõi bạn"
 }
 
+// Tao text thong bao social moi nhat
 fun buildSocialNotificationText(
     actor: User?,
     latestNotification: Notification?,
@@ -90,43 +94,44 @@ fun buildSocialNotificationText(
     return "${actor.userName} $actionText"
 }
 
+// Resolve lastMessage (fallback neu null)
 fun resolveLastMessage(
     chat: ChatResponse,
     getLastMessage: (MessageDto?) -> Message?,
 ): Message = getLastMessage(chat.lastMessage) ?: PlaceholderLastMessage
 
-fun resolvePickedMedia(
-    context: Context,
-    uri: Uri,
-): PickedMedia? {
-    val mimeType = context.contentResolver.getType(uri)
-    val type = if (mimeType?.startsWith("video") == true) "VIDEO" else "IMAGE"
-    val extension = when {
-        mimeType?.startsWith("video") == true -> ".mp4"
-        mimeType == "image/jpeg" || mimeType == "image/jpg" -> ".jpg"
-        mimeType == "image/png" -> ".png"
-        mimeType == "image/gif" -> ".gif"
-        mimeType == "image/webp" -> ".webp"
-        else -> ".jpg"
-    }
-    val file = uriToTempFile(context, uri, extension) ?: return null
-    return PickedMedia(
-        uri = uri,
-        file = file,
-        type = type,
-        mimeType = mimeType,
-    )
-}
-
-fun uriToTempFile(context: Context, uri: Uri, extension: String): File? {
-    return try {
-        val input = context.contentResolver.openInputStream(uri) ?: return null
-        val file = File.createTempFile("inbox_msg_", extension, context.cacheDir)
-        input.use { stream ->
-            file.outputStream().use { out -> stream.copyTo(out) }
-        }
-        file
-    } catch (_: Exception) {
-        null
-    }
-}
+//fun resolvePickedMedia(
+//    context: Context,
+//    uri: Uri,
+//): PickedMedia? {
+//    val mimeType = context.contentResolver.getType(uri)
+//    val type = if (mimeType?.startsWith("video") == true) "VIDEO" else "IMAGE"
+//    val extension = when {
+//        mimeType?.startsWith("video") == true -> ".mp4"
+//        mimeType == "image/jpeg" || mimeType == "image/jpg" -> ".jpg"
+//        mimeType == "image/png" -> ".png"
+//        mimeType == "image/gif" -> ".gif"
+//        mimeType == "image/webp" -> ".webp"
+//        else -> ".jpg"
+//    }
+//    val file = uriToTempFile(context, uri, extension) ?: return null
+//    return PickedMedia(
+//        uri = uri,
+//        file = file,
+//        type = type,
+//        mimeType = mimeType,
+//    )
+//}
+//
+//fun uriToTempFile(context: Context, uri: Uri, extension: String): File? {
+//    return try {
+//        val input = context.contentResolver.openInputStream(uri) ?: return null
+//        val file = File.createTempFile("inbox_msg_", extension, context.cacheDir)
+//        input.use { stream ->
+//            file.outputStream().use { out -> stream.copyTo(out) }
+//        }
+//        file
+//    } catch (_: Exception) {
+//        null
+//    }
+//}

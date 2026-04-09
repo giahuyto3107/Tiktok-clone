@@ -25,7 +25,6 @@ import com.example.tiktok_clone.features.inbox.data.model.InboxAction
 import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.data.model.SocialAction
-import com.example.tiktok_clone.features.social.ui.components.buildShareMessagePayload
 import com.example.tiktok_clone.features.social.ui.components.EmotionRow
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import com.example.tiktok_clone.ui.theme.TextPrimaryGray
@@ -33,6 +32,7 @@ import com.example.tiktok_clone.ui.theme.TikTokRed
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Input tin nhan khi share cho ban
 fun ShareInput(
     modifier: Modifier = Modifier,
     selectedFriendShare: List<String>,
@@ -88,18 +88,24 @@ fun ShareInput(
         )
         Button(
             onClick = {
-                val payload = buildShareMessagePayload(
-                    post = currentPost,
-                    messageText = messageText,
-                )
+                val shareText = buildString {
+                    val custom = messageText.trim()
+                    if (custom.isNotEmpty()) {
+                        append(custom)
+                        append("\n")
+                    }
+                    if (currentPost.caption.isNotBlank()) {
+                        append(currentPost.caption)
+                        append("\n")
+                    }
+                    append(currentPost.mediaUrl)
+                }.trim()
 
                 for (friend in selectedFriendShare) {
                     inboxViewModel.onAction(
-                        InboxAction.SendMediaMessage(
+                        InboxAction.SendTextMessage(
                             otherUid = friend,
-                            imageUri = payload.imageUri,
-                            type = payload.type,
-                            content = payload.content,
+                            content = shareText,
                         )
                     )
                 }
