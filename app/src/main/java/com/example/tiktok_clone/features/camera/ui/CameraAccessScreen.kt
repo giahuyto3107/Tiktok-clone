@@ -25,8 +25,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -92,8 +94,9 @@ fun CameraAccessScreen(
         Log.d("CameraAccessScreen", "Photo picker result: $uri")
         uri?.let {
             val mimeType = context.contentResolver.getType(it)
-            val postType = if (mimeType?.contains("video") == true) PostType.VIDEO else PostType.IMAGE
-            
+            val postType =
+                if (mimeType?.contains("video") == true) PostType.VIDEO else PostType.IMAGE
+
 //            // Only start new upload if not already uploading
 //            if (uploadState is UploadState.Idle) {
 //                postViewModel.upload(it, "", postType)
@@ -107,12 +110,11 @@ fun CameraAccessScreen(
     }
 
 
-
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
         val cameraPermissions = permissions[Manifest.permission.CAMERA] == true &&
-                             permissions[Manifest.permission.RECORD_AUDIO] == true
+                permissions[Manifest.permission.RECORD_AUDIO] == true
 
         val storagePermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions[Manifest.permission.READ_MEDIA_IMAGES] == true ||
@@ -136,16 +138,22 @@ fun CameraAccessScreen(
 
     LaunchedEffect(Unit) {
         cameraViewModel.checkPermissions(context)
-        
+
         if (!uiState.hasCameraPermissions || !uiState.hasStoragePermissions) {
             permissionLauncher.launch(cameraViewModel.getRequiredPermissions())
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.9f)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f)
         ) {
 
             if (uiState.hasCameraPermissions) {
@@ -180,10 +188,14 @@ fun CameraAccessScreen(
                     recordingMode = uiState.selectedModeIndex != 3,
                     onSnapClick = {
                         cameraViewModel.updateLatestGalleryUri(getLastGalleryImageUri(context))
-                        
+
                         if (uiState.selectedModeIndex == 3) {
                             takePhoto(context, cameraController) {
-                                cameraViewModel.updateLatestGalleryUri(getLastGalleryImageUri(context))
+                                cameraViewModel.updateLatestGalleryUri(
+                                    getLastGalleryImageUri(
+                                        context
+                                    )
+                                )
                             }
                         } else {
                             if (uiState.isRecording) {
@@ -312,7 +324,11 @@ private fun takePhoto(
     }
 
     val outputOptions = ImageCapture.OutputFileOptions
-        .Builder(context.contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        .Builder(
+            context.contentResolver,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
         .build()
 
     controller.takePicture(
@@ -323,6 +339,7 @@ private fun takePhoto(
                 Toast.makeText(context, "Photo Saved", Toast.LENGTH_SHORT).show()
                 onImageSaved()
             }
+
             override fun onError(exc: ImageCaptureException) {
                 Log.e("Camera", "Photo capture failed: ${exc.message}", exc)
             }
