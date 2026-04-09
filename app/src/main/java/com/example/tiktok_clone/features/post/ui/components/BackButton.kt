@@ -34,7 +34,7 @@ fun BackButton(
     Box(
         modifier = Modifier
             .padding(
-                top = dimensionResource(R.dimen.spacing_m),
+                top = dimensionResource(R.dimen.spacing_xxl),
                 start = dimensionResource(R.dimen.spacing_m),
             )
             .clickable { onClick() }
@@ -54,7 +54,8 @@ fun BackButton(
             imageVector = icon,
             contentDescription = "Back",
             tint = color,
-            modifier = Modifier.size(dimensionResource(R.dimen.font_title_s))
+            modifier = Modifier
+                .size(dimensionResource(R.dimen.font_title_s))
         )
     }
 }
@@ -62,13 +63,14 @@ fun BackButton(
 @Composable
 fun NextButton(
     onNext: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(R.color.red),
         ),
         onClick = onNext,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(text = "Next")
     }

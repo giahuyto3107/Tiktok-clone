@@ -5,10 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -46,14 +45,13 @@ fun PreviewScreen(
 ) {
     val context = LocalContext.current
 
-    Spacer(modifier = Modifier.height(150.dp))
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.95f)
+                .weight(1f)
                 .background(color = colorResource(R.color.black))
                 .clip(shape = RoundedCornerShape(dimensionResource(R.dimen.radius_m)))
         ) {
@@ -98,8 +96,15 @@ fun PreviewScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_m)))
+
         NextButton(
             onNext = { onNext(mediaUri, postType) },
+            modifier = Modifier.padding(
+                bottom = dimensionResource(R.dimen.spacing_l),
+                start = dimensionResource(R.dimen.spacing_m),
+                end = dimensionResource(R.dimen.spacing_m)
+            )
         )
     }
 }
