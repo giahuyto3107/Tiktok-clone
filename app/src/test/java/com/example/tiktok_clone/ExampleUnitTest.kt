@@ -215,4 +215,29 @@ class ExampleUnitTest {
         println("Counter: $counter")
     }
 
+    data class FollowNotificationDto(
+        val id: String?,
+        val followerId: String?,
+        val createdAt: Long?
+    )
+    data class FollowNotification(
+        val id: String,
+        val followerId: String,
+        val createdAt: Long
+    )
+    fun FollowNotificationDto.toModel(): FollowNotification = FollowNotification(
+        id = id ?: "",
+        followerId = followerId ?: "unknown",
+        createdAt = createdAt ?: 0L
+    )
+    @Test
+    fun testDTO() {
+        // Test 1: valid DTO
+        val valid = FollowNotificationDto("1", "userA", 123L).toModel()
+        println("Valid DTO: ${valid.id == "1"} | ${valid.followerId == "userA"} | ${valid.createdAt == 123L}")
+        // Test 2: null DTO
+        val nullDto = FollowNotificationDto(null, null, null).toModel()
+        println("Null DTO:   ${nullDto.id == ""} | ${nullDto.followerId == "unknown"} | ${nullDto.createdAt == 0L}")
+    }
+
 }
