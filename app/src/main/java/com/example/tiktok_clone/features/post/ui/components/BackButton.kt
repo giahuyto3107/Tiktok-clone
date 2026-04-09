@@ -79,7 +79,8 @@ fun NextButton(
 @Composable
 fun PostButton(
     onPost: () -> Unit,
-    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Button(
         colors = ButtonDefaults.buttonColors(
@@ -87,7 +88,7 @@ fun PostButton(
         ),
         onClick = { onPost() },
         enabled = enabled,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Row {
             Icon(

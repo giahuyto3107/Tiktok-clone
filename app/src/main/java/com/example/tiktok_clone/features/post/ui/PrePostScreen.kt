@@ -125,7 +125,12 @@ fun PrePostScreen(
                         type = type
                     )
                 },
-                enabled = uploadState !is UploadState.Loading
+                enabled = uploadState !is UploadState.Loading,
+                modifier = Modifier.padding(
+                    bottom = dimensionResource(R.dimen.spacing_l),
+                    start = dimensionResource(R.dimen.spacing_m),
+                    end = dimensionResource(R.dimen.spacing_m)
+                )
             )
         }
 
