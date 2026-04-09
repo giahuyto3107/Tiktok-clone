@@ -44,6 +44,7 @@ import com.example.tiktok_clone.features.search.SearchViewModel
 fun SearchResultScreen(
     onBack: () -> Unit,
     viewModel: SearchViewModel,
+    onAvatarClick: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var tabIndex by remember { mutableIntStateOf(0) }
@@ -137,8 +138,13 @@ fun SearchResultScreen(
                 videos = uiState.videos.take(12),
                 images = uiState.images.take(12),
             )
+
             1 -> VideoResultTab(uiState.videos)
-            2 -> UserResultTab(uiState.users)
+            2 -> UserResultTab(
+                uiState.users,
+                onAvatarClick = onAvatarClick,
+            )
+
             3 -> ShopResultTab(uiState.products)
             4 -> ImageResultTab(uiState.images)
             5 -> LiveResultTab(uiState.lives)

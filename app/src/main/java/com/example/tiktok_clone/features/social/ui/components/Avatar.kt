@@ -1,5 +1,6 @@
 package com.example.tiktok_clone.features.social.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ fun Avatar(
     avatarSize: Int = 50,
     avatarUrl: String? = "",
     ) {
+    Log.d("Avatar", "avatarUrl: $avatarUrl")
     Box(
         modifier = Modifier
             .border(0.2.dp, Color.LightGray, CircleShape)
