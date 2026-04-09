@@ -2,18 +2,17 @@ package com.example.tiktok_clone.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.tiktok_clone.BuildConfig
+import com.abedelazizshe.lightcompressorlibrary.BuildConfig
 import com.example.tiktok_clone.core.config.ApiConfig
-import com.example.tiktok_clone.core.network.RealtimeWebSocketClient
 import com.example.tiktok_clone.features.inbox.data.InboxApiService
 import com.example.tiktok_clone.features.inbox.data.InboxRepository
 import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
 import com.example.tiktok_clone.features.post.data.repository.PostApiService
 import com.example.tiktok_clone.features.post.data.repository.UploadRepository
 import com.example.tiktok_clone.features.post.viewmodel.PostViewModel
-import com.example.tiktok_clone.features.social.data.SocialApiService
-import com.example.tiktok_clone.features.social.data.SocialRepository
-import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
+import com.example.tiktok_clone.features.search.SearchViewModel
+import com.example.tiktok_clone.features.search.api.SearchApiService
+import com.example.tiktok_clone.features.search.data.SearchRepository
 import com.example.tiktok_clone.features.user.data.UserApiService
 import com.example.tiktok_clone.features.user.data.UserRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -33,7 +32,7 @@ val appModule = module {
         androidContext().getSharedPreferences("tiktok_prefs", Context.MODE_PRIVATE)
     }
 
-    // OkHttpClient singleton — dùng cho cả Retrofit và WebSocket
+    // OkHttpClient singleton cho Retrofit
     single<OkHttpClient> {
         val logging = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
@@ -79,13 +78,20 @@ val appModule = module {
     single<UserApiService> { get<Retrofit>().create(UserApiService::class.java) }
     single { UserRepository(get()) }
 
-    single<SocialApiService> { get<Retrofit>().create(SocialApiService::class.java) }
-    single { SocialRepository(get()) }
-    viewModel { SocialViewModel(get(), get(), get(), get()) }
-
+    single<SearchApiService> {
+        get<Retrofit>().create(SearchApiService::class.java)
+    }
     single<InboxApiService> { get<Retrofit>().create(InboxApiService::class.java) }
     single { InboxRepository(get()) }
-    viewModel { InboxViewModel(get(), get()) }
+    viewModel { InboxViewModel(get()) }
+
+    single {
+        SearchRepository(get(), get())
+    }
+
+    viewModel {
+        SearchViewModel(get())
+    }
 
     single { PostViewModel(get(), get()) }
 }

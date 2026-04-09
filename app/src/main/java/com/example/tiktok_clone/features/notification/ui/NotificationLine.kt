@@ -30,6 +30,7 @@ import com.example.tiktok_clone.features.social.ui.components.Avatar
 import com.example.tiktok_clone.features.social.ui.components.toDateString
 
 @Composable
+// Render 1 dong notification
 fun NotificationLine(
     socialNotification: Notification? = null,
     followNotification: FollowNotification? = null,

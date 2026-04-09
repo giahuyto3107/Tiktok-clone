@@ -21,10 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+// Render hang emoji de chon nhanh
 fun EmotionRow(
     onSelect: (String) -> Unit
 ) {
-    val emotions: List<String> = listOf("👍", "❤️", "😂", "😮", "😢", "😡", "😎")
+    val emotions: List<String> = listOf(
+        "👍", "❤️", "😂", "😮", "😢", "😡", "😎", "🥳", "😍", "🥺",
+        "😱", "🤔", "😴", "🥶", "🤯", "🥰", "😭", "🤮", "😈", "👽",
+        "😊", "😌", "😏", "😒", "😓", "😔", "😖", "😘", "😚", "😜",
+        "😝", "😞", "😟", "😠", "😣", "😥", "😨", "😩", "😪", "😫",
+        "😬", "😰", "😲", "😳", "😵", "😶", "😷", "🤒", "🤕", "🤢"
+    )
     LazyRow(
         modifier = Modifier
             .fillMaxWidth(),

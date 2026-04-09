@@ -1,5 +1,6 @@
-package com.example.tiktok_clone.features.inbox.ui.chatState
+package com.example.tiktok_clone.features.inbox.ui.message
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Man chat message
 fun MessageScreen(
     modifier: Modifier = Modifier,
     chatWithId: String,
@@ -42,20 +44,22 @@ fun MessageScreen(
     val messages = (messagesUiState as? InboxUiState.Success<Message>)?.items ?: emptyList()
     val chatWithUser = socialViewModel.getUser(chatWithId)
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    BackHandler(onBack = onBack)
+
     LaunchedEffect(chatWithId) {
         inboxViewModel.onAction(InboxAction.LoadMessages(chatWithId))
     }
 
-    // Đóng WebSocket khi rời màn chat
+    // Don dep state khi roi man chat
     DisposableEffect(chatWithId) {
         onDispose { inboxViewModel.onAction(InboxAction.DisconnectChat) }
     }
 
     Column(
         modifier = modifier
-            .fillMaxSize()
             .statusBarsPadding()
-            .imePadding(),
+            .fillMaxSize()
     ) {
         MessageHead(
             chatWithUser = chatWithUser,
@@ -73,39 +77,45 @@ fun MessageScreen(
                 .size(0.5.dp)
         )
 
-        when (val state = messagesUiState) {
-            InboxUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.padding(12.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .imePadding()
+        ) {
+            when (val state = messagesUiState) {
+                InboxUiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.padding(12.dp))
+                    }
                 }
+
+                is InboxUiState.Error -> {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = state.message,
+                            modifier = Modifier.padding(12.dp),
+                        )
+                    }
+                }
+                is InboxUiState.Success -> Unit
             }
 
-            is InboxUiState.Error -> {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = state.message,
-                        modifier = Modifier.padding(12.dp),
-                    )
-                }
-            }
-            is InboxUiState.Success -> Unit
+            MessageList(
+                modifier = Modifier.weight(1f),
+                messages = messages,
+                chatWithUser = chatWithUser,
+                currentUser = currentUserId,
+            )
+            MessageBottom(
+                otherUid = chatWithId,
+                onSend = { text ->
+                    inboxViewModel.onAction(InboxAction.SendTextMessage(chatWithId, text))
+                },
+            )
         }
-
-        MessageList(
-            modifier = Modifier.weight(1f),
-            messages = messages,
-            chatWithUser = chatWithUser,
-            currentUser = currentUserId,
-            onLoadMore = { inboxViewModel.onAction(InboxAction.LoadMoreMessages(chatWithId)) },
-        )
-        MessageBottom(
-            otherUid = chatWithId,
-            onSend = { text ->
-                inboxViewModel.onAction(InboxAction.SendTextMessage(chatWithId, text))
-            },
-        )
     }
 }

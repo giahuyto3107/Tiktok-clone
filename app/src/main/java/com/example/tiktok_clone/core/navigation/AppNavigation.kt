@@ -8,12 +8,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.example.tiktok.features.auth.screens.LoginFormScreen
 import com.example.tiktok.features.auth.screens.SignUpFormScreen
 import com.example.tiktok_clone.core.ui.MainWrapper
@@ -22,11 +25,12 @@ import com.example.tiktok_clone.features.auth.ui.LoginSelectionScreen
 import com.example.tiktok_clone.features.auth.ui.SelectSignUpScreen
 import com.example.tiktok_clone.features.camera.ui.CameraAccessScreen
 import com.example.tiktok_clone.features.home.ui.HomeScreen
-import com.example.tiktok_clone.features.inbox.ui.chatState.MessageScreen
-import com.example.tiktok_clone.features.inbox.ui.inboxState.InboxScreen
+import com.example.tiktok_clone.features.inbox.ui.message.MessageScreen
+import com.example.tiktok_clone.features.inbox.ui.inbox.InboxScreen
 import com.example.tiktok_clone.features.post.ui.PrePostScreen
 import com.example.tiktok_clone.features.post.ui.PreviewScreen
 import com.example.tiktok_clone.features.profile.ui.ProfileScreen
+import com.example.tiktok_clone.features.search.SearchViewModel
 import com.example.tiktok_clone.features.search.ui.SearchResultScreen
 import com.example.tiktok_clone.features.search.ui.SearchScreen
 import com.example.tiktok_clone.features.shop.ui.ShopScreen
@@ -34,6 +38,7 @@ import com.example.tiktok_clone.features.notification.ui.Notification
 import com.example.tiktok_clone.features.profile.ui.OtherUserProfileScreen
 
 import com.google.firebase.auth.FirebaseAuth
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation() {
@@ -47,16 +52,7 @@ fun AppNavigation() {
         composable(route = NavigationRoutes.mainWrapper) {
             MainWrapper(
                 selectedIndex = selectedTabIndex,
-                onTabSelected = { index ->
-                    selectedTabIndex = index
-                    // Navigate to the appropriate screen based on index
-                    when (index) {
-                        0 -> {} // Home - already here
-                        1 -> {} // Shop - handled by content
-                        3 -> {} // Inbox - handled by content
-                        4 -> {} // Profile - handled by content
-                    }
-                },
+                onTabSelected = { index -> selectedTabIndex = index },
                 onCameraClick = {
                     navController.navigate(NavigationRoutes.cameraAccessRoute)
                 }
@@ -64,7 +60,7 @@ fun AppNavigation() {
                 // Content based on selected tab
                 when (selectedTabIndex) {
                     0 -> HomeScreenContent(
-                        onsearchTap = { navController.navigate(NavigationRoutes.searchRoute) },
+                        onsearchTap = { navController.navigate(NavigationRoutes.searchGraphRoute) },
                         onAvatarClick = { userId -> navController.navigate("user_profile/$userId") },
                         onCommentClick = { userId -> navController.navigate("user_profile/$userId") }
                     )
@@ -154,19 +150,30 @@ fun AppNavigation() {
             )
         }
 
-        composable(NavigationRoutes.searchRoute) {
-            SearchScreen(
-                onNavigateToResult = { query ->
-                    navController.navigate("${NavigationRoutes.searchResultRoute}/$query")
-                }
-            )
-        }
-
-        composable("${NavigationRoutes.searchResultRoute}/{query}") {
-            SearchResultScreen(
-                query = it.arguments?.getString("query") ?: "",
-                onBack = { navController.popBackStack() }
-            )
+        navigation(
+            route = NavigationRoutes.searchGraphRoute,
+            startDestination = NavigationRoutes.searchHomeRoute,
+        ) {
+            composable(NavigationRoutes.searchHomeRoute) {
+                // Activity scope: tránh getBackStackEntry(search_flow) lỗi / crash khi vào graph
+                val activity = LocalContext.current as ComponentActivity
+                val searchVm: SearchViewModel = koinViewModel(viewModelStoreOwner = activity)
+                SearchScreen(
+                    viewModel = searchVm,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToResult = {
+                        navController.navigate(NavigationRoutes.searchResultRoute)
+                    },
+                )
+            }
+            composable(NavigationRoutes.searchResultRoute) {
+                val activity = LocalContext.current as ComponentActivity
+                val searchVm: SearchViewModel = koinViewModel(viewModelStoreOwner = activity)
+                SearchResultScreen(
+                    onBack = { navController.popBackStack() },
+                    viewModel = searchVm,
+                )
+            }
         }
 
         composable(route = NavigationRoutes.loginSelectionRoute) {
@@ -242,7 +249,13 @@ fun AppNavigation() {
         composable(route = "${NavigationRoutes.inboxRoute}/{userId}") {
             MessageScreen(
                 chatWithId = it.arguments?.getString("userId") ?: "",
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    selectedTabIndex = 3
+                    navController.navigate(NavigationRoutes.mainWrapper) {
+                        popUpTo("${NavigationRoutes.inboxRoute}/{userId}") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 onAvatarClick = { userId -> navController.navigate("user_profile/$userId") }
             )
         }

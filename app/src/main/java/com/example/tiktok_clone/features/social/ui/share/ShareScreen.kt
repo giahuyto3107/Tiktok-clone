@@ -20,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import com.example.tiktok_clone.features.post.data.model.Post
 import com.example.tiktok_clone.features.social.data.model.User
 import com.example.tiktok_clone.features.social.data.model.SocialAction
-import com.example.tiktok_clone.features.social.ui.SocialUiState
 import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// Sheet share cho 1 post
 fun ShareSheetContent(
     currentPost: Post,
     currentUser: User?,
@@ -40,9 +40,8 @@ fun ShareSheetContent(
         socialViewModel.onAction(SocialAction.ClearSelectedFriendShare)
         onDismiss()
     }
-    val uiState by socialViewModel.uiState.collectAsState()
-    val selectedFriendShare =
-        (uiState as? SocialUiState.Success)?.data?.selectedFriendShare ?: emptySet()
+    val sharePicker by socialViewModel.sharePickerUiState.collectAsState()
+    val selectedFriendShare = sharePicker.selectedFriendShare
     ModalBottomSheet(
         onDismissRequest = handleDismiss,
         containerColor = Color.White,
@@ -61,6 +60,7 @@ fun ShareSheetContent(
 }
 
 @Composable
+// Noi dung sheet share (friend list + actions + input)
 fun DefaultShareSheet(
     currentPost: Post,
     currentUser: User?,

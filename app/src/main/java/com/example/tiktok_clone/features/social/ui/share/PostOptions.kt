@@ -22,11 +22,8 @@ import com.example.tiktok_clone.features.social.viewModel.SocialViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+// Render cac option khac trong sheet share
 fun PostOptions(
-    currentPost: Post,
-    currentUser: User?,
-    isShared: Boolean,
-    socialViewModel: SocialViewModel = koinViewModel()
 ) {
     LazyRow(
         modifier = Modifier

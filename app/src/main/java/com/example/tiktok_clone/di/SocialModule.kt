@@ -16,7 +16,6 @@ val socialModule = module {
         SocialViewModel(
             socialRepository = get(),
             userRepository = get<UserRepository>(),
-            okHttpClient = get(),
             inboxRepository = get<InboxRepository>(),
         )
     }

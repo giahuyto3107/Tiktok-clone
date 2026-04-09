@@ -1,7 +1,6 @@
 package com.example.tiktok_clone.features.social.ui.comment
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Sort
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,9 +25,9 @@ import com.example.tiktok_clone.features.social.ui.components.formatCount
 
 // header bar comment
 @Composable
+// Header sheet comment
 fun CommentHeader(
     commentCount: Long,
-//    search: String,
     onClose: () -> Unit,
     onSort: () -> Unit,
 ) {

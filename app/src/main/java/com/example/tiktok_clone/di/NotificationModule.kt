@@ -14,13 +14,13 @@ val notificationModule = module {
     // Social notifications
     single<NotificationApiService> { get<Retrofit>().create(NotificationApiService::class.java) }
     single { NotificationRepository(get()) }
-    viewModel { NotificationViewModel(get(), get()) }
+    viewModel { NotificationViewModel(get()) }
 
     // Follow notifications
     single<FollowNotificationApiService> {
         get<Retrofit>().create(FollowNotificationApiService::class.java)
     }
     single { FollowNotificationRepository(get()) }
-    viewModel { FollowNotificationViewModel(get(), get()) }
+    viewModel { FollowNotificationViewModel(get()) }
 }
 
