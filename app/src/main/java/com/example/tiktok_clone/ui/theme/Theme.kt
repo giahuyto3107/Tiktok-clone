@@ -45,7 +45,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun Tiktok_cloneTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     // TikTok rarely uses Material Dynamic Colors (Wallpaper theming),
     // so we default this to false to maintain Brand Identity.
     dynamicColor: Boolean = false,

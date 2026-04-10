@@ -2,6 +2,7 @@ package com.example.tiktok_clone.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.abedelazizshe.lightcompressorlibrary.BuildConfig
 import com.example.tiktok_clone.core.config.ApiConfig
 import com.example.tiktok_clone.features.inbox.data.InboxApiService
@@ -42,22 +43,28 @@ val appModule = module {
         OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val user = auth.currentUser
+                Log.d("DI_DEBUG", "Interceptor triggered. Current User: ${user?.email ?: "Not Logged In"}")
                 val token: String? = if (user != null) {
                     runBlocking {
                         try {
-                            user.getIdToken(false).await().token
+                            val t = user.getIdToken(false).await().token  // ✅ assign first
+                            Log.d("DI_DEBUG", "Token fetched (cache): $t")  // ✅ then log
+                            t  // ✅ return value from try block
                         } catch (_: Exception) {
+                            Log.w("DI_DEBUG", "Cache token failed, retrying with forceRefresh...")
                             try { user.getIdToken(true).await().token } catch (_: Exception) { null }
                         }
                     }
                 } else null
 
                 val request = if (!token.isNullOrBlank()) {
+                    Log.d("DI_DEBUG", "Injecting Bearer Token into Headers...")
                     chain.request().newBuilder()
                         .header("Authorization", "Bearer $token")
                         .build()
                 } else chain.request()
 
+                Log.d("DI_DEBUG", "Final Request Headers: ${request.headers}")
                 chain.proceed(request)
             }
             .addInterceptor(logging)

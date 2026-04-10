@@ -1,5 +1,6 @@
 package com.example.tiktok_clone.features.home.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -138,7 +139,9 @@ fun HomeScreen(
     // Infinite scroll: load more when near end
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { currentPage ->
+            Log.d("PAGER_DEBUG", "Trang hiện tại: $currentPage")
             if (posts.isNotEmpty() && currentPage >= posts.size - 2) {
+                Log.d("PAGER_DEBUG", "Đang nạp thêm dữ liệu...")
                 homeViewModel.loadMore()
             }
         }
@@ -186,7 +189,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .background(Color.Black),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Fit
                             )
                         } else {
                             VideoPlayer(

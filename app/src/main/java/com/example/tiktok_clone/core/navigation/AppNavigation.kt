@@ -49,7 +49,17 @@ fun AppNavigation() {
         navController = navController,
         startDestination = NavigationRoutes.mainWrapper,
     ) {
-        composable(route = NavigationRoutes.mainWrapper) {
+        composable(route = NavigationRoutes.mainWrapper) { backStackEntry ->
+            val homeViewModel: com.example.tiktok_clone.features.home.viewmodel.HomeViewModel = koinViewModel()
+            val shouldRefresh = backStackEntry.savedStateHandle.get<Boolean>("refresh_home") ?: false
+            
+            androidx.compose.runtime.LaunchedEffect(shouldRefresh) {
+                if (shouldRefresh) {
+                    homeViewModel.refreshPosts()
+                    backStackEntry.savedStateHandle["refresh_home"] = false
+                }
+            }
+
             MainWrapper(
                 selectedIndex = selectedTabIndex,
                 onTabSelected = { index -> selectedTabIndex = index },
@@ -140,6 +150,9 @@ fun AppNavigation() {
             PrePostScreen(
                 onBack = { navController.popBackStack() },
                 onPostSuccess = {
+                    navController.getBackStackEntry(NavigationRoutes.mainWrapper)
+                        .savedStateHandle["refresh_home"] = true
+                    selectedTabIndex = 0
                     navController.navigate(NavigationRoutes.mainWrapper) {
                         popUpTo(NavigationRoutes.mainWrapper) { inclusive = false }
                         launchSingleTop = true
