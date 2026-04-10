@@ -10,6 +10,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import com.example.tiktok_clone.core.user.di.userModule
+import org.koin.core.logger.Level
 
 /**
  * Main Application class for TikTok Clone
@@ -27,7 +28,7 @@ class TikTokApplication : Application() {
         // Initialize Koin DI container
         startKoin {
             // Enable Koin logger for debugging
-            androidLogger()
+            androidLogger(Level.DEBUG)
             
             // Provide Android context to Koin
             androidContext(this@TikTokApplication)

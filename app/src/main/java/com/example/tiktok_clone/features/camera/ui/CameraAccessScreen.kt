@@ -293,7 +293,7 @@ fun PermissionRequestContent(onOpenSettings: () -> Unit) {
 private fun CancelButton(onNavigationToHomeScreen: () -> Unit) {
     Box(
         modifier = Modifier.padding(
-            top = dimensionResource(R.dimen.spacing_m),
+            top = dimensionResource(R.dimen.spacing_xxl),
             start = dimensionResource(R.dimen.spacing_m),
         )
     ) {
