@@ -66,19 +66,23 @@ fun LoginSelectionScreen(
         loginManager.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult) {
                 coroutineScope.launch {
-                    val firebaseResult = facebookAuthHelper.signInWithFacebookCredential(result.accessToken)
+                    val firebaseResult =
+                        facebookAuthHelper.signInWithFacebookCredential(result.accessToken)
                     firebaseResult.onSuccess {
                         // Thành công: Chuyển thẳng về Home qua AppNavigation
                         onLoginSuccess()
                     }.onFailure { e ->
                         isAuthenticating = false
-                        Toast.makeText(context, "Lỗi Firebase: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Lỗi Firebase: ${e.message}", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
+
             override fun onCancel() {
                 isAuthenticating = false
             }
+
             override fun onError(error: FacebookException) {
                 isAuthenticating = false
                 Toast.makeText(context, "Lỗi Facebook: ${error.message}", Toast.LENGTH_SHORT).show()
@@ -87,7 +91,13 @@ fun LoginSelectionScreen(
         onDispose { loginManager.unregisterCallback(callbackManager) }
     }
 
-    Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
+    Surface(
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // --- GIAO DIỆN CHÍNH ---
             Column(modifier = Modifier.fillMaxSize()) {
@@ -159,7 +169,11 @@ fun LoginSelectionScreen(
                                     onLoginSuccess() // Chuyển trang khi Google thành công
                                 }.onFailure { e ->
                                     isAuthenticating = false
-                                    Toast.makeText(context, "Lỗi Google: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Lỗi Google: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         }

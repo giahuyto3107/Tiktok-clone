@@ -185,6 +185,7 @@ fun AppNavigation() {
                 SearchResultScreen(
                     onBack = { navController.popBackStack() },
                     viewModel = searchVm,
+                    onAvatarClick = { userId -> navController.navigate("user_profile/$userId") },
                 )
             }
         }

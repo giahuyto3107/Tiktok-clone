@@ -40,7 +40,12 @@ fun SelectSignUpScreen(
     onGoogleClick: () -> Unit = {},      // Callback khi chọn dòng thứ 2
     onLoginClick: () -> Unit = {}       // Callback chuyển sang màn Login
 ) {
-    Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
+    Surface(color = Color.White,
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // 1. Header (Giống Login)
             Row(
