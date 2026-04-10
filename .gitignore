@@ -41,3 +41,25 @@ Thumbs.db
 *.swp
 *.swo
 *~
+.kotlin/
+.env
+
+# =====================
+# Cursor / SpecStory / Tools
+# =====================
+.specstory/
+.cursorindexingignore
+.cursor/
+
+# .specstory/.what-is-this.md
+
+# =====================
+# Docs / backup / scratch 
+# =====================
+*.docx
+*_backup
+*_backup.*
+**/*_heads*.txt
+
+
+docs

@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">tiktok_clone</string>
+    <string name="app_display_name">Tiktok</string>
+    <string name="default_web_client_id">292733435875-lvctatn5b08asht45urjh1j8vqdk4fi1.apps.googleusercontent.com</string>
+
+    <!-- Date/Time Formats -->
+    <string name="date_format_full">dd/MM/yyyy</string>
+    <string name="date_format_short">dd/MM</string>
+    <string name="time_format_24">HH:mm</string>
+    <string name="time_format_12">hh:mm a</string>
+    <string name="date_time_format">dd/MM/yyyy HH:mm</string>
+    
+    <!-- Database -->
+    <string name="database_name">nutripal.db</string>
+    
+    <!-- Regex Patterns -->
+    <string name="email_pattern">^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$</string>
+    <string name="phone_pattern">^(0|\+84)(\d{9,10})$</string>
+    
+    <!-- Asset Paths -->
+    <string name="background_image_path">assets/home_background.png</string>
+
+    <string name="facebook_app_id">1693262885165679</string>
+    <string name="facebook_client_token">98bb53bd812f4510cff44322eca1b126</string>
+    <string name="fb_login_protocol_scheme">fb1693262885165679</string>
 </resources>
