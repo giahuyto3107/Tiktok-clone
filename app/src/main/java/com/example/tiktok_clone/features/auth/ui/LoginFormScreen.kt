@@ -78,6 +78,7 @@ fun LoginFormScreen(
             .fillMaxSize()
             .statusBarsPadding()
             .navigationBarsPadding()
+            .statusBarsPadding()
     ) {
         Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {

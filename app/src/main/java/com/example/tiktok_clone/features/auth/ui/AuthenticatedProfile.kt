@@ -67,7 +67,8 @@ fun AuthenticatedProfile(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 60.dp),
+            .padding(top = 60.dp)
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 1. Ảnh đại diện

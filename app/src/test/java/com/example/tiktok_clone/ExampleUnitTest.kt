@@ -108,19 +108,19 @@ class ExampleUnitTest {
         println(getAvatarUrl(null))
     }
 
-    data class User(val id: String, val name: String)
-
-    @Test
-    fun testFilterFriends() {
-        val allUsers = listOf(
-            User("1", "Alice"),
-            User("2", "Bob"),
-            User("3", "Charlie")
-        )
-        val currentUserId = "2"
-        val friends = allUsers.filter { it.id != currentUserId }
-        friends.forEach { println(it.name) }
-    }
+//    data class User(val id: String, val name: String)
+//
+//    @Test
+//    fun testFilterFriends() {
+//        val allUsers = listOf(
+//            User("1", "Alice"),
+//            User("2", "Bob"),
+//            User("3", "Charlie")
+//        )
+//        val currentUserId = "2"
+//        val friends = allUsers.filter { it.id != currentUserId }
+//        friends.forEach { println(it.name) }
+//    }
 
     fun processMessage(content: String?) {
         content?.let {
@@ -239,5 +239,36 @@ class ExampleUnitTest {
         val nullDto = FollowNotificationDto(null, null, null).toModel()
         println("Null DTO:   ${nullDto.id == ""} | ${nullDto.followerId == "unknown"} | ${nullDto.createdAt == 0L}")
     }
+    enum class UserRole { ADMIN, USER, GUEST }
+    fun String.toUserRole(): UserRole = when (this.lowercase()) {
+        "admin" -> UserRole.ADMIN
+        "user"  -> UserRole.USER
+        else    -> UserRole.GUEST
+    }
+    data class UserDto(val id: String, val name: String, val role: String)
+    data class User(val id: String, val name: String, val role: UserRole)
+    fun UserDto.toModel(): User = User(
+        id   = id,
+        name = name,
+        role = role.toUserRole()
+    )
+    // Bọc trong Result<T> — nếu mapping hoặc API lỗi → Failure tự động
+    fun getUser(dto: UserDto): Result<User> = runCatching {
+        dto.toModel()
+    }
+    @Test
+    fun main() {
+        val dto = UserDto("1", "Alice", "admin")
+        val result = getUser(dto)
+        // Dùng fold — xử lý cả 2 nhánh trong 1 biểu thức
+        result.fold(
+            onSuccess = { println(it) },        // User(id=1, name=Alice, role=ADMIN)
+            onFailure = { println("Lỗi: $it") }
+        )
+        // Hoặc dùng getOrNull
+        val user = result.getOrNull()
+        println(user)  // User(id=1, name=Alice, role=ADMIN)
+    }
+
 
 }
