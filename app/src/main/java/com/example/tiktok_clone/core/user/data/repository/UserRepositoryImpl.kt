@@ -18,19 +18,24 @@ class UserRepositoryImpl(
     private val context: Context,
     private val userApiService: UserApiService
 ) : UserRepository {
-    override fun getCurrentUser(): UserProfile? {
-        return firebaseAuth.currentUser?.let { user ->
-            UserProfile(
-                id = user.uid,
-                email = user.email,
-                displayName = user.displayName,
-                avtPhotoUrl = user.photoUrl?.toString() ?: "null"
-            )
-        }
-    }
-
     override fun isUserLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
+    }
+
+    override fun logout() {
+        firebaseAuth.signOut()
+    }
+
+    override fun getCurrentUser(): UserProfile? {
+        val user = firebaseAuth.currentUser
+        return user?.let {
+            UserProfile(
+                id = it.uid,
+                email = it.email,
+                displayName = it.displayName,
+                avtPhotoUrl = it.photoUrl?.toString() ?: "null"
+            )
+        }
     }
 
     override fun updateProfile(displayName: String, photoUrl: String, onComplete: (Boolean) -> Unit) {
@@ -92,3 +97,4 @@ class UserRepositoryImpl(
         }
     }
 }
+

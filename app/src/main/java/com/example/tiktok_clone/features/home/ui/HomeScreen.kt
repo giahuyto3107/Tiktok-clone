@@ -63,6 +63,7 @@ fun HomeScreen(
     profileViewModel: ProfileViewModel = koinViewModel(),
     socialViewModel: SocialViewModel = koinViewModel(),
     notificationViewModel: NotificationViewModel = koinViewModel(),
+    homeClickCount: Int = 0,
     onSearchTap: () -> Unit = {},
     onAvatarClick: (String) -> Unit = {},
     onCommentClick: (userId: String) -> Unit = {}
@@ -126,6 +127,15 @@ fun HomeScreen(
         }
     }
     val pagerState = rememberPagerState(pageCount = { posts.size })
+
+    // Refresh and scroll to top when Home button is clicked
+    LaunchedEffect(homeClickCount) {
+        if (homeClickCount > 0) {
+            exoPlayer.pause()
+            homeViewModel.refreshPosts()
+            pagerState.scrollToPage(0)
+        }
+    }
 
     val currentPost = posts.getOrNull(pagerState.currentPage)
     val currentPostId = currentPost?.id?.toString()

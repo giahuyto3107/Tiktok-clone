@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -37,13 +38,15 @@ import compose.icons.fontawesomeicons.brands.Facebook
 import compose.icons.fontawesomeicons.brands.Google
 import compose.icons.fontawesomeicons.solid.QuestionCircle
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginSelectionScreen(
     onSignUpClick: () -> Unit,
     onBack: () -> Unit,
     onPhoneEmailLoginClick: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    profileViewModel: ProfileViewModel = koinViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -55,6 +58,11 @@ fun LoginSelectionScreen(
 
     // Trạng thái chờ xử lý đăng nhập
     var isAuthenticating by remember { mutableStateOf(false) }
+
+    val handleLoginSuccess = {
+        profileViewModel.refreshProfile()
+        onLoginSuccess()
+    }
 
     val launcher = rememberLauncherForActivityResult(
         loginManager.createLogInActivityResultContract(callbackManager, null)
@@ -70,7 +78,7 @@ fun LoginSelectionScreen(
                         facebookAuthHelper.signInWithFacebookCredential(result.accessToken)
                     firebaseResult.onSuccess {
                         // Thành công: Chuyển thẳng về Home qua AppNavigation
-                        onLoginSuccess()
+                        handleLoginSuccess()
                     }.onFailure { e ->
                         isAuthenticating = false
                         Toast.makeText(context, "Lỗi Firebase: ${e.message}", Toast.LENGTH_SHORT)

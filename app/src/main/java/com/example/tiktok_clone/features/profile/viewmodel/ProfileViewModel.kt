@@ -11,8 +11,12 @@ class ProfileViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _profileData = MutableStateFlow<UserProfile?>(userRepository.getCurrentUser())
+    private val _profileData = MutableStateFlow<UserProfile?>(null)
     val profileData: StateFlow<UserProfile?> = _profileData.asStateFlow()
+
+    init {
+        refreshProfile()
+    }
 
     fun getProfileData(): UserProfile? {
         return userRepository.getCurrentUser()
@@ -39,4 +43,9 @@ class ProfileViewModel(
     suspend fun uploadAvatarLocal(uri: android.net.Uri): String? {
         return userRepository.uploadAvatarLocal(uri)
     }
-}
+
+    fun logout() {
+        userRepository.logout()
+        _profileData.value = null
+    }
+}

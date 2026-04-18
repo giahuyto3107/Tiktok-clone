@@ -115,7 +115,7 @@ fun AuthenticatedProfile(
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = {
-                    FirebaseAuth.getInstance().signOut()
+                    profileViewModel.logout()
                     onLogout()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),

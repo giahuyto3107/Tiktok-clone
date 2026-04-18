@@ -100,5 +100,6 @@ val appModule = module {
         SearchViewModel(get())
     }
 
-    single { PostViewModel(get(), get()) }
+    viewModel { PostViewModel(get(), get()) }
 }
+

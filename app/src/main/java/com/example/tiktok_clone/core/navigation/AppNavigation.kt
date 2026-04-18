@@ -53,6 +53,8 @@ fun AppNavigation() {
             val homeViewModel: com.example.tiktok_clone.features.home.viewmodel.HomeViewModel = koinViewModel()
             val shouldRefresh = backStackEntry.savedStateHandle.get<Boolean>("refresh_home") ?: false
             
+            var homeClickCount by remember { mutableStateOf(0) }
+
             androidx.compose.runtime.LaunchedEffect(shouldRefresh) {
                 if (shouldRefresh) {
                     homeViewModel.refreshPosts()
@@ -62,7 +64,12 @@ fun AppNavigation() {
 
             MainWrapper(
                 selectedIndex = selectedTabIndex,
-                onTabSelected = { index -> selectedTabIndex = index },
+                onTabSelected = { index ->
+                    if (selectedTabIndex == 0 && index == 0) {
+                        homeClickCount++
+                    }
+                    selectedTabIndex = index
+                },
                 onCameraClick = {
                     navController.navigate(NavigationRoutes.cameraAccessRoute)
                 }
@@ -70,6 +77,7 @@ fun AppNavigation() {
                 // Content based on selected tab
                 when (selectedTabIndex) {
                     0 -> HomeScreenContent(
+                        homeClickCount = homeClickCount,
                         onsearchTap = { navController.navigate(NavigationRoutes.searchGraphRoute) },
                         onAvatarClick = { userId -> navController.navigate("user_profile/$userId") },
                         onCommentClick = { userId -> navController.navigate("user_profile/$userId") }
@@ -92,7 +100,8 @@ fun AppNavigation() {
                     4 -> ProfileScreenContent(
                         onLoginClick = {
                             navController.navigate(NavigationRoutes.loginSelectionRoute)
-                        }
+                        },
+                        navController = navController
                     )
                 }
             }
@@ -314,11 +323,13 @@ fun AppNavigation() {
 
 @Composable
 private fun HomeScreenContent(
+    homeClickCount: Int = 0,
     onsearchTap: () -> Unit = {},
     onAvatarClick: (String) -> Unit = {},
     onCommentClick: (String) -> Unit = {}
 ) {
     HomeScreen(
+        homeClickCount = homeClickCount,
         onSearchTap = onsearchTap,
         onAvatarClick = onAvatarClick,
         onCommentClick = onCommentClick
@@ -346,12 +357,18 @@ private fun InboxScreenContent(
 @Composable
 private fun ProfileScreenContent(
     onLoginClick: () -> Unit,
+    navController: androidx.navigation.NavHostController,
+    profileViewModel: com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel = koinViewModel()
 ) {
     // Kiểm tra trạng thái đăng nhập từ Firebase (reactive)
     var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
     DisposableEffect(Unit) {
         val listener = FirebaseAuth.AuthStateListener { auth ->
             currentUser = auth.currentUser
+            // Nếu có user mới (vừa sign in), ta trigger refresh profile data
+            if (currentUser != null) {
+                profileViewModel.refreshProfile()
+            }
         }
         FirebaseAuth.getInstance().addAuthStateListener(listener)
         onDispose {
@@ -362,7 +379,8 @@ private fun ProfileScreenContent(
     if (currentUser != null) {
         // Đã đăng nhập: Hiện giao diện Profile thật
         AuthenticatedProfile(onLogout = {
-            // Khi logout, ta có thể reset tab hoặc quay lại màn hình chọn login
+            // Khi logout, ta xóa listener hoặc force refresh local state
+            currentUser = null
             onLoginClick()
         })
     } else {

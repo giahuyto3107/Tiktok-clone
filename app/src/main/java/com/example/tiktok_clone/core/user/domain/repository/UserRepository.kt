@@ -7,4 +7,5 @@ interface UserRepository {
     fun isUserLoggedIn(): Boolean
     fun updateProfile(displayName: String, photoUrl: String, onComplete: (Boolean) -> Unit)
     suspend fun uploadAvatarLocal(uri: android.net.Uri): String?
+    fun logout()
 }

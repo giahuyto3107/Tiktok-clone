@@ -66,10 +66,11 @@ class UploadRepository(
                 val response = apiService.uploadImage(filePart, captionPart, userIdPart)
 
                 // 4. Kiểm tra phản hồi
-                if (response.isSuccessful) {
+                if (response.isSuccessful || response.code() == 200 || response.code() == 201) {
+                    Log.d(TAG, "Upload image thành công: ${response.code()}")
                     true
                 } else {
-                    val errorMsg = "Upload thất bại: ${response.code()}"
+                    val errorMsg = "Upload thất bại: ${response.code()} ${response.message()}"
                     Log.e(TAG, errorMsg)
                     throw Exception(errorMsg)
                 }

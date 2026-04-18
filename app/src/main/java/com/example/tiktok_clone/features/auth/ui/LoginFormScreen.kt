@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tiktok_clone.features.auth.ui.components.*
+import com.example.tiktok_clone.features.profile.viewmodel.ProfileViewModel
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import compose.icons.FontAwesomeIcons
@@ -28,6 +29,7 @@ import compose.icons.fontawesomeicons.Regular
 import compose.icons.fontawesomeicons.regular.Eye
 import compose.icons.fontawesomeicons.regular.EyeSlash
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import java.util.concurrent.TimeUnit
 
 enum class LoginTab { PHONE_OTP, PHONE_PASS, EMAIL }
@@ -36,7 +38,8 @@ enum class LoginTab { PHONE_OTP, PHONE_PASS, EMAIL }
 fun LoginFormScreen(
     onBack: () -> Unit,
     onSignUpClick: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    profileViewModel: ProfileViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val auth = remember { FirebaseAuth.getInstance() }
@@ -51,12 +54,18 @@ fun LoginFormScreen(
     var isAuthenticating by remember { mutableStateOf(false) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
+    // Helper to wrap success
+    val handleLoginSuccess = {
+        profileViewModel.refreshProfile()
+        onLoginSuccess()
+    }
+
     // Firebase Phone Auth Callbacks
     val callbacks = remember {
         object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                 // Tự động đăng nhập nếu Firebase khớp mã tự động
-                signInWithCredential(credential, auth, onLoginSuccess) { isAuthenticating = false }
+                signInWithCredential(credential, auth, handleLoginSuccess) { isAuthenticating = false }
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
@@ -229,7 +238,7 @@ fun LoginFormScreen(
                                 LoginTab.PHONE_OTP -> {
                                     val credential =
                                         PhoneAuthProvider.getCredential(verificationId, input2)
-                                    signInWithCredential(credential, auth, onLoginSuccess) {
+                                    signInWithCredential(credential, auth, handleLoginSuccess) {
                                         isAuthenticating = false
                                         Toast.makeText(context, "Sai mã OTP", Toast.LENGTH_LONG)
                                             .show()
@@ -241,7 +250,7 @@ fun LoginFormScreen(
                                     // Tuy nhiên, logic chuẩn nhất cho TikTok là xử lý Email/Pass ở đây
                                     auth.signInWithEmailAndPassword(input1, input2)
                                         .addOnCompleteListener { task ->
-                                            if (task.isSuccessful) onLoginSuccess()
+                                            if (task.isSuccessful) handleLoginSuccess()
                                             else {
                                                 isAuthenticating = false
                                                 Toast.makeText(
