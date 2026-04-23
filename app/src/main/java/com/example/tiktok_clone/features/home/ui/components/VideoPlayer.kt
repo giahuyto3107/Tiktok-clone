@@ -53,12 +53,24 @@ fun VideoPlayer(
     isCurrentPage: Boolean,
     modifier: Modifier = Modifier
 ) {
+    var isPaused by remember { mutableStateOf(!exoPlayer.playWhenReady) }
     var isVideoReady by remember { mutableStateOf(false) }
-    var userPaused by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    DisposableEffect(exoPlayer) {
+        val listener = object : Player.Listener {
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                isPaused = !playWhenReady
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose {
+            exoPlayer.removeListener(listener)
+        }
+    }
+
     // When this page becomes the current page, load the media and start playing
-    LaunchedEffect(isCurrentPage, mediaUrl, userPaused) {
+    LaunchedEffect(isCurrentPage, mediaUrl) {
         if (isCurrentPage && mediaUrl.isNotBlank()) {
             val currentItem = exoPlayer.currentMediaItem
             // Avoid reloading the same URL
@@ -67,28 +79,14 @@ fun VideoPlayer(
                 exoPlayer.setMediaItem(MediaItem.fromUri(mediaUrl))
                 exoPlayer.prepare()
             }
-            exoPlayer.playWhenReady = !userPaused
+            // Autoplay when entering a new page
+            exoPlayer.playWhenReady = true
         } else {
-            // Not current page or no media: pause
+            // Not current page or no media: pause if this was our media
             if (exoPlayer.currentMediaItem?.localConfiguration?.uri?.toString() == mediaUrl) {
                 exoPlayer.playWhenReady = false
             }
         }
-    }
-
-    // Lifecycle Observer (Respects userPaused)
-    DisposableEffect(lifecycleOwner, isCurrentPage, userPaused) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_PAUSE -> exoPlayer.playWhenReady = false
-                Lifecycle.Event.ON_RESUME -> {
-                    if (isCurrentPage && !userPaused) exoPlayer.playWhenReady = true
-                }
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     // Listen for player readiness to hide thumbnail
@@ -104,15 +102,13 @@ fun VideoPlayer(
         onDispose { exoPlayer.removeListener(listener) }
     }
 
-    // Pause/resume on lifecycle
+    // Manual lifecycle management (handled by HomeScreen, but kept here for safety in isolation)
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_PAUSE -> exoPlayer.playWhenReady = false
-                Lifecycle.Event.ON_RESUME -> {
-                    if (isCurrentPage) exoPlayer.playWhenReady = true
-                }
-                else -> {}
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                exoPlayer.playWhenReady = false
+            } else if (event == Lifecycle.Event.ON_RESUME && isCurrentPage) {
+                exoPlayer.playWhenReady = true
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -125,7 +121,7 @@ fun VideoPlayer(
             .background(Color.Black)
             .pointerInput(Unit) {
                 detectTapGestures {
-                    userPaused = !userPaused
+                    exoPlayer.playWhenReady = !exoPlayer.playWhenReady
                 }
             }
     ) {
@@ -148,7 +144,7 @@ fun VideoPlayer(
         }
 
         // Show an icon when paused so the user knows why it stopped
-        if (userPaused && isCurrentPage) {
+        if (isPaused && isCurrentPage) {
             Icon(
                 imageVector = Icons.Default.PlayArrow,
                 contentDescription = "Paused",

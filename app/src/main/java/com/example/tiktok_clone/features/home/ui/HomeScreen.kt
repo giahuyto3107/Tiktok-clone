@@ -39,6 +39,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
@@ -68,7 +69,7 @@ fun HomeScreen(
     onAvatarClick: (String) -> Unit = {},
     onCommentClick: (userId: String) -> Unit = {}
 ) {
-    val posts by homeViewModel.posts.collectAsState()
+    val posts by homeViewModel.posts.collectAsStateWithLifecycle()
     val users by homeViewModel.users.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
     val error by homeViewModel.error.collectAsState()
@@ -112,20 +113,18 @@ fun HomeScreen(
     // load nhẹ khi quay về màn hình home
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                isResumeLoading = true
+            when(event) {
+                Lifecycle.Event.ON_PAUSE, Lifecycle.Event.ON_STOP -> exoPlayer.pause()
+                Lifecycle.Event.ON_RESUME -> exoPlayer.play()
+                else -> { }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    LaunchedEffect(isResumeLoading) {
-        if (isResumeLoading) {
-            kotlinx.coroutines.delay(300)
-            isResumeLoading = false
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+
     val pagerState = rememberPagerState(pageCount = { posts.size })
 
     // Refresh and scroll to top when Home button is clicked
