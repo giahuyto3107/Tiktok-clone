@@ -53,27 +53,21 @@ class SearchViewModel(
         }
         suggestJob?.cancel()
         suggestJob = viewModelScope.launch {
+            val safeQuery = text.trim()
+                .takeIf { it.length >= 2 }
+                ?: run {
+                    _uiState.update { it.copy(suggestions = emptyList()) }
+                    return@launch
+                }
+
             delay(280)
             if (_uiState.value.query != text) return@launch
             _uiState.update { it.copy(isSuggestLoading = true) }
-            try {
-                val result = repository.suggest(text)
-                _uiState.update { state ->
-                    if (state.query != text) {
-                        state.copy(isSuggestLoading = false)
-                    } else {
-                        state.copy(suggestions = result, isSuggestLoading = false)
-                    }
-                }
-            } catch (_: Exception) {
-                _uiState.update { state ->
-                    if (state.query != text) {
-                        state.copy(isSuggestLoading = false)
-                    } else {
-                        state.copy(suggestions = emptyList(), isSuggestLoading = false)
-                    }
-                }
-            }
+
+            val result = runCatching { repository.suggest(safeQuery) }
+                .getOrElse { emptyList() }
+
+            _uiState.update { it.copy(suggestions = result, isSuggestLoading = false) }
         }
     }
 
