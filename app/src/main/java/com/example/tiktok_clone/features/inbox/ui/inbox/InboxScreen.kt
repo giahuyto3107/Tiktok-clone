@@ -9,7 +9,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.tiktok_clone.features.inbox.data.model.InboxAction
 import com.example.tiktok_clone.features.inbox.ui.InboxUiState
 import com.example.tiktok_clone.features.inbox.viewmodel.InboxViewModel
@@ -33,9 +33,10 @@ fun InboxScreen(
 ) {
     val inboxViewModel: InboxViewModel = koinViewModel()
     val socialViewModel: SocialViewModel = koinViewModel()
-    val chatsUiState by inboxViewModel.chatsUiState.collectAsState()
+    val chatsUiState by inboxViewModel.chatsUiState.collectAsStateWithLifecycle()
     val auth = FirebaseAuth.getInstance()
     var currentUserId by remember { mutableStateOf(auth.currentUser?.uid.orEmpty()) }
+
     DisposableEffect(Unit) {
         val listener = FirebaseAuth.AuthStateListener { fbAuth ->
             currentUserId = fbAuth.currentUser?.uid.orEmpty()
