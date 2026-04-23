@@ -7,6 +7,7 @@ import com.example.tiktok_clone.features.inbox.data.InboxRepository
 import com.example.tiktok_clone.features.inbox.data.MessageDto
 import com.example.tiktok_clone.features.inbox.data.model.InboxAction
 import com.example.tiktok_clone.features.inbox.data.model.Message
+import com.example.tiktok_clone.features.inbox.data.model.MessageStatus
 import com.example.tiktok_clone.features.inbox.ui.InboxUiState
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.abs
@@ -112,10 +113,34 @@ class InboxViewModel(
     // Gui tin nhan text va optimistic update
     private fun sendTextMessage(otherUid: String, content: String) {
         if (content.isBlank()) return
+
+        val tempId = "temp_${System.currentTimeMillis()}"
+        val tempMessage = Message(
+            id = tempId,
+            content = content,
+            status = MessageStatus.SENDING,
+            senderId = currentUserId(),
+            timestamp = System.currentTimeMillis(),
+            type = com.example.tiktok_clone.features.inbox.data.model.MessageType.TEXT,
+        )
+
+        _messages.value = listOf(tempMessage) + _messages.value
+
         viewModelScope.launch {
             runCatching { repo.sendMessage(otherUid, content) }
-                .onSuccess { appendSentMessage(it, otherUid) }
-                .onFailure { _error.value = it.message ?: "Gửi tin nhắn thất bại" }
+                .onSuccess { realMsg ->
+                    _messages.value = _messages.value.map {
+                        if (it.id == tempId) realMsg else it
+                    }
+                    publishMessages()
+                }
+                .onFailure {
+                    // THẤT BẠI: Khôi phục danh sách, báo lỗi
+                    _messages.value = _messages.value.filter { it.id != tempId }
+                    publishMessages()
+                    _error.value = "Gửi thất bại, mạng kém"
+
+                }
         }
     }
 
