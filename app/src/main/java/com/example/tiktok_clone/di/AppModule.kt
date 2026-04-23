@@ -3,7 +3,7 @@ package com.example.tiktok_clone.di
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import com.abedelazizshe.lightcompressorlibrary.BuildConfig
+import com.example.tiktok_clone.BuildConfig
 import com.example.tiktok_clone.core.config.ApiConfig
 import com.example.tiktok_clone.features.inbox.data.InboxApiService
 import com.example.tiktok_clone.features.inbox.data.InboxRepository
@@ -43,28 +43,31 @@ val appModule = module {
         OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val user = auth.currentUser
-                Log.d("DI_DEBUG", "Interceptor triggered. Current User: ${user?.email ?: "Not Logged In"}")
                 val token: String? = if (user != null) {
                     runBlocking {
                         try {
-                            val t = user.getIdToken(false).await().token  // ✅ assign first
-                            Log.d("DI_DEBUG", "Token fetched (cache): $t")  // ✅ then log
-                            t  // ✅ return value from try block
-                        } catch (_: Exception) {
-                            Log.w("DI_DEBUG", "Cache token failed, retrying with forceRefresh...")
-                            try { user.getIdToken(true).await().token } catch (_: Exception) { null }
+                            // Thử lấy token hiện tại (có thể từ cache)
+                            user.getIdToken(false).await().token
+                        } catch (e: Exception) {
+                            Log.w("DI_DEBUG", "Token cache expired, refreshing...", e)
+                            try {
+                                // Nếu fail, ép buộc refresh token mới
+                                user.getIdToken(true).await().token
+                            } catch (e2: Exception) {
+                                Log.e("DI_DEBUG", "Failed to fetch Firebase Token", e2)
+                                null
+                            }
                         }
                     }
                 } else null
 
                 val request = if (!token.isNullOrBlank()) {
-                    Log.d("DI_DEBUG", "Injecting Bearer Token into Headers...")
                     chain.request().newBuilder()
                         .header("Authorization", "Bearer $token")
                         .build()
-                } else chain.request()
-
-                Log.d("DI_DEBUG", "Final Request Headers: ${request.headers}")
+                } else {
+                    chain.request()
+                }
                 chain.proceed(request)
             }
             .addInterceptor(logging)
@@ -102,4 +105,3 @@ val appModule = module {
 
     viewModel { PostViewModel(get(), get()) }
 }
-
