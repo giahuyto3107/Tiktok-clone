@@ -33,6 +33,7 @@ fun MessageBottom(
     onSend: (String) -> Unit = {},
 ) {
     var messageText by remember { mutableStateOf("") }
+    val maxChar = 500
 
     // Gui tin nhan text
     fun sendMessage() {
@@ -58,7 +59,9 @@ fun MessageBottom(
             BasicTextField(
                 value = messageText,
                 onValueChange = {
-                    messageText = it
+                    if (it.length <= maxChar)
+                        messageText = it
+                    else messageText = it
                 },
                 textStyle = TextStyle(
                     color = Color.Black,
@@ -79,6 +82,11 @@ fun MessageBottom(
                                 innerTextField()
                             }
                         }
+
+                        Text(
+                            text = "${messageText.length} / $maxChar",
+                            color = if (messageText.length > maxChar) Color.Red else Color.Gray,
+                        )
                     }
                 },
                 maxLines = 5,
