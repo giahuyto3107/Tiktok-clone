@@ -86,24 +86,22 @@ class UploadRepository(
         userId: String
     ): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            try {
+            runCatching {
                 val filePart = createFilePartFromUri(uri, "video.mp4")
-                    ?: return@withContext Result.failure(IllegalArgumentException("Could not read video from URI"))
+                    ?: throw IllegalArgumentException("Could not read video from URI")
                 val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
                 val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
 
                 val response = apiService.uploadVideo(filePart, captionPart, userIdPart)
-                if (response.isSuccessful) Result.success(true)
+                if (response.isSuccessful) true
                 else {
                     val request = response.raw().request
                     Log.e(
                         TAG,
                         "Video upload failed: code=${response.code()} method=${request.method} url=${request.url}"
                     )
-                    Result.failure(Exception("Upload failed: ${response.code()}"))
+                    throw Exception("Upload failed: ${response.code()}")
                 }
-            } catch (e: Exception) {
-                Result.failure(e)
             }
         }
 
