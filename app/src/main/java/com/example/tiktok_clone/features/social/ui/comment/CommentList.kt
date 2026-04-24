@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import com.example.tiktok_clone.features.social.data.model.Comment
 
@@ -32,6 +34,7 @@ fun CommentList(
         state = listState,
         modifier = Modifier
             .fillMaxWidth()
+            .nestedScroll(rememberNestedScrollInteropConnection())
             .then(modifier),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
