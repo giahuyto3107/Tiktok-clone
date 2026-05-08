@@ -12,7 +12,6 @@ A full-featured Android application built with **Kotlin** and **Jetpack Compose*
 - **Camera & content creation**: Live preview with CameraX, video/photo capture, on-device video compression, and media upload to the server.
 - **Social layer**: Real-time likes with animation, comment threads, emoji reactions, follow system, and a share sheet.
 - **Direct messaging**: Inbox with friend/chat lists and a full message conversation screen.
-- **Push notifications**: Social and follow activity alerts.
 - **Search**: Multi-tab result screen (Top, Video, User, Image, Live, Shop) powered by a Retrofit API.
 - **User profiles**: Own profile page and other-user profile pages with follow/unfollow actions.
 - **Admin dashboard**: In-app admin panel for user management and content moderation.
