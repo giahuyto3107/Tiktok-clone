@@ -12,7 +12,7 @@ A full-featured Android application built with **Kotlin** and **Jetpack Compose*
 - **Camera & content creation**: Live preview with CameraX, video/photo capture, on-device video compression, and media upload to the server.
 - **Social layer**: Real-time likes with animation, comment threads, emoji reactions, follow system, and a share sheet.
 - **Direct messaging**: Inbox with friend/chat lists and a full message conversation screen.
-- **Push notifications**: Firebase Cloud Messaging (FCM) for social and follow activity alerts.
+- **Push notifications**: Social and follow activity alerts.
 - **Search**: Multi-tab result screen (Top, Video, User, Image, Live, Shop) powered by a Retrofit API.
 - **User profiles**: Own profile page and other-user profile pages with follow/unfollow actions.
 - **Admin dashboard**: In-app admin panel for user management and content moderation.
@@ -54,7 +54,6 @@ A full-featured Android application built with **Kotlin** and **Jetpack Compose*
 ### 🔔 Notifications
 - **Social Notifications**: Likes and comments on your posts.
 - **Follow Notifications**: When someone follows your account.
-- **FCM**: Firebase Cloud Messaging delivers push notifications even when the app is in the background.
 
 ### 👤 Profiles
 - **Own Profile**: Displays avatar, stats (followers, following, likes), and a grid of your posts.
@@ -125,7 +124,6 @@ Each feature follows a **data → viewmodel → ui** layering with:
 | Pagination | Paging 3 (`paging-compose`) |
 | Authentication | Firebase Auth (Email, Google, Facebook) |
 | Database / Storage | Firebase Firestore, Firebase Storage |
-| Push Notifications | Firebase Cloud Messaging (FCM) |
 | Dependency Injection | Hilt 2.50, Koin 3.5 |
 | Async | Kotlin Coroutines, Flow |
 | Icons | FontAwesome Compose |
@@ -187,7 +185,7 @@ API_URL_PRODUCTION=https://api.your-domain.com
 | `CAMERA` | Live camera preview and video/photo capture |
 | `RECORD_AUDIO` | Audio recording during video capture |
 | `INTERNET` | API calls and Firebase services |
-| `POST_NOTIFICATIONS` | FCM push notifications (Android 13+) |
+| `POST_NOTIFICATIONS` | Push notifications (Android 13+) |
 
 ---
 
