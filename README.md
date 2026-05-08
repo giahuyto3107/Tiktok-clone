@@ -4,19 +4,19 @@ A full-featured Android application built with **Kotlin** and **Jetpack Compose*
 
 ---
 
-## ✨ Key Features (Resume Highlights)
+## ✨ Latest Key Features
 
-- **Full-stack mobile application** built with Jetpack Compose, Clean Architecture, and a custom REST API (Node.js + Firebase Admin SDK).
-- **Multi-provider authentication**: Email/Password, Google Sign-In, and Facebook Login via Firebase Auth.
-- **Short-video feed** with infinite vertical paging (Paging 3 + ExoPlayer) and smooth lifecycle-aware playback.
-- **Camera & content creation**: Live preview with CameraX, video/photo capture, on-device video compression, and media upload to the server.
-- **Social layer**: Real-time likes with animation, comment threads, emoji reactions, follow system, and a share sheet.
-- **Direct messaging**: Inbox with friend/chat lists and a full message conversation screen.
-- **Push notifications**: Firebase Cloud Messaging (FCM) for social and follow activity alerts.
-- **Search**: Multi-tab result screen (Top, Video, User, Image, Live, Shop) powered by a Retrofit API.
-- **User profiles**: Own profile page and other-user profile pages with follow/unfollow actions.
-- **Admin dashboard**: In-app admin panel for user management and content moderation.
-- **Dependency Injection**: Hilt + Koin for scalable, testable module wiring.
+- **Compose-first TikTok experience** with clean feature modules and a custom REST backend integration.
+- **Auth options in one flow**: Email/Password, Google Sign-In, and Facebook Login via Firebase Auth.
+- **Short-video home feed** with vertical infinite scroll (Paging 3) and lifecycle-aware Media3 ExoPlayer playback.
+- **Create & publish content**: CameraX live preview, photo/video capture, preview flow, captioning, and upload.
+- **On-device media optimization** using LightCompressor before posting.
+- **Search & discovery** with dedicated search home plus multi-tab result categories (Top, Video, User, Image, Live, Shop).
+- **Inbox + real-time chat UI** with chat list, conversation screen, and profile navigation from messages.
+- **Social engagement tools** including likes, comments, share actions, and follow/unfollow profile interactions.
+- **Notification center + FCM** for social/user activity updates and background push delivery.
+- **Profile system** for both self profile and other-user profile with follow and chat actions.
+- **Admin dashboard module** for user/content management and moderation workflows.
 
 ---
 
